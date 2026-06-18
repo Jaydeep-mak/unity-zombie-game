@@ -5,7 +5,12 @@ public class LeftBoundaryTrigger : MonoBehaviour {
         var zombie = other.GetComponent<ZombieController>();
         if (zombie != null) {
             if (GameplayManager.Instance != null) {
-                GameplayManager.Instance.ZombieReachedBase(zombie.gameObject);
+                int baseDamage = 1;
+                var health = zombie.GetComponent<ZombieHealth>();
+                if (health != null) {
+                    baseDamage = health.baseDamage;
+                }
+                GameplayManager.Instance.ZombieReachedBase(zombie.gameObject, baseDamage);
             }
         }
     }

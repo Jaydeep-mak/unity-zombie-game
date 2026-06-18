@@ -1690,6 +1690,7 @@ GameObject:
   m_Component:
   - component: {fileID: 404978850}
   - component: {fileID: 404978851}
+  - component: {fileID: 404978852}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1725,8 +1726,144 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxBaseHealth: 10
+  coins: 150
+  currentWave: 3
   spawner: {fileID: 1924248990}
   activeZombieCount: 0
+--- !u!114 &404978852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 404978849}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eab8f84e4b3f546f4b1219b20c4c0a34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  zombieTypes:
+  - typeName: Normal
+    prefabOverride: {fileID: 0}
+    speed: 1.5
+    maxHealth: 4
+    baseDamage: 1
+    localScale: {x: -1, y: 1.2, z: 1}
+    spriteColor: {r: 1, g: 1, b: 1, a: 1}
+  - typeName: Strong
+    prefabOverride: {fileID: 0}
+    speed: 1.5
+    maxHealth: 10
+    baseDamage: 2
+    localScale: {x: -1.25, y: 1.5, z: 1}
+    spriteColor: {r: 0.85, g: 0.65, b: 0.55, a: 1}
+  - typeName: Tank
+    prefabOverride: {fileID: 0}
+    speed: 0.9
+    maxHealth: 20
+    baseDamage: 3
+    localScale: {x: -1.65, y: 1.98, z: 1}
+    spriteColor: {r: 0.6, g: 0.45, b: 0.8, a: 1}
+  waveConfigs:
+  - zombieCount: 5
+    spawnInterval: 2
+    healthMultiplier: 1
+    speedMultiplier: 1
+    spawnWeights:
+    - typeName: Normal
+      weight: 100
+  - zombieCount: 8
+    spawnInterval: 1.8
+    healthMultiplier: 1
+    speedMultiplier: 1
+    spawnWeights:
+    - typeName: Normal
+      weight: 100
+  - zombieCount: 12
+    spawnInterval: 1.6
+    healthMultiplier: 1
+    speedMultiplier: 1
+    spawnWeights:
+    - typeName: Normal
+      weight: 90
+    - typeName: Strong
+      weight: 10
+  - zombieCount: 15
+    spawnInterval: 1.4
+    healthMultiplier: 1
+    speedMultiplier: 1
+    spawnWeights:
+    - typeName: Normal
+      weight: 85
+    - typeName: Strong
+      weight: 15
+  - zombieCount: 20
+    spawnInterval: 1.2
+    healthMultiplier: 1
+    speedMultiplier: 1
+    spawnWeights:
+    - typeName: Normal
+      weight: 80
+    - typeName: Strong
+      weight: 20
+  - zombieCount: 25
+    spawnInterval: 1.1
+    healthMultiplier: 1.1
+    speedMultiplier: 1
+    spawnWeights:
+    - typeName: Normal
+      weight: 60
+    - typeName: Strong
+      weight: 40
+  - zombieCount: 30
+    spawnInterval: 1
+    healthMultiplier: 1.15
+    speedMultiplier: 1
+    spawnWeights:
+    - typeName: Normal
+      weight: 60
+    - typeName: Strong
+      weight: 30
+    - typeName: Tank
+      weight: 10
+  - zombieCount: 35
+    spawnInterval: 0.9
+    healthMultiplier: 1.2
+    speedMultiplier: 1.05
+    spawnWeights:
+    - typeName: Normal
+      weight: 50
+    - typeName: Strong
+      weight: 35
+    - typeName: Tank
+      weight: 15
+  - zombieCount: 40
+    spawnInterval: 0.8
+    healthMultiplier: 1.25
+    speedMultiplier: 1.05
+    spawnWeights:
+    - typeName: Normal
+      weight: 40
+    - typeName: Strong
+      weight: 40
+    - typeName: Tank
+      weight: 20
+  - zombieCount: 50
+    spawnInterval: 0.7
+    healthMultiplier: 1.3
+    speedMultiplier: 1.1
+    spawnWeights:
+    - typeName: Normal
+      weight: 30
+    - typeName: Strong
+      weight: 40
+    - typeName: Tank
+      weight: 30
+  countScaleFactor: 1.25
+  intervalScaleFactor: 0.9
+  healthScaleFactor: 1.15
+  speedScaleFactor: 1.05
+  spawner: {fileID: 1924248990}
 --- !u!1 &408370805
 GameObject:
   m_ObjectHideFlags: 0

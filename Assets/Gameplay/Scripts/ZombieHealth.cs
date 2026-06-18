@@ -4,6 +4,7 @@ using UnityEngine;
 public class ZombieHealth : MonoBehaviour {
     [SerializeField] private int maxHealth = 10;
     private int currentHealth;
+    public int baseDamage = 1;
 
     [Header("Visuals")]
     private SpriteRenderer sr;
@@ -17,7 +18,16 @@ public class ZombieHealth : MonoBehaviour {
 
     private bool isDead = false;
 
+    private bool isInitialized = false;
+
     private void Start() {
+        InitializeIfNeeded();
+    }
+
+    private void InitializeIfNeeded() {
+        if (isInitialized) return;
+        isInitialized = true;
+
         currentHealth = maxHealth;
         sr = GetComponent<SpriteRenderer>();
         if (sr != null) {
@@ -29,6 +39,13 @@ public class ZombieHealth : MonoBehaviour {
         if (GameplayManager.Instance != null) {
             GameplayManager.Instance.RegisterZombie();
         }
+    }
+
+    public void Setup(int maxHp) {
+        InitializeIfNeeded();
+        maxHealth = maxHp;
+        currentHealth = maxHp;
+        UpdateHealthBar();
     }
 
     private Sprite CreateFlatSprite() {

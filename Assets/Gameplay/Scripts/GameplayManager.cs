@@ -57,11 +57,11 @@ public class GameplayManager : MonoBehaviour {
         zombiesKilled++;
     }
 
-    public void ZombieReachedBase(GameObject zombie) {
+    public void ZombieReachedBase(GameObject zombie, int baseDamage = 1) {
         if (currentBaseHealth <= 0) return;
 
         zombiesReached++;
-        currentBaseHealth = Mathf.Max(0, currentBaseHealth - 1);
+        currentBaseHealth = Mathf.Max(0, currentBaseHealth - baseDamage);
         UpdateUI();
 
         if (zombie != null) {
@@ -85,7 +85,17 @@ public class GameplayManager : MonoBehaviour {
         }
     }
 
+    public void SetCurrentWave(int wave) {
+        currentWave = wave;
+        UpdateUI();
+    }
+
     private void TriggerGameOver() {
+        // Stop WaveManager
+        foreach (var wm in FindObjectsByType<WaveManager>(FindObjectsSortMode.None)) {
+            wm.enabled = false;
+        }
+
         // Stop spawning on all spawners
         foreach (var s in FindObjectsByType<ZombieSpawner>(FindObjectsSortMode.None)) {
             s.CancelInvoke();
