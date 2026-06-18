@@ -96,7 +96,8 @@ public class ZombieHealth : MonoBehaviour {
             GameObject hitGo = new GameObject("HitEffect");
             hitGo.transform.position = transform.position + new Vector3(-0.1f, 0.1f, -0.1f);
             var effect = hitGo.AddComponent<MuzzleFlashEffect>();
-            effect.Setup(hitSprite, new Color(0.3f, 1f, 0.3f, 1f), new Vector3(0.8f, 0.8f, 1.0f), 0.15f);
+            // Orange fire-impact glow
+            effect.Setup(hitSprite, new Color(1.0f, 0.5f, 0.1f, 1.0f), new Vector3(1.2f, 1.2f, 1.0f), 0.2f);
         }
     }
 
@@ -110,6 +111,22 @@ public class ZombieHealth : MonoBehaviour {
 
     private void Die() {
         isDead = true;
+
+        if (GameplayManager.Instance != null) {
+            GameplayManager.Instance.ZombieKilled();
+        }
+
+        // Spawn fire death burst
+        for (int i = 0; i < 12; i++) {
+            var partGo = new GameObject("DeathFlame");
+            partGo.transform.position = transform.position + new Vector3(Random.Range(-0.3f, 0.3f), Random.Range(-0.4f, 0.4f), -0.05f);
+            var p = partGo.AddComponent<FlameParticle>();
+            float angle = Random.Range(0f, Mathf.PI * 2f);
+            float speed = Random.Range(0.5f, 2f);
+            Vector3 velocity = new Vector3(Mathf.Cos(angle) * speed, Mathf.Sin(angle) * speed + 1f, 0f); // Float up
+            Color color = Color.Lerp(new Color(1f, 0.6f, 0f), Color.red, Random.value);
+            p.Setup(Projectile.CreateFireballSprite(), color, velocity, Random.Range(0.4f, 0.7f), Random.Range(0.2f, 0.4f));
+        }
 
         var controller = GetComponent<ZombieController>();
         if (controller != null) controller.enabled = false;

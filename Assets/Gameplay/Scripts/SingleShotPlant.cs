@@ -11,11 +11,18 @@ public class SingleShotPlant : PlantBase {
 
     private Vector3 originalScale;
     private Coroutine attackCoroutine;
+    private float flameIdleTimer = 0f;
 
     protected override void Start() {
         base.Start();
         originalScale = transform.localScale;
         
+        // Tint the plant to represent a Fire Plant
+        var sr = GetComponent<SpriteRenderer>();
+        if (sr != null) {
+            sr.color = new Color(1.0f, 0.45f, 0.15f, 1.0f); // Warm fire-orange tint
+        }
+
         // Auto-assign default sprites if not configured
         if (muzzleGlowSprite == null) {
             muzzleGlowSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Gameplay/Textures/DefenseLineGlow.png");
@@ -23,6 +30,28 @@ public class SingleShotPlant : PlantBase {
         if (muzzleSmokeSprite == null) {
             muzzleSmokeSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Gameplay/Textures/Fog_Particle.png");
         }
+    }
+
+    protected override void Update() {
+        base.Update();
+
+        // Spawn persistent idle flame particles rising from the head of the plant
+        flameIdleTimer += Time.deltaTime;
+        if (flameIdleTimer >= 0.15f) {
+            SpawnIdleFlame();
+            flameIdleTimer = 0f;
+        }
+    }
+
+    private void SpawnIdleFlame() {
+        var partGo = new GameObject("PlantIdleFlame");
+        // Spawn slightly above the center of the plant
+        partGo.transform.position = transform.position + new Vector3(Random.Range(-0.2f, 0.2f), Random.Range(0.2f, 0.5f), -0.1f);
+        var p = partGo.AddComponent<FlameParticle>();
+        // Float slowly upwards
+        Vector3 velocity = new Vector3(Random.Range(-0.2f, 0.2f), Random.Range(0.5f, 1.2f), 0f);
+        Color color = Color.Lerp(new Color(1f, 0.6f, 0f, 0.8f), new Color(1f, 0.2f, 0f, 0.8f), Random.value);
+        p.Setup(Projectile.CreateFireballSprite(), color, velocity, Random.Range(0.4f, 0.7f), Random.Range(0.15f, 0.3f));
     }
 
     protected override void Attack(GameObject target) {
@@ -67,14 +96,16 @@ public class SingleShotPlant : PlantBase {
             GameObject glowGo = new GameObject("MuzzleGlow");
             glowGo.transform.position = spawnPos;
             var glow = glowGo.AddComponent<MuzzleFlashEffect>();
-            glow.Setup(muzzleGlowSprite, new Color(0.4f, 1f, 0.4f, 1f), new Vector3(1.0f, 1.0f, 1.0f), 0.2f);
+            // Fiery orange muzzle glow
+            glow.Setup(muzzleGlowSprite, new Color(1.0f, 0.5f, 0.1f, 1.0f), new Vector3(1.2f, 1.2f, 1.0f), 0.2f);
         }
 
         if (muzzleSmokeSprite != null) {
             GameObject smokeGo = new GameObject("MuzzleSmoke");
             smokeGo.transform.position = spawnPos + Vector3.right * 0.1f;
             var smoke = smokeGo.AddComponent<MuzzleFlashEffect>();
-            smoke.Setup(muzzleSmokeSprite, new Color(0.8f, 0.9f, 0.8f, 0.6f), new Vector3(0.6f, 0.6f, 1.0f), 0.3f);
+            // Dark gray fire smoke
+            smoke.Setup(muzzleSmokeSprite, new Color(0.25f, 0.25f, 0.28f, 0.6f), new Vector3(0.7f, 0.7f, 1.0f), 0.35f);
         }
         // ----------------------------------
 

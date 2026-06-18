@@ -4,12 +4,58 @@ public class Projectile : MonoBehaviour {
     private float speed;
     private int damage;
 
+    private SpriteRenderer sr;
+    private static Sprite fireballSprite;
+
+    private float trailTimer = 0f;
+    private float trailInterval = 0.04f;
+
+    public static Sprite CreateFireballSprite() {
+        if (fireballSprite != null) return fireballSprite;
+
+        int width = 64;
+        int height = 64;
+        Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
+        Color[] cols = new Color[width * height];
+        Vector2 center = new Vector2(width / 2f, height / 2f);
+        float radius = width / 2f;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                float dist = Vector2.Distance(new Vector2(x, y), center);
+                if (dist > radius) {
+                    cols[y * width + x] = new Color(0f, 0f, 0f, 0f);
+                    continue;
+                }
+                float t = dist / radius; // 0 at center, 1 at edge
+                Color c;
+                if (t < 0.2f) {
+                    c = Color.Lerp(Color.white, Color.yellow, t / 0.2f);
+                } else if (t < 0.5f) {
+                    c = Color.Lerp(Color.yellow, new Color(1f, 0.5f, 0f, 1f), (t - 0.2f) / 0.3f);
+                } else {
+                    c = Color.Lerp(new Color(1f, 0.5f, 0f, 1f), new Color(1f, 0.1f, 0f, 0f), (t - 0.5f) / 0.5f);
+                }
+                cols[y * width + x] = c;
+            }
+        }
+        tex.SetPixels(cols);
+        tex.Apply();
+        fireballSprite = Sprite.Create(tex, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f), 100f);
+        return fireballSprite;
+    }
+
     public void Setup(float speed, int damage) {
         this.speed = speed;
         this.damage = damage;
     }
 
     private void Start() {
+        sr = GetComponent<SpriteRenderer>();
+        if (sr != null) {
+            sr.sprite = CreateFireballSprite();
+            transform.localScale = new Vector3(0.8f, 0.8f, 1f);
+        }
+        
         // Auto-destruct after 5 seconds to prevent memory leaks if it leaves screen
         Destroy(gameObject, 5f);
     }
@@ -17,6 +63,35 @@ public class Projectile : MonoBehaviour {
     private void Update() {
         // Projectile travels from LEFT to RIGHT smoothly
         transform.Translate(Vector2.right * speed * Time.deltaTime);
+
+        // Spawn trailing flames
+        trailTimer += Time.deltaTime;
+        if (trailTimer >= trailInterval) {
+            SpawnTrailParticle();
+            trailTimer = 0f;
+        }
+    }
+
+    private void SpawnTrailParticle() {
+        var partGo = new GameObject("FlameTrail");
+        partGo.transform.position = transform.position + new Vector3(Random.Range(-0.08f, 0.08f), Random.Range(-0.08f, 0.08f), 0.05f);
+        var p = partGo.AddComponent<FlameParticle>();
+        Vector3 velocity = new Vector3(Random.Range(-1.2f, -0.4f), Random.Range(0.2f, 0.8f), 0f);
+        Color color = Color.Lerp(Color.yellow, Color.red, Random.value);
+        p.Setup(CreateFireballSprite(), color, velocity, Random.Range(0.18f, 0.32f), Random.Range(0.15f, 0.3f));
+    }
+
+    private void SpawnHitImpactEffect(Vector3 position) {
+        for (int i = 0; i < 10; i++) {
+            var partGo = new GameObject("FlameImpact");
+            partGo.transform.position = position;
+            var p = partGo.AddComponent<FlameParticle>();
+            float angle = Random.Range(0f, Mathf.PI * 2f);
+            float speed = Random.Range(1.2f, 3.5f);
+            Vector3 velocity = new Vector3(Mathf.Cos(angle) * speed, Mathf.Sin(angle) * speed, 0f);
+            Color color = Color.Lerp(Color.yellow, new Color(1f, 0.2f, 0f), Random.value);
+            p.Setup(CreateFireballSprite(), color, velocity, Random.Range(0.22f, 0.42f), Random.Range(0.2f, 0.4f));
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other) {
@@ -24,7 +99,44 @@ public class Projectile : MonoBehaviour {
         var zombieHealth = other.GetComponent<ZombieHealth>();
         if (zombieHealth != null) {
             zombieHealth.TakeDamage(damage);
+            SpawnHitImpactEffect(transform.position);
             Destroy(gameObject); // Destroy projectile on hit
         }
+    }
+}
+
+public class FlameParticle : MonoBehaviour {
+    private SpriteRenderer sr;
+    private Vector3 moveVelocity;
+    private float lifeTime;
+    private float elapsed = 0f;
+    private Color startColor;
+
+    public void Setup(Sprite sprite, Color color, Vector3 velocity, float fadeTime, float startScale) {
+        sr = gameObject.AddComponent<SpriteRenderer>();
+        sr.sprite = sprite;
+        sr.color = color;
+        sr.sortingOrder = 7; // Render in front of characters
+        
+        startColor = color;
+        moveVelocity = velocity;
+        lifeTime = fadeTime;
+        transform.localScale = Vector3.one * startScale;
+    }
+
+    private void Update() {
+        elapsed += Time.deltaTime;
+        if (elapsed >= lifeTime) {
+            Destroy(gameObject);
+            return;
+        }
+
+        // Move particle
+        transform.position += moveVelocity * Time.deltaTime;
+
+        // Shrink and fade
+        float t = elapsed / lifeTime;
+        sr.color = Color.Lerp(startColor, new Color(startColor.r, startColor.g, startColor.b, 0f), t);
+        transform.localScale = Vector3.Lerp(Vector3.one * transform.localScale.x, Vector3.zero, t);
     }
 }
