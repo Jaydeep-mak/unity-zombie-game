@@ -1,0 +1,1 @@
+using UnityEngine; public class ZombieController : MonoBehaviour { public float speed = 1.5f; void Update() { transform.Translate(Vector2.left * speed * Time.deltaTime); } void OnTriggerEnter2D(Collider2D other) { if (other.CompareTag("Boundary")) Destroy(gameObject); } }

@@ -1,0 +1,1 @@
+using UnityEngine; public class ZombieSpawner : MonoBehaviour { public GameObject zombiePrefab; public float spawnInterval = 1.5f; private void Start() { InvokeRepeating(nameof(SpawnZombie), 0.5f, spawnInterval); } private void SpawnZombie() { if (zombiePrefab != null) Instantiate(zombiePrefab, transform.position, Quaternion.identity); } }
