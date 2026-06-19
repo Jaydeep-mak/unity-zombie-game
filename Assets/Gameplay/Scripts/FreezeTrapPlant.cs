@@ -27,6 +27,12 @@ public class FreezeTrapPlant : TrapPlantBase {
             SpawnIdleIceParticle();
             idleParticleTimer = 0f;
         }
+
+        // Crystalline side-to-side shivering (distinct to Frost Flower)
+        if (!isTriggered) {
+            float shiver = 1.0f + Mathf.Sin(Time.time * 15f) * 0.02f;
+            transform.localScale = new Vector3(originalScale.x * shiver, originalScale.y, originalScale.z);
+        }
     }
 
     private void SpawnIdleIceParticle() {

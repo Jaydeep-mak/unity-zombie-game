@@ -47,17 +47,25 @@ public class Projectile : MonoBehaviour {
         return fireballSprite;
     }
 
-    public void Setup(float speed, int damage, bool isIce = false, Color color = default) {
+    private string plantName = "";
+
+    public void Setup(float speed, int damage, bool isIce = false, Color color = default, string plantName = "") {
         this.speed = speed;
         this.damage = damage;
         this.isIce = isIce;
         this.projectileColor = color == default ? Color.white : color;
+        this.plantName = plantName;
     }
 
     private void Start() {
         sr = GetComponent<SpriteRenderer>();
         if (sr != null) {
-            sr.sprite = CreateFireballSprite();
+            Sprite customSprite = PlantVisuals.GetProjectileSprite(plantName);
+            if (customSprite != null) {
+                sr.sprite = customSprite;
+            } else {
+                sr.sprite = CreateFireballSprite();
+            }
             sr.color = projectileColor;
             transform.localScale = new Vector3(0.8f, 0.8f, 1f);
         }

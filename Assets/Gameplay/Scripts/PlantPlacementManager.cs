@@ -136,7 +136,11 @@ public class PlantPlacementManager : MonoBehaviour {
         previewGo = new GameObject("PlantPlacementPreview");
         previewRenderer = previewGo.AddComponent<SpriteRenderer>();
 
-        if (plantPrefab != null) {
+        Sprite customSprite = PlantVisuals.GetPlantSprite(data.name);
+        if (customSprite != null) {
+            previewRenderer.sprite = customSprite;
+            previewGo.transform.localScale = plantPrefab != null ? plantPrefab.transform.localScale : Vector3.one;
+        } else if (plantPrefab != null) {
             var prefabSr = plantPrefab.GetComponent<SpriteRenderer>();
             if (prefabSr != null) {
                 previewRenderer.sprite = prefabSr.sprite;
@@ -219,8 +223,13 @@ public class PlantPlacementManager : MonoBehaviour {
 
             // Extensible Trap/Plant Component Mapping
             PlantBase plant = null;
+            GameObject projPrefab = null;
+            var oldPlant = plantGo.GetComponent<SingleShotPlant>();
+            if (oldPlant != null) {
+                projPrefab = oldPlant.ProjectilePrefab;
+            }
+
             if (data.name != null && (data.name.Contains("Ice") || data.name.Contains("Frost") || data.name.Contains("Trap"))) {
-                var oldPlant = plantGo.GetComponent<SingleShotPlant>();
                 if (oldPlant != null) {
                     DestroyImmediate(oldPlant);
                 }
@@ -228,11 +237,24 @@ public class PlantPlacementManager : MonoBehaviour {
                 if (data.name.Contains("Ice") || data.name.Contains("Frost")) {
                     plant = plantGo.AddComponent<FreezeTrapPlant>();
                 }
+            } else if (data.name != null && (data.name.Contains("Thorn") || data.name.Contains("Vine"))) {
+                if (oldPlant != null) {
+                    DestroyImmediate(oldPlant);
+                }
+                plant = plantGo.AddComponent<ThornVinePlant>();
+            } else if (data.name != null && (data.name.Contains("Bomb") || data.name.Contains("Cactus"))) {
+                if (oldPlant != null) {
+                    DestroyImmediate(oldPlant);
+                }
+                plant = plantGo.AddComponent<BombCactusPlant>();
             } else {
                 plant = plantGo.GetComponent<PlantBase>();
             }
 
             if (plant != null) {
+                if (projPrefab != null) {
+                    plant.ProjectilePrefab = projPrefab;
+                }
                 plant.Configure(data.damage, data.attackInterval, data.projectileSpeed, data.tintColor, data.name);
             }
 

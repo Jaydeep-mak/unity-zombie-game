@@ -9,13 +9,11 @@ public class SingleShotPlant : PlantBase {
     [SerializeField] private Sprite muzzleGlowSprite;
     [SerializeField] private Sprite muzzleSmokeSprite;
 
-    private Vector3 originalScale;
     private Coroutine attackCoroutine;
     private float flameIdleTimer = 0f;
 
     protected override void Start() {
         base.Start();
-        originalScale = transform.localScale;
         
         // Tint the plant to represent a Fire Plant (only if not already colored by dynamic placement)
         var sr = GetComponent<SpriteRenderer>();
@@ -32,6 +30,12 @@ public class SingleShotPlant : PlantBase {
         if (flameIdleTimer >= 0.15f) {
             SpawnIdleFlame();
             flameIdleTimer = 0f;
+        }
+
+        // Gentle breathing animation (distinct to Fire Bloom)
+        if (attackCoroutine == null) {
+            float bob = 1.0f + Mathf.Sin(Time.time * 4f) * 0.04f;
+            transform.localScale = new Vector3(originalScale.x, originalScale.y * bob, originalScale.z);
         }
     }
 
@@ -88,7 +92,7 @@ public class SingleShotPlant : PlantBase {
             GameObject projGo = Instantiate(projectilePrefab, spawnPos, Quaternion.identity);
             var proj = projGo.GetComponent<Projectile>();
             if (proj != null) {
-                proj.Setup(projectileSpeed, damage, isIce, bulletColor);
+                proj.Setup(projectileSpeed, damage, isIce, bulletColor, PlantName);
             }
         }
 

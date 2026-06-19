@@ -2179,7 +2179,7 @@ MonoBehaviour:
     type: 3}
   gridParent: {fileID: 2007700445}
   slots:
-  - name: "Fire Plant \U0001F525"
+  - name: "Fire Bloom \U0001F525"
     cost: 100
     tintColor: {r: 1, g: 0.45, b: 0.15, a: 1}
     isLocked: 0
@@ -2187,7 +2187,7 @@ MonoBehaviour:
     attackInterval: 1.5
     projectileSpeed: 6
     cooldown: 5
-  - name: "Ice Plant \u2744\uFE0F"
+  - name: "Frost Flower \u2744\uFE0F"
     cost: 125
     tintColor: {r: 0.2, g: 0.6, b: 1, a: 1}
     isLocked: 0
@@ -2195,22 +2195,22 @@ MonoBehaviour:
     attackInterval: 1.8
     projectileSpeed: 5
     cooldown: 5
-  - name: "Poison Plant \U0001F9EA"
-    cost: 150
-    tintColor: {r: 0.5, g: 0.1, b: 0.8, a: 1}
-    isLocked: 1
-    damage: 1
-    attackInterval: 0.8
-    projectileSpeed: 7
-    cooldown: 5
-  - name: "Bomb Plant \U0001F4A3"
+  - name: "Thorn Vine \U0001F33F"
     cost: 75
-    tintColor: {r: 1, g: 0.2, b: 0.2, a: 1}
-    isLocked: 1
-    damage: 5
+    tintColor: {r: 0.2, g: 0.75, b: 0.15, a: 1}
+    isLocked: 0
+    damage: 8
+    attackInterval: 0.3
+    projectileSpeed: 7
+    cooldown: 4
+  - name: "Bomb Cactus \U0001F4A3"
+    cost: 150
+    tintColor: {r: 0.85, g: 0.25, b: 0.15, a: 1}
+    isLocked: 0
+    damage: 20
     attackInterval: 3
     projectileSpeed: 3
-    cooldown: 5
+    cooldown: 6
   - name: "Lightning Plant \u26A1"
     cost: 175
     tintColor: {r: 0.9, g: 0.9, b: 0.1, a: 1}

@@ -757,21 +757,21 @@ public class GameplayManager : MonoBehaviour {
             glowRect.anchorMax = Vector2.one;
             glowRect.sizeDelta = new Vector2(14f, 14f);
 
-            // Icon Image (procedurally using the actual plantPrefab sprite)
+            // Icon Image (procedurally using the actual custom plant sprite)
             var iconGo = new GameObject("Icon");
             var iconRect = iconGo.AddComponent<RectTransform>();
             iconGo.transform.SetParent(slotGo.transform, false);
             var iconImg = iconGo.AddComponent<UnityEngine.UI.Image>();
             
-            Sprite plantSprite = null;
-            if (plantPrefab != null) {
+            Sprite plantSprite = PlantVisuals.GetPlantSprite(fullName);
+            if (plantSprite == null && plantPrefab != null) {
                 var sr = plantPrefab.GetComponent<SpriteRenderer>();
                 if (sr != null) {
                     plantSprite = sr.sprite;
                 }
             }
             iconImg.sprite = plantSprite;
-            iconImg.color = slotTint;
+            iconImg.color = plantSprite != null ? Color.white : slotTint;
 
             iconRect.anchorMin = new Vector2(0.5f, 1f);
             iconRect.anchorMax = new Vector2(0.5f, 1f);
