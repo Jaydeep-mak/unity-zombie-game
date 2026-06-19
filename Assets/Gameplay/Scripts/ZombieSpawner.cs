@@ -31,6 +31,11 @@ public class ZombieSpawner : MonoBehaviour {
                 controller.speed = config.speed * waveSpeedMultiplier;
             }
 
+            var rb = zombie.GetComponent<Rigidbody2D>();
+            if (rb != null) {
+                rb.useFullKinematicContacts = true;
+            }
+
             // Apply health scaling and damage settings
             var health = zombie.GetComponent<ZombieHealth>();
             if (health != null) {

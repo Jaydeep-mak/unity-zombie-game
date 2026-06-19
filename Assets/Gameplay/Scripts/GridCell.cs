@@ -9,6 +9,14 @@ public class GridCell : MonoBehaviour {
     private SpriteRenderer sr;
     private Color originalColor;
 
+    public Color OriginalColor {
+        get { return originalColor; }
+        set {
+            originalColor = value;
+            if (sr != null) sr.color = value;
+        }
+    }
+
     private void Awake() {
         sr = GetComponent<SpriteRenderer>();
         if (sr != null) {

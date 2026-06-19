@@ -3,6 +3,8 @@ using UnityEngine;
 public class Projectile : MonoBehaviour {
     private float speed;
     private int damage;
+    private bool isIce = false;
+    private Color projectileColor = Color.white;
 
     private SpriteRenderer sr;
     private static Sprite fireballSprite;
@@ -16,6 +18,7 @@ public class Projectile : MonoBehaviour {
         int width = 64;
         int height = 64;
         Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
+        tex.wrapMode = TextureWrapMode.Clamp;
         Color[] cols = new Color[width * height];
         Vector2 center = new Vector2(width / 2f, height / 2f);
         float radius = width / 2f;
@@ -44,15 +47,18 @@ public class Projectile : MonoBehaviour {
         return fireballSprite;
     }
 
-    public void Setup(float speed, int damage) {
+    public void Setup(float speed, int damage, bool isIce = false, Color color = default) {
         this.speed = speed;
         this.damage = damage;
+        this.isIce = isIce;
+        this.projectileColor = color == default ? Color.white : color;
     }
 
     private void Start() {
         sr = GetComponent<SpriteRenderer>();
         if (sr != null) {
             sr.sprite = CreateFireballSprite();
+            sr.color = projectileColor;
             transform.localScale = new Vector3(0.8f, 0.8f, 1f);
         }
         
@@ -77,7 +83,9 @@ public class Projectile : MonoBehaviour {
         partGo.transform.position = transform.position + new Vector3(Random.Range(-0.08f, 0.08f), Random.Range(-0.08f, 0.08f), 0.05f);
         var p = partGo.AddComponent<FlameParticle>();
         Vector3 velocity = new Vector3(Random.Range(-1.2f, -0.4f), Random.Range(0.2f, 0.8f), 0f);
-        Color color = Color.Lerp(Color.yellow, Color.red, Random.value);
+        Color color = isIce 
+            ? Color.Lerp(Color.cyan, Color.white, Random.value) 
+            : Color.Lerp(Color.yellow, Color.red, Random.value);
         p.Setup(CreateFireballSprite(), color, velocity, Random.Range(0.18f, 0.32f), Random.Range(0.15f, 0.3f));
     }
 
@@ -89,7 +97,9 @@ public class Projectile : MonoBehaviour {
             float angle = Random.Range(0f, Mathf.PI * 2f);
             float speed = Random.Range(1.2f, 3.5f);
             Vector3 velocity = new Vector3(Mathf.Cos(angle) * speed, Mathf.Sin(angle) * speed, 0f);
-            Color color = Color.Lerp(Color.yellow, new Color(1f, 0.2f, 0f), Random.value);
+            Color color = isIce 
+                ? Color.Lerp(Color.cyan, Color.white, Random.value) 
+                : Color.Lerp(Color.yellow, new Color(1f, 0.2f, 0f), Random.value);
             p.Setup(CreateFireballSprite(), color, velocity, Random.Range(0.22f, 0.42f), Random.Range(0.2f, 0.4f));
         }
     }
@@ -99,6 +109,16 @@ public class Projectile : MonoBehaviour {
         var zombieHealth = other.GetComponent<ZombieHealth>();
         if (zombieHealth != null) {
             zombieHealth.TakeDamage(damage);
+            if (isIce) {
+                var zombie = other.GetComponent<ZombieController>();
+                if (zombie != null) {
+                    var slowEffect = zombie.GetComponent<ZombieSlowEffect>();
+                    if (slowEffect == null) {
+                        slowEffect = zombie.gameObject.AddComponent<ZombieSlowEffect>();
+                    }
+                    slowEffect.ApplySlow(0.4f, 4.0f); // Slow down to 40% speed for 4 seconds
+                }
+            }
             SpawnHitImpactEffect(transform.position);
             Destroy(gameObject); // Destroy projectile on hit
         }

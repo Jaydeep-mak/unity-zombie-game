@@ -41,10 +41,13 @@ public abstract class PlantBase : MonoBehaviour {
         return null;
     }
 
-    public virtual void Configure(int damageVal, float intervalVal, float speedVal, Color color) {
+    public string PlantName { get; protected set; }
+
+    public virtual void Configure(int damageVal, float intervalVal, float speedVal, Color color, string nameVal = "") {
         this.damage = damageVal;
         this.attackInterval = intervalVal;
         this.projectileSpeed = speedVal;
+        this.PlantName = nameVal;
         var sr = GetComponent<SpriteRenderer>();
         if (sr != null) {
             sr.color = color;

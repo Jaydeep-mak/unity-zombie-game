@@ -15,6 +15,7 @@ public class PlantPlacementManager : MonoBehaviour {
         public int damage = 2;
         public float attackInterval = 1.5f;
         public float projectileSpeed = 5f;
+        public float cooldown = 5f;
     }
 
     [Header("Placement References")]
@@ -45,6 +46,20 @@ public class PlantPlacementManager : MonoBehaviour {
             return slots[index].cost;
         }
         return 0;
+    }
+
+    public string GetSlotName(int index) {
+        if (slots != null && index >= 0 && index < slots.Length) {
+            return slots[index].name;
+        }
+        return "Unknown";
+    }
+
+    public Color GetSlotTintColor(int index) {
+        if (slots != null && index >= 0 && index < slots.Length) {
+            return slots[index].tintColor;
+        }
+        return Color.white;
     }
 
     private void Start() {
@@ -81,6 +96,11 @@ public class PlantPlacementManager : MonoBehaviour {
         
         if (data.isLocked) {
             Debug.Log(data.name + " is locked!");
+            return;
+        }
+
+        if (GameplayManager.Instance != null && GameplayManager.Instance.IsSlotOnCooldown(slotIndex)) {
+            Debug.Log(data.name + " is on cooldown!");
             return;
         }
 
@@ -197,10 +217,23 @@ public class PlantPlacementManager : MonoBehaviour {
         if (GameplayManager.Instance != null && GameplayManager.Instance.UseCoins(data.cost)) {
             GameObject plantGo = Instantiate(plantPrefab, cell.transform.position, Quaternion.identity);
 
-            // Configure plant component parameters and dynamic tint
-            var plant = plantGo.GetComponent<PlantBase>();
+            // Extensible Trap/Plant Component Mapping
+            PlantBase plant = null;
+            if (data.name != null && (data.name.Contains("Ice") || data.name.Contains("Frost") || data.name.Contains("Trap"))) {
+                var oldPlant = plantGo.GetComponent<SingleShotPlant>();
+                if (oldPlant != null) {
+                    DestroyImmediate(oldPlant);
+                }
+                
+                if (data.name.Contains("Ice") || data.name.Contains("Frost")) {
+                    plant = plantGo.AddComponent<FreezeTrapPlant>();
+                }
+            } else {
+                plant = plantGo.GetComponent<PlantBase>();
+            }
+
             if (plant != null) {
-                plant.Configure(data.damage, data.attackInterval, data.projectileSpeed, data.tintColor);
+                plant.Configure(data.damage, data.attackInterval, data.projectileSpeed, data.tintColor, data.name);
             }
 
             cell.isOccupied = true;
@@ -208,16 +241,13 @@ public class PlantPlacementManager : MonoBehaviour {
 
             cell.ResetHighlight();
             
-            // Check if player still has enough coins for another one of this plant type
-            if (GameplayManager.Instance != null && GameplayManager.Instance.Coins < data.cost) {
-                CancelSelection();
-            } else {
-                // Keep selection active, but highlight the current cell as occupied (red)
-                cell.SetHighlight(new Color(1.0f, 0.2f, 0.2f, 0.4f));
-                if (previewRenderer != null) {
-                    previewRenderer.color = invalidPreviewColor;
-                }
+            // Trigger cooldown for this slot
+            float cooldownTime = data.cooldown > 0f ? data.cooldown : 5f;
+            if (GameplayManager.Instance != null) {
+                GameplayManager.Instance.StartSlotCooldown(selectedSlotIndex, cooldownTime);
             }
+
+            CancelSelection();
 
             Debug.Log("Successfully placed " + data.name + " on Row: " + cell.row + ", Col: " + cell.column);
         } else {

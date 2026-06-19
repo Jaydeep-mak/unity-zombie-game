@@ -42,7 +42,12 @@ public class SingleShotPlant : PlantBase {
         var p = partGo.AddComponent<FlameParticle>();
         // Float slowly upwards
         Vector3 velocity = new Vector3(Random.Range(-0.2f, 0.2f), Random.Range(0.5f, 1.2f), 0f);
-        Color color = Color.Lerp(new Color(1f, 0.6f, 0f, 0.8f), new Color(1f, 0.2f, 0f, 0.8f), Random.value);
+        
+        bool isIce = PlantName != null && (PlantName.Contains("Ice") || PlantName.Contains("Frost"));
+        Color color = isIce
+            ? Color.Lerp(new Color(0.3f, 0.75f, 1.0f, 0.8f), new Color(0.8f, 0.95f, 1.0f, 0.8f), Random.value)
+            : Color.Lerp(new Color(1f, 0.6f, 0f, 0.8f), new Color(1f, 0.2f, 0f, 0.8f), Random.value);
+            
         p.Setup(Projectile.CreateFireballSprite(), color, velocity, Random.Range(0.4f, 0.7f), Random.Range(0.15f, 0.3f));
     }
 
@@ -76,29 +81,28 @@ public class SingleShotPlant : PlantBase {
         // --- Spawn Projectile & Effects ---
         Vector3 spawnPos = firePoint != null ? firePoint.position : transform.position;
         
+        bool isIce = PlantName != null && (PlantName.Contains("Ice") || PlantName.Contains("Frost"));
+        Color bulletColor = isIce ? new Color(0.3f, 0.75f, 1.0f, 1.0f) : new Color(1.0f, 0.45f, 0.15f, 1.0f);
+
         if (projectilePrefab != null) {
             GameObject projGo = Instantiate(projectilePrefab, spawnPos, Quaternion.identity);
             var proj = projGo.GetComponent<Projectile>();
             if (proj != null) {
-                proj.Setup(projectileSpeed, damage);
+                proj.Setup(projectileSpeed, damage, isIce, bulletColor);
             }
         }
 
-        if (muzzleGlowSprite != null) {
-            GameObject glowGo = new GameObject("MuzzleGlow");
-            glowGo.transform.position = spawnPos;
-            var glow = glowGo.AddComponent<MuzzleFlashEffect>();
-            // Fiery orange muzzle glow
-            glow.Setup(muzzleGlowSprite, new Color(1.0f, 0.5f, 0.1f, 1.0f), new Vector3(1.2f, 1.2f, 1.0f), 0.2f);
-        }
+        GameObject glowGo = new GameObject("MuzzleGlow");
+        glowGo.transform.position = spawnPos;
+        var glow = glowGo.AddComponent<MuzzleFlashEffect>();
+        Color glowColor = isIce ? new Color(0.3f, 0.75f, 1.0f, 0.95f) : new Color(1.0f, 0.6f, 0.15f, 0.95f);
+        glow.Setup(GetMuzzleGlowSprite(), glowColor, new Vector3(1.5f, 1.5f, 1.0f), 0.15f);
 
-        if (muzzleSmokeSprite != null) {
-            GameObject smokeGo = new GameObject("MuzzleSmoke");
-            smokeGo.transform.position = spawnPos + Vector3.right * 0.1f;
-            var smoke = smokeGo.AddComponent<MuzzleFlashEffect>();
-            // Dark gray fire smoke
-            smoke.Setup(muzzleSmokeSprite, new Color(0.25f, 0.25f, 0.28f, 0.6f), new Vector3(0.7f, 0.7f, 1.0f), 0.35f);
-        }
+        GameObject smokeGo = new GameObject("MuzzleSmoke");
+        smokeGo.transform.position = spawnPos + Vector3.right * 0.15f;
+        var smoke = smokeGo.AddComponent<MuzzleFlashEffect>();
+        Color smokeColor = isIce ? new Color(0.7f, 0.85f, 1.0f, 0.55f) : new Color(0.28f, 0.28f, 0.32f, 0.55f);
+        smoke.Setup(GetMuzzleSmokeSprite(), smokeColor, new Vector3(1.0f, 1.0f, 1.0f), 0.25f);
         // ----------------------------------
 
         // 3. Return (Recover to original scale)
@@ -111,5 +115,66 @@ public class SingleShotPlant : PlantBase {
 
         transform.localScale = originalScale;
         attackCoroutine = null;
+    }
+
+    private static Sprite proceduralGlowSprite;
+    private static Sprite proceduralSmokeSprite;
+
+    private Sprite GetMuzzleGlowSprite() {
+        if (proceduralGlowSprite != null) return proceduralGlowSprite;
+        
+        int width = 64;
+        int height = 64;
+        Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
+        tex.wrapMode = TextureWrapMode.Clamp;
+        Color[] cols = new Color[width * height];
+        Vector2 center = new Vector2(width / 2f, height / 2f);
+        float radius = width / 2f;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                float dist = Vector2.Distance(new Vector2(x, y), center);
+                if (dist > radius) {
+                    cols[y * width + x] = Color.clear;
+                    continue;
+                }
+                float t = dist / radius; // 0 at center, 1 at edge
+                float alpha = Mathf.Clamp01(1f - t);
+                alpha = alpha * alpha; // Ease out
+                cols[y * width + x] = new Color(1f, 1f, 1f, alpha);
+            }
+        }
+        tex.SetPixels(cols);
+        tex.Apply();
+        proceduralGlowSprite = Sprite.Create(tex, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f), 100f);
+        return proceduralGlowSprite;
+    }
+
+    private Sprite GetMuzzleSmokeSprite() {
+        if (proceduralSmokeSprite != null) return proceduralSmokeSprite;
+        
+        int width = 64;
+        int height = 64;
+        Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
+        tex.wrapMode = TextureWrapMode.Clamp;
+        Color[] cols = new Color[width * height];
+        Vector2 center = new Vector2(width / 2f, height / 2f);
+        float radius = width / 2f;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                float dist = Vector2.Distance(new Vector2(x, y), center);
+                if (dist > radius) {
+                    cols[y * width + x] = Color.clear;
+                    continue;
+                }
+                float t = dist / radius; // 0 at center, 1 at edge
+                float alpha = Mathf.Clamp01(1f - t);
+                alpha = Mathf.Pow(alpha, 1.5f); // Soft falloff
+                cols[y * width + x] = new Color(1f, 1f, 1f, alpha);
+            }
+        }
+        tex.SetPixels(cols);
+        tex.Apply();
+        proceduralSmokeSprite = Sprite.Create(tex, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f), 100f);
+        return proceduralSmokeSprite;
     }
 }

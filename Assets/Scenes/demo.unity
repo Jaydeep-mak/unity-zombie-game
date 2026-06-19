@@ -2021,6 +2021,13 @@ MonoBehaviour:
   coins: 1000
   currentWave: 3
   spawner: {fileID: 1924248990}
+  plantPrefab: {fileID: 8474474974889607615, guid: 4845888309657d2aa91c7b458a1ddbbd,
+    type: 3}
+  heartSprite: {fileID: 0}
+  coinSprite: {fileID: 0}
+  waveSprite: {fileID: 0}
+  lockSprite: {fileID: 0}
+  pauseSprite: {fileID: 0}
   activeZombieCount: 0
 --- !u!114 &404978852
 MonoBehaviour:
@@ -2179,13 +2186,15 @@ MonoBehaviour:
     damage: 2
     attackInterval: 1.5
     projectileSpeed: 6
+    cooldown: 5
   - name: "Ice Plant \u2744\uFE0F"
     cost: 125
     tintColor: {r: 0.2, g: 0.6, b: 1, a: 1}
-    isLocked: 1
+    isLocked: 0
     damage: 2
     attackInterval: 1.8
     projectileSpeed: 5
+    cooldown: 5
   - name: "Poison Plant \U0001F9EA"
     cost: 150
     tintColor: {r: 0.5, g: 0.1, b: 0.8, a: 1}
@@ -2193,6 +2202,7 @@ MonoBehaviour:
     damage: 1
     attackInterval: 0.8
     projectileSpeed: 7
+    cooldown: 5
   - name: "Bomb Plant \U0001F4A3"
     cost: 75
     tintColor: {r: 1, g: 0.2, b: 0.2, a: 1}
@@ -2200,6 +2210,7 @@ MonoBehaviour:
     damage: 5
     attackInterval: 3
     projectileSpeed: 3
+    cooldown: 5
   - name: "Lightning Plant \u26A1"
     cost: 175
     tintColor: {r: 0.9, g: 0.9, b: 0.1, a: 1}
@@ -2207,6 +2218,7 @@ MonoBehaviour:
     damage: 3
     attackInterval: 1.2
     projectileSpeed: 8
+    cooldown: 5
   - name: "Sunflower \U0001F33B"
     cost: 50
     tintColor: {r: 1, g: 0.9, b: 0.2, a: 1}
@@ -2214,6 +2226,7 @@ MonoBehaviour:
     damage: 0
     attackInterval: 9999
     projectileSpeed: 0
+    cooldown: 5
   validPreviewColor: {r: 0.2, g: 1, b: 0.2, a: 0.6}
   invalidPreviewColor: {r: 1, g: 0.2, b: 0.2, a: 0.6}
 --- !u!1 &408370805
@@ -10221,7 +10234,7 @@ Transform:
   m_GameObject: {fileID: 2092033903}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 5}
+  m_LocalPosition: {x: -0.74, y: 0.32, z: 5}
   m_LocalScale: {x: 18, y: 10, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
