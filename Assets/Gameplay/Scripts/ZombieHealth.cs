@@ -10,6 +10,7 @@ public class ZombieHealth : MonoBehaviour {
     private SpriteRenderer sr;
     private Color originalColor;
     private Coroutine flashCoroutine;
+    [SerializeField] private Sprite hitSprite;
 
     [Header("Health Bar")]
     private GameObject healthBarGroup;
@@ -108,7 +109,7 @@ public class ZombieHealth : MonoBehaviour {
     }
 
     private void SpawnHitEffect() {
-        var hitSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Gameplay/Textures/DefenseLineGlow.png");
+        //var hitSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Gameplay/Textures/DefenseLineGlow.png");
         if (hitSprite != null) {
             GameObject hitGo = new GameObject("HitEffect");
             hitGo.transform.position = transform.position + new Vector3(-0.1f, 0.1f, -0.1f);

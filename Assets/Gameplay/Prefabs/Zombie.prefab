@@ -190,3 +190,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 10
+  baseDamage: 1
+  hitSprite: {fileID: 21300000, guid: eb8f871d341681f29ade8a4f893d57b1, type: 3}

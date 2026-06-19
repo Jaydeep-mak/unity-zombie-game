@@ -7,7 +7,7 @@ public static class Constants
     //add alll scenes here
     #region SCENES
 
-    public const string SCENE_MENU = "MenuScene";
+    public const string SCENE_MENU = "GardenGuardians_MainMenu";
     public const string SCENE_WEB = "webscene";
 
     #endregion

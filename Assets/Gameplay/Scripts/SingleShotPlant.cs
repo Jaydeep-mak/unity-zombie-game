@@ -17,18 +17,10 @@ public class SingleShotPlant : PlantBase {
         base.Start();
         originalScale = transform.localScale;
         
-        // Tint the plant to represent a Fire Plant
+        // Tint the plant to represent a Fire Plant (only if not already colored by dynamic placement)
         var sr = GetComponent<SpriteRenderer>();
-        if (sr != null) {
+        if (sr != null && sr.color == Color.white) {
             sr.color = new Color(1.0f, 0.45f, 0.15f, 1.0f); // Warm fire-orange tint
-        }
-
-        // Auto-assign default sprites if not configured
-        if (muzzleGlowSprite == null) {
-            muzzleGlowSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Gameplay/Textures/DefenseLineGlow.png");
-        }
-        if (muzzleSmokeSprite == null) {
-            muzzleSmokeSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Gameplay/Textures/Fog_Particle.png");
         }
     }
 

@@ -9,7 +9,18 @@ public class GameplayManager : MonoBehaviour {
     private int currentBaseHealth;
 
     [Header("HUD Settings")]
-    [SerializeField] private int coins = 150;
+    [SerializeField] private int coins = 1000;
+    public int Coins => coins;
+
+    public bool UseCoins(int amount) {
+        if (coins >= amount) {
+            coins -= amount;
+            UpdateUI();
+            return true;
+        }
+        return false;
+    }
+
     [SerializeField] private int currentWave = 3;
 
     [Header("Stats")]
@@ -26,6 +37,7 @@ public class GameplayManager : MonoBehaviour {
     private TextMeshProUGUI waveText;
     private GameObject gameOverPopup;
     private TextMeshProUGUI statsText;
+    private System.Collections.Generic.List<UnityEngine.UI.Image> slotImages = new System.Collections.Generic.List<UnityEngine.UI.Image>();
 
     public int activeZombieCount = 0;
 
@@ -348,12 +360,14 @@ public class GameplayManager : MonoBehaviour {
         toolbarRect.anchoredPosition = new Vector2(0f, 45f);
         toolbarRect.sizeDelta = new Vector2(900f, 140f);
 
-        // Generate Plant Selection Slots: 🌻 🔥 ❄️ 💣 ⚡ 🧪
-        string[] plantIcons = { "🌻", "🔥", "❄️", "💣", "⚡", "🧪" };
+        // Generate Plant Selection Slots: 🔥 ❄️ 🧪 💣 ⚡ 🌻
+        string[] plantIcons = { "🔥", "❄️", "🧪", "💣", "⚡", "🌻" };
         bool[] isLocked = { false, true, true, true, true, true };
         float buttonSize = 110f;
         float spacing = 20f;
         float startX = -((plantIcons.Length - 1) * (buttonSize + spacing)) / 2f;
+
+        slotImages.Clear();
 
         for (int i = 0; i < plantIcons.Length; i++) {
             var slotGo = new GameObject($"Slot_{i}");
@@ -366,6 +380,17 @@ public class GameplayManager : MonoBehaviour {
             } else {
                 slotImg.sprite = CreateRoundedRectGradientSprite(110, 110, 22, slotActiveBottom, slotActiveTop, slotActiveBorder, 4);
             }
+
+            slotImages.Add(slotImg);
+
+            // Add Button component and click listener
+            var slotBtn = slotGo.AddComponent<UnityEngine.UI.Button>();
+            int index = i;
+            slotBtn.onClick.AddListener(() => {
+                if (PlantPlacementManager.Instance != null) {
+                    PlantPlacementManager.Instance.SelectPlant(index);
+                }
+            });
 
             var slotRect = slotGo.GetComponent<RectTransform>();
             slotRect.anchorMin = new Vector2(0.5f, 0.5f);
@@ -505,5 +530,27 @@ public class GameplayManager : MonoBehaviour {
         btnTextRect.anchorMin = Vector2.zero;
         btnTextRect.anchorMax = Vector2.one;
         btnTextRect.sizeDelta = Vector2.zero;
+    }
+
+    public void SetSlotHighlight(int activeIndex) {
+        for (int i = 0; i < slotImages.Count; i++) {
+            if (slotImages[i] == null) continue;
+            if (i == activeIndex) {
+                slotImages[i].color = new Color(1f, 1f, 1f, 1f);
+                var outline = slotImages[i].gameObject.GetComponent<UnityEngine.UI.Outline>();
+                if (outline == null) {
+                    outline = slotImages[i].gameObject.AddComponent<UnityEngine.UI.Outline>();
+                    outline.effectColor = new Color(1f, 0.9f, 0.2f, 0.8f);
+                    outline.effectDistance = new Vector2(4f, 4f);
+                }
+                outline.enabled = true;
+            } else {
+                slotImages[i].color = new Color(0.85f, 0.85f, 0.85f, 1f);
+                var outline = slotImages[i].gameObject.GetComponent<UnityEngine.UI.Outline>();
+                if (outline != null) {
+                    outline.enabled = false;
+                }
+            }
+        }
     }
 }

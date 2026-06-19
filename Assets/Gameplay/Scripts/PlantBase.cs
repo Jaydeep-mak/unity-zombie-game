@@ -41,5 +41,15 @@ public abstract class PlantBase : MonoBehaviour {
         return null;
     }
 
+    public virtual void Configure(int damageVal, float intervalVal, float speedVal, Color color) {
+        this.damage = damageVal;
+        this.attackInterval = intervalVal;
+        this.projectileSpeed = speedVal;
+        var sr = GetComponent<SpriteRenderer>();
+        if (sr != null) {
+            sr.color = color;
+        }
+    }
+
     protected abstract void Attack(GameObject target);
 }
