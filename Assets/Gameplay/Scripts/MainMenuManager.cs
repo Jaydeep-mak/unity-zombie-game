@@ -12,6 +12,8 @@ public class MainMenuManager : MonoBehaviour {
     [SerializeField] private Button settingsButton;
     [SerializeField] private Button soundButton;
     [SerializeField] private TextMeshProUGUI soundText;
+    [SerializeField] private Sprite soundOnSprite;
+    [SerializeField] private Sprite soundOffSprite;
 
     private bool isStarting = false;
     private bool isMuted = false;
@@ -68,7 +70,19 @@ public class MainMenuManager : MonoBehaviour {
         if (soundText != null) {
             soundText.text = isMuted ? "🔇" : "🔊";
         }
+        if (soundButtonImage != null) {
+            soundButtonImage.sprite = isMuted ? soundOffSprite : soundOnSprite;
+        }
     }
+
+    private Image soundButtonImage;
+
+    private void Awake() {
+        if (soundButton != null) {
+            soundButtonImage = soundButton.GetComponent<Image>();
+        }
+    }
+
 
     private IEnumerator StartGameRoutine() {
         // Fade out
