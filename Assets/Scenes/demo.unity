@@ -2215,8 +2215,8 @@ MonoBehaviour:
     cost: 175
     tintColor: {r: 0.85, g: 0.2, b: 0.85, a: 1}
     isLocked: 0
-    damage: 3
-    attackInterval: 0.1
+    damage: 2
+    attackInterval: 0.5
     projectileSpeed: 10
     cooldown: 5
   - name: "Sunflower \U0001F33B"
