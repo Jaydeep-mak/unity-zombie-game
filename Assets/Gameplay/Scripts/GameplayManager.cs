@@ -159,11 +159,15 @@ public class GameplayManager : MonoBehaviour {
         UpdateUI();
     }
 
-    private void TriggerGameOver() {
-        StartCoroutine(GameOverSequenceRoutine());
+    public void TriggerVictory() {
+        StartCoroutine(GameOverSequenceRoutine(true));
     }
 
-    private IEnumerator GameOverSequenceRoutine() {
+    private void TriggerGameOver() {
+        StartCoroutine(GameOverSequenceRoutine(false));
+    }
+
+    private IEnumerator GameOverSequenceRoutine(bool isVictory = false) {
         // Stop active gameplay components, but don't pause yet
         foreach (var wm in FindObjectsByType<WaveManager>(FindObjectsSortMode.None)) {
             wm.enabled = false;
@@ -193,6 +197,21 @@ public class GameplayManager : MonoBehaviour {
         if (gameOverPopup != null) {
             gameOverPopup.SetActive(true);
             
+            // Dynamically customize title text and background border for victory
+            var titleTextComp = gameOverPopup.transform.Find("Title")?.GetComponent<TextMeshProUGUI>();
+            if (titleTextComp != null) {
+                titleTextComp.text = isVictory ? "VICTORY!" : "GAME OVER";
+                titleTextComp.color = isVictory ? new Color(0.2f, 0.85f, 0.2f, 1f) : new Color(0.95f, 0.15f, 0.15f, 1f);
+            }
+
+            var bgImageComp = gameOverPopup.transform.Find("Background")?.GetComponent<UnityEngine.UI.Image>();
+            if (bgImageComp != null) {
+                Color gameOverBgBottom = new Color(0.06f, 0.05f, 0.05f, 0.96f);
+                Color gameOverBgTop = new Color(0.16f, 0.10f, 0.10f, 0.96f);
+                Color gameOverBgBorder = isVictory ? new Color(0.2f, 0.85f, 0.2f, 1f) : new Color(0.90f, 0.20f, 0.20f, 1f);
+                bgImageComp.sprite = CreateRoundedRectGradientSprite(700, 540, 40, gameOverBgBottom, gameOverBgTop, gameOverBgBorder, 5);
+            }
+            
             var statsTransform = gameOverPopup.transform.Find("Stats");
             if (statsTransform != null) {
                 // Clear old rows
@@ -201,9 +220,12 @@ public class GameplayManager : MonoBehaviour {
                 }
 
                 // Create stats table rows dynamically without markup tags
-                string[] labels = { "WAVES SURVIVED", "ZOMBIES VANQUISHED", "ZOMBIES PENETRATED", "COINS REMAINING" };
+                string waveLabel = isVictory ? "WAVES COMPLETED" : "WAVES SURVIVED";
+                string waveVal = isVictory ? currentWave.ToString() : (currentWave - 1).ToString();
+
+                string[] labels = { waveLabel, "ZOMBIES VANQUISHED", "ZOMBIES PENETRATED", "COINS REMAINING" };
                 string[] values = { 
-                    (currentWave - 1).ToString(), 
+                    waveVal, 
                     zombiesKilled.ToString(), 
                     zombiesReached.ToString(), 
                     coins.ToString() 

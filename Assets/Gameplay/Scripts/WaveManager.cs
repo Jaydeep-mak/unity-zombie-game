@@ -53,6 +53,9 @@ public class WaveConfig {
 public class WaveManager : MonoBehaviour {
     public static WaveManager Instance { get; private set; }
 
+    [Header("End Condition")]
+    [SerializeField] private int totalWaves = 10;
+
     [Header("Zombie Type Configurations")]
     [SerializeField] private List<ZombieTypeConfig> zombieTypes = new List<ZombieTypeConfig>();
 
@@ -111,124 +114,138 @@ public class WaveManager : MonoBehaviour {
             zombieTypes.Add(new ZombieTypeConfig {
                 typeName = "Normal",
                 speed = 1.5f,
-                maxHealth = 4, // 2 shots of 2 damage
+                maxHealth = 4,
                 baseDamage = 1,
                 localScale = new Vector3(-1.0f, 1.2f, 1.0f),
                 spriteColor = Color.white
             });
             zombieTypes.Add(new ZombieTypeConfig {
-                typeName = "Strong",
-                speed = 1.5f,
-                maxHealth = 10, // 5 shots of 2 damage
-                baseDamage = 2,
-                localScale = new Vector3(-1.25f, 1.5f, 1.0f),
-                spriteColor = new Color(0.85f, 0.65f, 0.55f, 1f) // Rugged bronze tint
+                typeName = "Runner",
+                speed = 2.5f,
+                maxHealth = 3,
+                baseDamage = 1,
+                localScale = new Vector3(-0.8f, 0.96f, 1.0f),
+                spriteColor = new Color(0.9f, 0.9f, 0.5f, 1f)
             });
             zombieTypes.Add(new ZombieTypeConfig {
                 typeName = "Tank",
-                speed = 0.9f, // Slow
-                maxHealth = 20, // 10 shots of 2 damage
+                speed = 0.8f,
+                maxHealth = 30,
                 baseDamage = 3,
-                localScale = new Vector3(-1.65f, 1.98f, 1.0f),
-                spriteColor = new Color(0.6f, 0.45f, 0.8f, 1f) // Armored purple
+                localScale = new Vector3(-1.5f, 1.8f, 1.0f),
+                spriteColor = new Color(0.5f, 0.6f, 0.7f, 1f)
+            });
+            zombieTypes.Add(new ZombieTypeConfig {
+                typeName = "Berserker",
+                speed = 1.3f,
+                maxHealth = 15,
+                baseDamage = 5,
+                localScale = new Vector3(-1.1f, 1.3f, 1.0f),
+                spriteColor = new Color(1.0f, 0.4f, 0.4f, 1f)
             });
         }
 
         if (waveConfigs.Count == 0) {
-            // Wave 1: 5 zombies (100% Normal)
+            // Wave 1: 15 zombies (100% Normal)
             waveConfigs.Add(new WaveConfig {
-                zombieCount = 5,
-                spawnInterval = 2.0f,
-                spawnWeights = new List<ZombieSpawnWeight> { new ZombieSpawnWeight { typeName = "Normal", weight = 100 } }
-            });
-            // Wave 2: 8 zombies (100% Normal)
-            waveConfigs.Add(new WaveConfig {
-                zombieCount = 8,
+                zombieCount = 15,
                 spawnInterval = 1.8f,
                 spawnWeights = new List<ZombieSpawnWeight> { new ZombieSpawnWeight { typeName = "Normal", weight = 100 } }
             });
-            // Wave 3: 12 zombies (90% Normal, 10% Strong)
-            waveConfigs.Add(new WaveConfig {
-                zombieCount = 12,
-                spawnInterval = 1.6f,
-                spawnWeights = new List<ZombieSpawnWeight> {
-                    new ZombieSpawnWeight { typeName = "Normal", weight = 90 },
-                    new ZombieSpawnWeight { typeName = "Strong", weight = 10 }
-                }
-            });
-            // Wave 4: 15 zombies (85% Normal, 15% Strong)
-            waveConfigs.Add(new WaveConfig {
-                zombieCount = 15,
-                spawnInterval = 1.4f,
-                spawnWeights = new List<ZombieSpawnWeight> {
-                    new ZombieSpawnWeight { typeName = "Normal", weight = 85 },
-                    new ZombieSpawnWeight { typeName = "Strong", weight = 15 }
-                }
-            });
-            // Wave 5: 20 zombies (80% Normal, 20% Strong)
-            waveConfigs.Add(new WaveConfig {
-                zombieCount = 20,
-                spawnInterval = 1.2f,
-                spawnWeights = new List<ZombieSpawnWeight> {
-                    new ZombieSpawnWeight { typeName = "Normal", weight = 80 },
-                    new ZombieSpawnWeight { typeName = "Strong", weight = 20 }
-                }
-            });
-            // Wave 6: 25 zombies (60% Normal, 40% Strong)
+            // Wave 2: 25 zombies (100% Normal)
             waveConfigs.Add(new WaveConfig {
                 zombieCount = 25,
-                spawnInterval = 1.1f,
-                healthMultiplier = 1.1f,
+                spawnInterval = 1.5f,
+                spawnWeights = new List<ZombieSpawnWeight> { new ZombieSpawnWeight { typeName = "Normal", weight = 100 } }
+            });
+            // Wave 3: 40 zombies (70% Normal, 30% Runner)
+            waveConfigs.Add(new WaveConfig {
+                zombieCount = 40,
+                spawnInterval = 1.2f,
                 spawnWeights = new List<ZombieSpawnWeight> {
-                    new ZombieSpawnWeight { typeName = "Normal", weight = 60 },
-                    new ZombieSpawnWeight { typeName = "Strong", weight = 40 }
+                    new ZombieSpawnWeight { typeName = "Normal", weight = 70 },
+                    new ZombieSpawnWeight { typeName = "Runner", weight = 30 }
                 }
             });
-            // Wave 7: 30 zombies (60% Normal, 30% Strong, 10% Tank)
+            // Wave 4: 55 zombies (60% Normal, 40% Runner)
             waveConfigs.Add(new WaveConfig {
-                zombieCount = 30,
+                zombieCount = 55,
                 spawnInterval = 1.0f,
-                healthMultiplier = 1.15f,
                 spawnWeights = new List<ZombieSpawnWeight> {
                     new ZombieSpawnWeight { typeName = "Normal", weight = 60 },
-                    new ZombieSpawnWeight { typeName = "Strong", weight = 30 },
-                    new ZombieSpawnWeight { typeName = "Tank", weight = 10 }
+                    new ZombieSpawnWeight { typeName = "Runner", weight = 40 }
                 }
             });
-            // Wave 8: 35 zombies (50% Normal, 35% Strong, 15% Tank)
+            // Wave 5: 75 zombies (50% Normal, 35% Runner, 15% Tank)
             waveConfigs.Add(new WaveConfig {
-                zombieCount = 35,
-                spawnInterval = 0.9f,
-                healthMultiplier = 1.2f,
-                speedMultiplier = 1.05f,
+                zombieCount = 75,
+                spawnInterval = 0.8f,
                 spawnWeights = new List<ZombieSpawnWeight> {
                     new ZombieSpawnWeight { typeName = "Normal", weight = 50 },
-                    new ZombieSpawnWeight { typeName = "Strong", weight = 35 },
+                    new ZombieSpawnWeight { typeName = "Runner", weight = 35 },
                     new ZombieSpawnWeight { typeName = "Tank", weight = 15 }
                 }
             });
-            // Wave 9: 40 zombies (40% Normal, 40% Strong, 20% Tank)
+            // Wave 6: 100 zombies (45% Normal, 35% Runner, 20% Tank)
             waveConfigs.Add(new WaveConfig {
-                zombieCount = 40,
-                spawnInterval = 0.8f,
-                healthMultiplier = 1.25f,
-                speedMultiplier = 1.05f,
+                zombieCount = 100,
+                spawnInterval = 0.7f,
+                healthMultiplier = 1.1f,
                 spawnWeights = new List<ZombieSpawnWeight> {
-                    new ZombieSpawnWeight { typeName = "Normal", weight = 40 },
-                    new ZombieSpawnWeight { typeName = "Strong", weight = 40 },
+                    new ZombieSpawnWeight { typeName = "Normal", weight = 45 },
+                    new ZombieSpawnWeight { typeName = "Runner", weight = 35 },
                     new ZombieSpawnWeight { typeName = "Tank", weight = 20 }
                 }
             });
-            // Wave 10: 50 zombies (30% Normal, 40% Strong, 30% Tank)
+            // Wave 7: 120 zombies (40% Normal, 30% Runner, 15% Tank, 15% Berserker)
             waveConfigs.Add(new WaveConfig {
-                zombieCount = 50,
-                spawnInterval = 0.7f,
+                zombieCount = 120,
+                spawnInterval = 0.6f,
+                healthMultiplier = 1.15f,
+                spawnWeights = new List<ZombieSpawnWeight> {
+                    new ZombieSpawnWeight { typeName = "Normal", weight = 40 },
+                    new ZombieSpawnWeight { typeName = "Runner", weight = 30 },
+                    new ZombieSpawnWeight { typeName = "Tank", weight = 15 },
+                    new ZombieSpawnWeight { typeName = "Berserker", weight = 15 }
+                }
+            });
+            // Wave 8: 150 zombies (30% Normal, 30% Runner, 20% Tank, 20% Berserker)
+            waveConfigs.Add(new WaveConfig {
+                zombieCount = 150,
+                spawnInterval = 0.5f,
+                healthMultiplier = 1.2f,
+                speedMultiplier = 1.05f,
+                spawnWeights = new List<ZombieSpawnWeight> {
+                    new ZombieSpawnWeight { typeName = "Normal", weight = 30 },
+                    new ZombieSpawnWeight { typeName = "Runner", weight = 30 },
+                    new ZombieSpawnWeight { typeName = "Tank", weight = 20 },
+                    new ZombieSpawnWeight { typeName = "Berserker", weight = 20 }
+                }
+            });
+            // Wave 9: 180 zombies (25% Normal, 25% Runner, 25% Tank, 25% Berserker)
+            waveConfigs.Add(new WaveConfig {
+                zombieCount = 180,
+                spawnInterval = 0.45f,
+                healthMultiplier = 1.25f,
+                speedMultiplier = 1.05f,
+                spawnWeights = new List<ZombieSpawnWeight> {
+                    new ZombieSpawnWeight { typeName = "Normal", weight = 25 },
+                    new ZombieSpawnWeight { typeName = "Runner", weight = 25 },
+                    new ZombieSpawnWeight { typeName = "Tank", weight = 25 },
+                    new ZombieSpawnWeight { typeName = "Berserker", weight = 25 }
+                }
+            });
+            // Wave 10: 220 zombies (20% Normal, 25% Runner, 25% Tank, 30% Berserker)
+            waveConfigs.Add(new WaveConfig {
+                zombieCount = 220,
+                spawnInterval = 0.4f,
                 healthMultiplier = 1.3f,
                 speedMultiplier = 1.1f,
                 spawnWeights = new List<ZombieSpawnWeight> {
-                    new ZombieSpawnWeight { typeName = "Normal", weight = 30 },
-                    new ZombieSpawnWeight { typeName = "Strong", weight = 40 },
-                    new ZombieSpawnWeight { typeName = "Tank", weight = 30 }
+                    new ZombieSpawnWeight { typeName = "Normal", weight = 20 },
+                    new ZombieSpawnWeight { typeName = "Runner", weight = 25 },
+                    new ZombieSpawnWeight { typeName = "Tank", weight = 25 },
+                    new ZombieSpawnWeight { typeName = "Berserker", weight = 30 }
                 }
             });
         }
@@ -279,9 +296,10 @@ public class WaveManager : MonoBehaviour {
                 healthMultiplier = lastConfig.healthMultiplier * Mathf.Pow(healthScaleFactor, waveDiff),
                 speedMultiplier = lastConfig.speedMultiplier * Mathf.Pow(speedScaleFactor, waveDiff),
                 spawnWeights = new List<ZombieSpawnWeight> {
-                    new ZombieSpawnWeight { typeName = "Normal", weight = 30f },
-                    new ZombieSpawnWeight { typeName = "Strong", weight = 40f },
-                    new ZombieSpawnWeight { typeName = "Tank", weight = 30f }
+                    new ZombieSpawnWeight { typeName = "Normal", weight = 20f },
+                    new ZombieSpawnWeight { typeName = "Runner", weight = 25f },
+                    new ZombieSpawnWeight { typeName = "Tank", weight = 25f },
+                    new ZombieSpawnWeight { typeName = "Berserker", weight = 30f }
                 }
             };
         }
@@ -517,6 +535,12 @@ public class WaveManager : MonoBehaviour {
             waveCompletePanel.SetActive(false);
         }
 
-        StartCoroutine(StartWaveRoutine(currentWaveNumber + 1));
+        if (currentWaveNumber >= totalWaves) {
+            if (GameplayManager.Instance != null) {
+                GameplayManager.Instance.TriggerVictory();
+            }
+        } else {
+            StartCoroutine(StartWaveRoutine(currentWaveNumber + 1));
+        }
     }
 }

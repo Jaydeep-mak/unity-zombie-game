@@ -1,1 +1,35 @@
-using UnityEngine; public class ZombieController : MonoBehaviour { public float speed = 1.5f; void Update() { transform.Translate(Vector2.left * speed * Time.deltaTime); } void OnTriggerEnter2D(Collider2D other) { if (other.CompareTag("Boundary")) Destroy(gameObject); } }
+using UnityEngine;
+
+public class ZombieController : MonoBehaviour {
+    public float speed = 1.5f;
+    
+    private Vector3 originalScale;
+    private float wobbleTimer = 0f;
+
+    private void Start() {
+        originalScale = transform.localScale;
+        // Offset starting timer randomly so zombies don't swing in perfect sync
+        wobbleTimer = Random.Range(0f, 10f);
+    }
+
+    private void Update() {
+        // Move zombie left
+        transform.Translate(Vector2.left * speed * Time.deltaTime);
+
+        // Procedural Walk/Run Animation: wobble frequency scale with speed
+        wobbleTimer += Time.deltaTime * speed * 4.5f;
+
+        float bounce = Mathf.Sin(wobbleTimer) * 0.05f;
+        float tilt = Mathf.Cos(wobbleTimer) * 5f;
+
+        // Apply scale bounce (Y dimension) and swing tilt (Z rotation)
+        transform.localScale = new Vector3(originalScale.x, originalScale.y * (1f + bounce), originalScale.z);
+        transform.rotation = Quaternion.Euler(0f, 0f, tilt);
+    }
+
+    private void OnTriggerEnter2D(Collider2D other) {
+        if (other.CompareTag("Boundary")) {
+            Destroy(gameObject);
+        }
+    }
+}
