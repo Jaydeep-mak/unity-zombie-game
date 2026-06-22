@@ -2183,6 +2183,7 @@ MonoBehaviour:
     cost: 100
     tintColor: {r: 1, g: 0.45, b: 0.15, a: 1}
     isLocked: 0
+    category: 0
     damage: 2
     attackInterval: 1.5
     projectileSpeed: 6
@@ -2191,6 +2192,7 @@ MonoBehaviour:
     cost: 125
     tintColor: {r: 0.2, g: 0.6, b: 1, a: 1}
     isLocked: 0
+    category: 1
     damage: 2
     attackInterval: 1.8
     projectileSpeed: 5
@@ -2199,6 +2201,7 @@ MonoBehaviour:
     cost: 75
     tintColor: {r: 0.2, g: 0.75, b: 0.15, a: 1}
     isLocked: 0
+    category: 0
     damage: 8
     attackInterval: 0.3
     projectileSpeed: 7
@@ -2207,6 +2210,7 @@ MonoBehaviour:
     cost: 150
     tintColor: {r: 0.85, g: 0.25, b: 0.15, a: 1}
     isLocked: 0
+    category: 1
     damage: 20
     attackInterval: 3
     projectileSpeed: 3
@@ -2215,14 +2219,25 @@ MonoBehaviour:
     cost: 175
     tintColor: {r: 0.85, g: 0.2, b: 0.85, a: 1}
     isLocked: 0
+    category: 0
     damage: 2
     attackInterval: 0.5
     projectileSpeed: 10
+    cooldown: 5
+  - name: "Gun Guardian \U0001F52B"
+    cost: 125
+    tintColor: {r: 0, g: 0.85, b: 1, a: 1}
+    isLocked: 0
+    category: 0
+    damage: 3
+    attackInterval: 0.35
+    projectileSpeed: 8
     cooldown: 5
   - name: "Sunflower \U0001F33B"
     cost: 50
     tintColor: {r: 1, g: 0.9, b: 0.2, a: 1}
     isLocked: 1
+    category: 3
     damage: 0
     attackInterval: 9999
     projectileSpeed: 0

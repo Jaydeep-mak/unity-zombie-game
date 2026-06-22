@@ -1,6 +1,14 @@
 using UnityEngine;
 using System.Collections;
 
+public enum PlantCategory {
+    Attack,
+    Trap,
+    Support,
+    Economy,
+    Tank
+}
+
 public class PlantPlacementManager : MonoBehaviour {
     public static PlantPlacementManager Instance { get; private set; }
 
@@ -10,6 +18,7 @@ public class PlantPlacementManager : MonoBehaviour {
         public int cost;
         public Color tintColor = Color.white;
         public bool isLocked = false;
+        public PlantCategory category = PlantCategory.Attack;
         
         [Header("Plant Config Parameters")]
         public int damage = 2;
@@ -183,7 +192,7 @@ public class PlantPlacementManager : MonoBehaviour {
                 previewGo.transform.position = cell.transform.position;
             }
 
-            if (!cell.isOccupied) {
+            if (IsValidPlacement(cell, slots[selectedSlotIndex])) {
                 cell.SetHighlight(new Color(0.2f, 1.0f, 0.2f, 0.4f)); // Green highlight
                 if (previewRenderer != null) {
                     previewRenderer.color = validPreviewColor;
@@ -196,6 +205,12 @@ public class PlantPlacementManager : MonoBehaviour {
                 cell.SetHighlight(new Color(1.0f, 0.2f, 0.2f, 0.4f)); // Red highlight
                 if (previewRenderer != null) {
                     previewRenderer.color = invalidPreviewColor;
+                }
+
+                if (Input.GetMouseButtonDown(0)) {
+                    if (slots[selectedSlotIndex].category == PlantCategory.Attack && (cell.column != 0 && cell.column != 1)) {
+                        Debug.LogWarning("Placement Blocked: Attack Plants can only be placed in the last two columns near the player base.");
+                    }
                 }
             }
         } else {
@@ -252,6 +267,11 @@ public class PlantPlacementManager : MonoBehaviour {
                     DestroyImmediate(oldPlant);
                 }
                 plant = plantGo.AddComponent<MagicBlossomPlant>();
+            } else if (data.name != null && (data.name.Contains("Gun") || data.name.Contains("Guardian"))) {
+                if (oldPlant != null) {
+                    DestroyImmediate(oldPlant);
+                }
+                plant = plantGo.AddComponent<GunGuardianPlant>();
             } else {
                 plant = plantGo.GetComponent<PlantBase>();
             }
@@ -281,5 +301,17 @@ public class PlantPlacementManager : MonoBehaviour {
             Debug.Log("Failed placement: Insufficient coins!");
             CancelSelection();
         }
+    }
+
+    public bool IsValidPlacement(GridCell cell, PlantSlotData data) {
+        if (cell == null || data == null) return false;
+        if (cell.isOccupied) return false;
+
+        if (data.category == PlantCategory.Attack) {
+            // Can only be placed in the last two columns nearest the player's base side (columns 0 and 1)
+            return cell.column == 0 || cell.column == 1;
+        }
+
+        return true;
     }
 }

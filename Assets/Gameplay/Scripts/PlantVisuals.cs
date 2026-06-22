@@ -12,6 +12,8 @@ public static class PlantVisuals {
     private static Sprite thornVineProjSprite;
     private static Sprite bombCactusProjSprite;
     private static Sprite magicBlossomProjSprite;
+    private static Sprite gunGuardianSprite;
+    private static Sprite gunGuardianProjSprite;
 
     public static Sprite GetPlantSprite(string name) {
         if (name == null) name = "";
@@ -43,6 +45,11 @@ public static class PlantVisuals {
             if (magicBlossomSprite != null) return magicBlossomSprite;
             magicBlossomSprite = CreateMagicBlossomSprite();
             return magicBlossomSprite;
+        }
+        else if (name.Contains("Gun") || name.Contains("Guardian")) {
+            if (gunGuardianSprite != null) return gunGuardianSprite;
+            gunGuardianSprite = CreateGunGuardianSprite();
+            return gunGuardianSprite;
         }
 
         // Fallback to default flower texture if nothing matched
@@ -79,6 +86,11 @@ public static class PlantVisuals {
             if (magicBlossomProjSprite != null) return magicBlossomProjSprite;
             magicBlossomProjSprite = CreateMagicBlossomProjSprite();
             return magicBlossomProjSprite;
+        }
+        else if (name.Contains("Gun") || name.Contains("Guardian")) {
+            if (gunGuardianProjSprite != null) return gunGuardianProjSprite;
+            gunGuardianProjSprite = CreateGunGuardianProjSprite();
+            return gunGuardianProjSprite;
         }
 
         return Projectile.CreateFireballSprite();
@@ -492,6 +504,109 @@ public static class PlantVisuals {
                     if (edgeDist < 2f) {
                         c.a *= (edgeDist / 2f);
                     }
+                }
+                cols[y * w + x] = c;
+            }
+        }
+
+        tex.SetPixels(cols);
+        tex.Apply();
+        return Sprite.Create(tex, new Rect(0, 0, w, h), new Vector2(0.5f, 0.5f), 100f);
+    }
+
+    private static Sprite CreateGunGuardianSprite() {
+        int w = 128, h = 128;
+        Texture2D tex = new Texture2D(w, h, TextureFormat.RGBA32, false);
+        tex.wrapMode = TextureWrapMode.Clamp;
+        Color[] cols = new Color[w * h];
+        Vector2 center = new Vector2(w / 2f, h / 2f);
+
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                Vector2 pos = new Vector2(x, y);
+                Vector2 offset = pos - center;
+
+                Color c = Color.clear;
+
+                // 1. Horizontal Gun Barrel (extends from center to right)
+                bool inBarrel = offset.x >= 0f && offset.x <= 48f && Mathf.Abs(offset.y) <= 8f;
+                
+                // 2. Turret Base (circular, radius 32)
+                float baseDist = offset.magnitude;
+                bool inBase = baseDist <= 32f;
+
+                // 3. Central core glow (radius 12)
+                bool inCore = baseDist <= 12f;
+
+                if (inBarrel) {
+                    float t = offset.x / 48f;
+                    // Dark steel to glowing blue tip
+                    c = Color.Lerp(new Color(0.3f, 0.3f, 0.35f, 1f), new Color(0f, 0.85f, 1f, 1f), t);
+                }
+
+                if (inBase) {
+                    float t = baseDist / 32f;
+                    Color baseCol = Color.Lerp(new Color(0.18f, 0.18f, 0.22f, 1f), new Color(0.35f, 0.35f, 0.42f, 1f), 1f - t);
+                    if (baseDist >= 28f) {
+                        baseCol = new Color(0.12f, 0.12f, 0.15f, 1f); // Dark rim
+                    }
+                    c = baseCol;
+                }
+
+                if (inCore) {
+                    float t = baseDist / 12f;
+                    Color coreCol = Color.Lerp(Color.cyan, Color.white, 1f - t);
+                    c = coreCol;
+                }
+
+                // Smooth edges
+                if (c != Color.clear) {
+                    float edgeDist = 0f;
+                    if (inCore) {
+                        // Core overlays base
+                    } else if (inBase) {
+                        edgeDist = 32f - baseDist;
+                    } else if (inBarrel) {
+                        float distY = 8f - Mathf.Abs(offset.y);
+                        float distX = 48f - offset.x;
+                        edgeDist = Mathf.Min(distY, distX);
+                    }
+
+                    if (edgeDist > 0f && edgeDist < 2f) {
+                        c.a *= (edgeDist / 2f);
+                    }
+                }
+
+                cols[y * w + x] = c;
+            }
+        }
+
+        tex.SetPixels(cols);
+        tex.Apply();
+        return Sprite.Create(tex, new Rect(0, 0, w, h), new Vector2(0.5f, 0.5f), 100f);
+    }
+
+    private static Sprite CreateGunGuardianProjSprite() {
+        int w = 64, h = 64;
+        Texture2D tex = new Texture2D(w, h, TextureFormat.RGBA32, false);
+        tex.wrapMode = TextureWrapMode.Clamp;
+        Color[] cols = new Color[w * h];
+        Vector2 center = new Vector2(w / 2f, h / 2f);
+
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                Vector2 pos = new Vector2(x, y);
+                Vector2 offset = pos - center;
+                // Capsule shape: horizontally elongated
+                float d = Mathf.Sqrt(offset.x * offset.x * 0.8f + offset.y * offset.y * 3.5f);
+
+                Color c = Color.clear;
+                if (d <= 14f) {
+                    float t = d / 14f;
+                    // White core to cyan edge
+                    c = Color.Lerp(Color.white, new Color(0f, 0.85f, 1f, 1f), t);
+                    float edge = 14f - d;
+                    if (edge < 2f) c.a *= (edge / 2f);
                 }
                 cols[y * w + x] = c;
             }
