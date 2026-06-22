@@ -247,6 +247,11 @@ public class PlantPlacementManager : MonoBehaviour {
                     DestroyImmediate(oldPlant);
                 }
                 plant = plantGo.AddComponent<BombCactusPlant>();
+            } else if (data.name != null && (data.name.Contains("Magic") || data.name.Contains("Blossom"))) {
+                if (oldPlant != null) {
+                    DestroyImmediate(oldPlant);
+                }
+                plant = plantGo.AddComponent<MagicBlossomPlant>();
             } else {
                 plant = plantGo.GetComponent<PlantBase>();
             }

@@ -2211,13 +2211,13 @@ MonoBehaviour:
     attackInterval: 3
     projectileSpeed: 3
     cooldown: 6
-  - name: "Lightning Plant \u26A1"
+  - name: "Magic Blossom \U0001F338"
     cost: 175
-    tintColor: {r: 0.9, g: 0.9, b: 0.1, a: 1}
-    isLocked: 1
+    tintColor: {r: 0.85, g: 0.2, b: 0.85, a: 1}
+    isLocked: 0
     damage: 3
-    attackInterval: 1.2
-    projectileSpeed: 8
+    attackInterval: 0.1
+    projectileSpeed: 10
     cooldown: 5
   - name: "Sunflower \U0001F33B"
     cost: 50

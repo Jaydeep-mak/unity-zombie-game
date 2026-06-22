@@ -5,11 +5,13 @@ public static class PlantVisuals {
     private static Sprite frostFlowerSprite;
     private static Sprite thornVineSprite;
     private static Sprite bombCactusSprite;
+    private static Sprite magicBlossomSprite;
 
     private static Sprite fireBloomProjSprite;
     private static Sprite frostFlowerProjSprite;
     private static Sprite thornVineProjSprite;
     private static Sprite bombCactusProjSprite;
+    private static Sprite magicBlossomProjSprite;
 
     public static Sprite GetPlantSprite(string name) {
         if (name == null) name = "";
@@ -36,6 +38,11 @@ public static class PlantVisuals {
             if (bombCactusSprite != null) return bombCactusSprite;
             bombCactusSprite = CreateBombCactusSprite();
             return bombCactusSprite;
+        }
+        else if (name.Contains("Magic") || name.Contains("Blossom")) {
+            if (magicBlossomSprite != null) return magicBlossomSprite;
+            magicBlossomSprite = CreateMagicBlossomSprite();
+            return magicBlossomSprite;
         }
 
         // Fallback to default flower texture if nothing matched
@@ -67,6 +74,11 @@ public static class PlantVisuals {
             if (bombCactusProjSprite != null) return bombCactusProjSprite;
             bombCactusProjSprite = CreateBombCactusProjSprite();
             return bombCactusProjSprite;
+        }
+        else if (name.Contains("Magic") || name.Contains("Blossom")) {
+            if (magicBlossomProjSprite != null) return magicBlossomProjSprite;
+            magicBlossomProjSprite = CreateMagicBlossomProjSprite();
+            return magicBlossomProjSprite;
         }
 
         return Projectile.CreateFireballSprite();
@@ -390,6 +402,97 @@ public static class PlantVisuals {
                     if (edge < 1f) c.a *= edge;
                 }
 
+                cols[y * w + x] = c;
+            }
+        }
+
+        tex.SetPixels(cols);
+        tex.Apply();
+        return Sprite.Create(tex, new Rect(0, 0, w, h), new Vector2(0.5f, 0.5f), 100f);
+    }
+
+    private static Sprite CreateMagicBlossomSprite() {
+        int w = 128, h = 128;
+        Texture2D tex = new Texture2D(w, h, TextureFormat.RGBA32, false);
+        tex.wrapMode = TextureWrapMode.Clamp;
+        Color[] cols = new Color[w * h];
+        Vector2 center = new Vector2(w / 2f, h / 2f);
+
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                Vector2 pos = new Vector2(x, y);
+                float dist = Vector2.Distance(pos, center);
+                Vector2 dir = (pos - center).normalized;
+                float angle = Mathf.Atan2(dir.y, dir.x);
+
+                // 5 petals pattern
+                float petalVal = Mathf.Max(0f, Mathf.Cos(5f * angle));
+                float maxPetalRadius = 22f + 28f * petalVal;
+                float midPetalRadius = 15f + 18f * petalVal;
+                float innerRadius = 12f;
+
+                Color c = Color.clear;
+                if (dist <= maxPetalRadius) {
+                    float t = dist / maxPetalRadius;
+                    c = Color.Lerp(new Color(0.85f, 0.1f, 0.85f, 1f), new Color(1f, 0.4f, 0.7f, 1f), t);
+                    
+                    if (dist <= midPetalRadius) {
+                        float tMid = dist / midPetalRadius;
+                        c = Color.Lerp(new Color(1f, 0.4f, 0.7f, 1f), new Color(0.6f, 0.2f, 1f, 1f), tMid);
+                    }
+                    if (dist <= innerRadius) {
+                        float tInner = dist / innerRadius;
+                        c = Color.Lerp(new Color(0.6f, 0.2f, 1f, 1f), Color.white, tInner);
+                    }
+
+                    float edgeDist = maxPetalRadius - dist;
+                    if (edgeDist < 3f) {
+                        c.a *= (edgeDist / 3f);
+                    }
+                }
+                cols[y * w + x] = c;
+            }
+        }
+
+        tex.SetPixels(cols);
+        tex.Apply();
+        return Sprite.Create(tex, new Rect(0, 0, w, h), new Vector2(0.5f, 0.5f), 100f);
+    }
+
+    private static Sprite CreateMagicBlossomProjSprite() {
+        int w = 64, h = 64;
+        Texture2D tex = new Texture2D(w, h, TextureFormat.RGBA32, false);
+        tex.wrapMode = TextureWrapMode.Clamp;
+        Color[] cols = new Color[w * h];
+        Vector2 center = new Vector2(w / 2f, h / 2f);
+
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                Vector2 pos = new Vector2(x, y);
+                float dist = Vector2.Distance(pos, center);
+                Vector2 dir = (pos - center).normalized;
+                float angle = Mathf.Atan2(dir.y, dir.x);
+
+                // 4-point star shape
+                float starVal = Mathf.Pow(Mathf.Abs(Mathf.Cos(2f * angle)), 4f);
+                float maxStarRadius = 8f + 16f * starVal;
+                float innerRadius = 6f;
+
+                Color c = Color.clear;
+                if (dist <= maxStarRadius) {
+                    float t = dist / maxStarRadius;
+                    c = Color.Lerp(new Color(0.9f, 0.1f, 0.6f, 1f), new Color(0.2f, 0.8f, 1f, 1f), t);
+
+                    if (dist <= innerRadius) {
+                        float tInner = dist / innerRadius;
+                        c = Color.Lerp(new Color(0.2f, 0.8f, 1f, 1f), Color.white, tInner);
+                    }
+
+                    float edgeDist = maxStarRadius - dist;
+                    if (edgeDist < 2f) {
+                        c.a *= (edgeDist / 2f);
+                    }
+                }
                 cols[y * w + x] = c;
             }
         }

@@ -18,6 +18,7 @@ public class ZombieHealth : MonoBehaviour {
     private float maxFillScaleX = 0.8f; // width in units
 
     private bool isDead = false;
+    public bool IsDead => isDead;
 
     private bool isInitialized = false;
 
