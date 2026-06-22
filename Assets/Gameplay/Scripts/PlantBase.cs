@@ -11,8 +11,17 @@ public abstract class PlantBase : MonoBehaviour {
     protected float attackTimer = 0f;
     protected Vector3 originalScale;
 
+    [Header("Lifetime System")]
+    [SerializeField] protected float lifetime = -1f;
+    protected float remainingLifetime;
+    protected bool isExpiring = false;
+    protected SpriteRenderer spriteRenderer;
+    private float blinkTimer = 0f;
+
     protected virtual void Start() {
         originalScale = transform.localScale;
+        remainingLifetime = lifetime;
+        spriteRenderer = GetComponent<SpriteRenderer>();
         // Offset starting timer randomly slightly so plants don't fire exactly in sync if placed at same time
         attackTimer = Random.Range(0f, 0.5f);
         StartCoroutine(PlacementAnimationRoutine());
@@ -60,6 +69,7 @@ public abstract class PlantBase : MonoBehaviour {
     }
 
     protected virtual System.Collections.IEnumerator DeathAnimationRoutine() {
+        if (spriteRenderer != null) spriteRenderer.enabled = true;
         float elapsed = 0f;
         float duration = 0.3f;
         Vector3 startScale = transform.localScale;
@@ -74,6 +84,8 @@ public abstract class PlantBase : MonoBehaviour {
     }
 
     protected virtual void Update() {
+        UpdateLifetime();
+
         attackTimer += Time.deltaTime;
         
         if (attackTimer >= attackInterval) {
@@ -101,19 +113,70 @@ public abstract class PlantBase : MonoBehaviour {
 
     public string PlantName { get; protected set; }
 
-    public virtual void Configure(int damageVal, float intervalVal, float speedVal, Color color, string nameVal = "") {
+    public virtual void Configure(int damageVal, float intervalVal, float speedVal, Color color, string nameVal = "", float lifetimeVal = -1f) {
         this.damage = damageVal;
         this.attackInterval = intervalVal;
         this.projectileSpeed = speedVal;
         this.PlantName = nameVal;
-        var sr = GetComponent<SpriteRenderer>();
-        if (sr != null) {
+        this.lifetime = lifetimeVal;
+        this.remainingLifetime = lifetimeVal;
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null) {
             Sprite customSprite = PlantVisuals.GetPlantSprite(nameVal);
             if (customSprite != null) {
-                sr.sprite = customSprite;
-                sr.color = Color.white; // Reset to white so custom sprite colors show properly
+                spriteRenderer.sprite = customSprite;
+                spriteRenderer.color = Color.white; // Reset to white so custom sprite colors show properly
             } else {
-                sr.color = color;
+                spriteRenderer.color = color;
+            }
+        }
+    }
+
+    protected void UpdateLifetime() {
+        if (lifetime <= 0f || isExpiring) return;
+
+        remainingLifetime -= Time.deltaTime;
+
+        if (remainingLifetime <= 5f) {
+            float blinkInterval = 0.5f; // Slow blink (5 to 2 seconds)
+            if (remainingLifetime <= 2f) {
+                blinkInterval = 0.2f; // Faster blink (2 to 1 seconds)
+            }
+            if (remainingLifetime <= 1f) {
+                blinkInterval = 0.08f; // Rapid blink (1 to 0 seconds)
+            }
+
+            blinkTimer += Time.deltaTime;
+            if (blinkTimer >= blinkInterval) {
+                blinkTimer = 0f;
+                if (spriteRenderer != null) {
+                    spriteRenderer.enabled = !spriteRenderer.enabled;
+                }
+            }
+        } else {
+            if (spriteRenderer != null && !spriteRenderer.enabled) {
+                spriteRenderer.enabled = true;
+            }
+        }
+
+        if (remainingLifetime <= 0f) {
+            isExpiring = true;
+            if (spriteRenderer != null) {
+                spriteRenderer.enabled = true;
+            }
+            FreeGridCell();
+            PlayDeathAnimation();
+        }
+    }
+
+    protected void FreeGridCell() {
+        var cells = FindObjectsByType<GridCell>(FindObjectsSortMode.None);
+        foreach (var cell in cells) {
+            if (cell.placedPlant == gameObject) {
+                cell.isOccupied = false;
+                cell.placedPlant = null;
+                cell.ResetHighlight();
+                break;
             }
         }
     }

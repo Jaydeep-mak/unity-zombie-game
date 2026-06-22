@@ -2208,6 +2208,7 @@ MonoBehaviour:
     attackInterval: 1.5
     projectileSpeed: 6
     cooldown: 5
+    lifetime: 40
   - name: "Frost Flower \u2744\uFE0F"
     cost: 125
     tintColor: {r: 0.2, g: 0.6, b: 1, a: 1}
@@ -2217,6 +2218,7 @@ MonoBehaviour:
     attackInterval: 1.8
     projectileSpeed: 5
     cooldown: 5
+    lifetime: -1
   - name: "Thorn Vine \U0001F33F"
     cost: 75
     tintColor: {r: 0.2, g: 0.75, b: 0.15, a: 1}
@@ -2226,6 +2228,7 @@ MonoBehaviour:
     attackInterval: 0.3
     projectileSpeed: 7
     cooldown: 4
+    lifetime: 30
   - name: "Bomb Cactus \U0001F4A3"
     cost: 150
     tintColor: {r: 0.85, g: 0.25, b: 0.15, a: 1}
@@ -2235,6 +2238,7 @@ MonoBehaviour:
     attackInterval: 3
     projectileSpeed: 3
     cooldown: 6
+    lifetime: -1
   - name: "Magic Blossom \U0001F338"
     cost: 175
     tintColor: {r: 0.85, g: 0.2, b: 0.85, a: 1}
@@ -2244,6 +2248,7 @@ MonoBehaviour:
     attackInterval: 0.5
     projectileSpeed: 10
     cooldown: 5
+    lifetime: 20
   - name: "Gun Guardian \U0001F52B"
     cost: 125
     tintColor: {r: 0, g: 0.85, b: 1, a: 1}
@@ -2253,6 +2258,7 @@ MonoBehaviour:
     attackInterval: 0.35
     projectileSpeed: 8
     cooldown: 5
+    lifetime: -1
   - name: "Sunflower \U0001F33B"
     cost: 50
     tintColor: {r: 1, g: 0.9, b: 0.2, a: 1}
@@ -2262,6 +2268,7 @@ MonoBehaviour:
     attackInterval: 9999
     projectileSpeed: 0
     cooldown: 5
+    lifetime: -1
   validPreviewColor: {r: 0.2, g: 1, b: 0.2, a: 0.6}
   invalidPreviewColor: {r: 1, g: 0.2, b: 0.2, a: 0.6}
 --- !u!1 &408370805

@@ -15,7 +15,7 @@ public abstract class TrapPlantBase : PlantBase {
     }
 
     protected override void Update() {
-        // Trap plants do not perform lane range detection or shoot periodic projectiles
+        UpdateLifetime();
     }
 
     protected override GameObject DetectZombieInLane() {
@@ -48,15 +48,5 @@ public abstract class TrapPlantBase : PlantBase {
         Destroy(gameObject);
     }
 
-    private void FreeGridCell() {
-        var cells = FindObjectsByType<GridCell>(FindObjectsSortMode.None);
-        foreach (var cell in cells) {
-            if (cell.placedPlant == gameObject) {
-                cell.isOccupied = false;
-                cell.placedPlant = null;
-                cell.ResetHighlight();
-                break;
-            }
-        }
-    }
+
 }

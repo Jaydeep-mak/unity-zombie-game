@@ -25,6 +25,7 @@ public class PlantPlacementManager : MonoBehaviour {
         public float attackInterval = 1.5f;
         public float projectileSpeed = 5f;
         public float cooldown = 5f;
+        public float lifetime = -1f;
     }
 
     [Header("Placement References")]
@@ -280,7 +281,7 @@ public class PlantPlacementManager : MonoBehaviour {
                 if (projPrefab != null) {
                     plant.ProjectilePrefab = projPrefab;
                 }
-                plant.Configure(data.damage, data.attackInterval, data.projectileSpeed, data.tintColor, data.name);
+                plant.Configure(data.damage, data.attackInterval, data.projectileSpeed, data.tintColor, data.name, data.lifetime);
             }
 
             cell.isOccupied = true;
