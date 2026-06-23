@@ -26,6 +26,7 @@ public class PlantPlacementManager : MonoBehaviour {
         public float projectileSpeed = 5f;
         public float cooldown = 5f;
         public float lifetime = -1f;
+        public int maxHealth = 10;
 
         [Header("Economy Config (Economy plants only)")]
         public float coinGenerationInterval = 8f;
@@ -275,11 +276,16 @@ public class PlantPlacementManager : MonoBehaviour {
                     DestroyImmediate(oldPlant);
                 }
                 plant = plantGo.AddComponent<MagicBlossomPlant>();
-            } else if (data.name != null && (data.name.Contains("Gun") || data.name.Contains("Guardian"))) {
+            } else if (data.name != null && data.name.Contains("Gun") && data.name.Contains("Guardian")) {
                 if (oldPlant != null) {
                     DestroyImmediate(oldPlant);
                 }
                 plant = plantGo.AddComponent<GunGuardianPlant>();
+            } else if (data.name != null && data.name.Contains("Oak")) {
+                if (oldPlant != null) {
+                    DestroyImmediate(oldPlant);
+                }
+                plant = plantGo.AddComponent<GuardianOakPlant>();
             } else if (data.category == PlantCategory.Economy || (data.name != null && data.name.Contains("Sunflower"))) {
                 if (oldPlant != null) {
                     DestroyImmediate(oldPlant);
@@ -295,7 +301,7 @@ public class PlantPlacementManager : MonoBehaviour {
                 if (projPrefab != null) {
                     plant.ProjectilePrefab = projPrefab;
                 }
-                plant.Configure(data.damage, data.attackInterval, data.projectileSpeed, data.tintColor, data.name, data.lifetime);
+                plant.Configure(data.damage, data.attackInterval, data.projectileSpeed, data.tintColor, data.name, data.lifetime, data.maxHealth);
             }
 
             cell.isOccupied = true;

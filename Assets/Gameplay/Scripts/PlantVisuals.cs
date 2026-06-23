@@ -15,6 +15,7 @@ public static class PlantVisuals {
     private static Sprite gunGuardianSprite;
     private static Sprite gunGuardianProjSprite;
     private static Sprite sunflowerTreeSprite;
+    private static Sprite guardianOakSprite;
 
     public static Sprite GetPlantSprite(string name) {
         if (name == null) name = "";
@@ -47,7 +48,12 @@ public static class PlantVisuals {
             magicBlossomSprite = CreateMagicBlossomSprite();
             return magicBlossomSprite;
         }
-        else if (name.Contains("Gun") || name.Contains("Guardian")) {
+        else if (name.Contains("Oak")) {
+            if (guardianOakSprite != null) return guardianOakSprite;
+            guardianOakSprite = CreateGuardianOakSprite();
+            return guardianOakSprite;
+        }
+        else if (name.Contains("Gun") && name.Contains("Guardian")) {
             if (gunGuardianSprite != null) return gunGuardianSprite;
             gunGuardianSprite = CreateGunGuardianSprite();
             return gunGuardianSprite;
@@ -93,7 +99,7 @@ public static class PlantVisuals {
             magicBlossomProjSprite = CreateMagicBlossomProjSprite();
             return magicBlossomProjSprite;
         }
-        else if (name.Contains("Gun") || name.Contains("Guardian")) {
+        else if (name.Contains("Gun") && name.Contains("Guardian")) {
             if (gunGuardianProjSprite != null) return gunGuardianProjSprite;
             gunGuardianProjSprite = CreateGunGuardianProjSprite();
             return gunGuardianProjSprite;
@@ -664,6 +670,142 @@ public static class PlantVisuals {
                         c.a *= (edgeDist / 3f);
                     }
                 }
+                cols[y * w + x] = c;
+            }
+        }
+
+        tex.SetPixels(cols);
+        tex.Apply();
+        return Sprite.Create(tex, new Rect(0, 0, w, h), new Vector2(0.5f, 0.5f), 100f);
+    }
+
+    private static Sprite CreateGuardianOakSprite() {
+        int w = 128, h = 128;
+        Texture2D tex = new Texture2D(w, h, TextureFormat.RGBA32, false);
+        tex.wrapMode = TextureWrapMode.Clamp;
+        Color[] cols = new Color[w * h];
+
+        Color steelDark = new Color(0.18f, 0.18f, 0.22f, 1f);
+        Color steelLight = new Color(0.35f, 0.35f, 0.42f, 1f);
+        
+        Color leafDark = new Color(0.05f, 0.15f, 0.25f, 1f);
+        Color leafLight = new Color(0.1f, 0.35f, 0.55f, 1f);
+        Color glowCyan = new Color(0.0f, 0.85f, 1.0f, 1f);
+
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                Vector2 pos = new Vector2(x, y);
+                Color c = Color.clear;
+
+                // 1. Trunk
+                float trunkWidth = 32f - (y - 10f) * 0.15f;
+                bool inTrunk = y >= 15f && y <= 75f && Mathf.Abs(x - 64f) <= trunkWidth;
+
+                // 2. Roots
+                bool inRoots = false;
+                if (y < 20f && y >= 5f) {
+                    float rootSpread = 32f + (20f - y) * 1.2f;
+                    if (Mathf.Abs(x - 64f) <= rootSpread) {
+                        inRoots = true;
+                    }
+                }
+
+                // 3. Foliage/Leaves Crown
+                Vector2 foliageCenter = new Vector2(64f, 85f);
+                float foliageDist = Vector2.Distance(pos, foliageCenter);
+                float angle = Mathf.Atan2(pos.y - foliageCenter.y, pos.x - foliageCenter.x);
+                float wobble = Mathf.Sin(8f * angle) * 6f + Mathf.Cos(3f * angle) * 4f;
+                bool inFoliage = foliageDist <= (38f + wobble);
+
+                // 4. Smaller shoulder foliage
+                Vector2 leftFoliageCenter = new Vector2(35f, 65f);
+                float leftFoliageDist = Vector2.Distance(pos, leftFoliageCenter);
+                float leftWobble = Mathf.Sin(6f * angle) * 4f;
+                bool inLeftFoliage = leftFoliageDist <= (20f + leftWobble);
+
+                Vector2 rightFoliageCenter = new Vector2(93f, 65f);
+                float rightFoliageDist = Vector2.Distance(pos, rightFoliageCenter);
+                float rightWobble = Mathf.Cos(6f * angle) * 4f;
+                bool inRightFoliage = rightFoliageDist <= (20f + rightWobble);
+
+                // 5. Visor / Cybernetic glowing energy slit
+                bool inVisorGlow = y >= 40f && y <= 50f && Mathf.Abs(x - 64f) <= 24f;
+                bool inVisorFrame = y >= 42f && y <= 48f && Mathf.Abs(x - 64f) <= 20f;
+                bool inVisorCore = y >= 44f && y <= 46f && Mathf.Abs(x - 64f) <= 16f;
+
+                // 6. Central vertical energy circuit running down trunk
+                bool inEnergyCircuit = Mathf.Abs(x - 64f) <= 3f && y >= 15f && y <= 75f;
+
+                if (inTrunk || inRoots) {
+                    float tX = (x - 64f) / trunkWidth;
+                    // Metal panel lines
+                    float metalTexture = Mathf.Sin(x * 0.4f) * 0.08f;
+                    c = Color.Lerp(steelDark, steelLight, 0.5f + tX * 0.3f + metalTexture);
+
+                    // Add panel rivets or horizontal seams
+                    if (Mathf.Abs(y - 30f) < 1.5f || Mathf.Abs(y - 60f) < 1.5f) {
+                        c = Color.Lerp(c, steelDark * 0.6f, 0.7f);
+                    }
+                    if (Mathf.Abs(Mathf.Abs(x - 64f) - 15f) < 1.5f) {
+                        c = Color.Lerp(c, steelDark * 0.6f, 0.7f);
+                    }
+                }
+
+                if (inLeftFoliage || inRightFoliage || inFoliage) {
+                    float distVal = inFoliage ? (foliageDist / (38f + wobble)) : 0.5f;
+                    float leafTexture = Mathf.Sin(x * 0.5f) * Mathf.Cos(y * 0.5f) * 0.1f;
+                    Color leafBaseColor = Color.Lerp(leafLight, leafDark, distVal + leafTexture);
+                    
+                    // Cybernetic glowing energy highlights on foliage
+                    float leafGlowFactor = Mathf.Clamp01(Mathf.Sin(x * 0.3f + y * 0.2f));
+                    if (leafGlowFactor > 0.88f) {
+                        leafBaseColor = Color.Lerp(leafBaseColor, glowCyan, 0.4f);
+                    }
+
+                    if (c == Color.clear) {
+                        c = leafBaseColor;
+                    } else {
+                        c = Color.Lerp(c, leafBaseColor, 0.85f);
+                    }
+                }
+
+                // Superimpose energy circuit
+                if (inEnergyCircuit && (inTrunk || inRoots)) {
+                    c = glowCyan;
+                    // Make it have a brighter core
+                    if (Mathf.Abs(x - 64f) <= 1f) {
+                        c = Color.white;
+                    }
+                }
+
+                // Superimpose visor
+                if (inVisorGlow && (inTrunk || inRoots)) {
+                    float distToVisor = Mathf.Min(Mathf.Abs(y - 45f), Mathf.Abs(Mathf.Abs(x - 64f) - 20f));
+                    float glowAmt = Mathf.Clamp01(1f - (distToVisor / 8f));
+                    c = Color.Lerp(c, glowCyan, glowAmt * 0.75f);
+                }
+
+                if (inVisorFrame && (inTrunk || inRoots)) {
+                    c = steelDark * 0.4f; // Dark frame border
+                }
+
+                if (inVisorCore && (inTrunk || inRoots)) {
+                    c = Color.white; // Bright white center
+                }
+
+                // Smooth edges
+                if (c != Color.clear) {
+                    float edgeDist = 999f;
+                    if (inFoliage) edgeDist = Mathf.Min(edgeDist, (38f + wobble) - foliageDist);
+                    if (inLeftFoliage) edgeDist = Mathf.Min(edgeDist, (20f + leftWobble) - leftFoliageDist);
+                    if (inRightFoliage) edgeDist = Mathf.Min(edgeDist, (20f + rightWobble) - rightFoliageDist);
+                    if (y < 10f) edgeDist = Mathf.Min(edgeDist, y - 5f);
+                    
+                    if (edgeDist > 0f && edgeDist < 3f) {
+                        c.a *= (edgeDist / 3f);
+                    }
+                }
+
                 cols[y * w + x] = c;
             }
         }

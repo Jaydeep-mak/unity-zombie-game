@@ -18,9 +18,14 @@ public abstract class PlantBase : MonoBehaviour {
     protected SpriteRenderer spriteRenderer;
     private float blinkTimer = 0f;
 
+    [Header("Health System")]
+    [SerializeField] protected int maxHealth = 10;
+    protected int currentHealth;
+
     protected virtual void Start() {
         originalScale = transform.localScale;
         remainingLifetime = lifetime;
+        currentHealth = maxHealth;
         spriteRenderer = GetComponent<SpriteRenderer>();
         // Offset starting timer randomly slightly so plants don't fire exactly in sync if placed at same time
         attackTimer = Random.Range(0f, 0.5f);
@@ -42,6 +47,17 @@ public abstract class PlantBase : MonoBehaviour {
             yield return null;
         }
         transform.localScale = targetScale;
+    }
+
+    public virtual void TakeDamage(int dmg) {
+        if (isExpiring) return;
+        currentHealth = Mathf.Max(0, currentHealth - dmg);
+        PlayHitAnimation();
+        if (currentHealth <= 0) {
+            isExpiring = true;
+            FreeGridCell();
+            PlayDeathAnimation();
+        }
     }
 
     public virtual void PlayHitAnimation() {
@@ -112,14 +128,18 @@ public abstract class PlantBase : MonoBehaviour {
     }
 
     public string PlantName { get; protected set; }
+    public bool IsExpiring => isExpiring;
+    public int CurrentHealth => currentHealth;
 
-    public virtual void Configure(int damageVal, float intervalVal, float speedVal, Color color, string nameVal = "", float lifetimeVal = -1f) {
+    public virtual void Configure(int damageVal, float intervalVal, float speedVal, Color color, string nameVal = "", float lifetimeVal = -1f, int maxHealthVal = 10) {
         this.damage = damageVal;
         this.attackInterval = intervalVal;
         this.projectileSpeed = speedVal;
         this.PlantName = nameVal;
         this.lifetime = lifetimeVal;
         this.remainingLifetime = lifetimeVal;
+        this.maxHealth = maxHealthVal;
+        this.currentHealth = maxHealthVal;
         spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer != null) {
             Sprite customSprite = PlantVisuals.GetPlantSprite(nameVal);

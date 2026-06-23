@@ -39,6 +39,7 @@ public class PlantCollectionManager : MonoBehaviour {
         new PlantCollectionItem { name = "Bomb Cactus", displayName = "Bomb Cactus", isLocked = true },
         new PlantCollectionItem { name = "Magic Blossom", displayName = "Magic Blossom", isLocked = true },
         new PlantCollectionItem { name = "Gun Guardian", displayName = "Gun Guardian", isLocked = true },
+        new PlantCollectionItem { name = "Guardian Oak", displayName = "Guardian Oak", isLocked = true },
         new PlantCollectionItem { name = "Sunflower Tree", displayName = "Sunflower Tree", isLocked = true }
     };
 
@@ -515,6 +516,7 @@ public class PlantCollectionManager : MonoBehaviour {
             return "Trap Plant";
         }
         if (categoryName.Contains("Economy")) return "Economy Plant";
+        if (categoryName.Contains("Tank") || name.Contains("Oak")) return "Defense Plant";
         return categoryName + " Plant";
     }
 
@@ -669,6 +671,7 @@ public class PlantCollectionManager : MonoBehaviour {
             { "Bomb Cactus", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Explodes when zombies enter its tile.\n\n• Deals area damage.\n\n• Removed after detonation.</indent></align>" },
             { "Magic Blossom", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Attacks zombies anywhere on the battlefield.\n\n• Uses rapid magical attacks.\n\n• High damage over time.</indent></align>" },
             { "Gun Guardian", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Shoots rapid physical projectiles at zombies.\n\n• High rate of fire.\n\n• Excellent for sustaining damage lanes.</indent></align>" },
+            { "Guardian Oak", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Extremely high health.\n\n• Blocks zombies from advancing.\n\n• Protects nearby attack plants.\n\n• Does not deal damage.\n\n• Follows normal plant lifetime rules.</indent></align>" },
             { "Sunflower Tree", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Generates coins over time.\n\n• Supports long-term economy growth.\n\n• Helps build stronger defenses.</indent></align>" }
         };
 
@@ -681,7 +684,7 @@ public class PlantCollectionManager : MonoBehaviour {
             float lifetime = (float)slot.GetType().GetField("lifetime").GetValue(slot);
 
             string cleanName = fullName;
-            string[] emojis = { "🔥", "❄️", "🧪", "💣", "⚡", "🌻", "🌸", "🌿", "🔫" };
+            string[] emojis = { "🔥", "❄️", "🧪", "💣", "⚡", "🌻", "🌸", "🌿", "🔫", "🌳", "🛡️" };
             foreach (var em in emojis) {
                 cleanName = cleanName.Replace(em, "").Trim();
             }
