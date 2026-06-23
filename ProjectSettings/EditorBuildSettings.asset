@@ -14,5 +14,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/demo.unity
     guid: fef0501ce14f46cbabb8269dd4d119d7
+  - enabled: 1
+    path: Assets/Scenes/PlantCollectionScene.unity
+    guid: 23fcf781bbe6194fd88545b43abd9c14
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

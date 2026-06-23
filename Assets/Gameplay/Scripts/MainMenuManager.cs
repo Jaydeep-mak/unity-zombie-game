@@ -11,6 +11,7 @@ public class MainMenuManager : MonoBehaviour {
     [SerializeField] private Button startButton;
     [SerializeField] private Button settingsButton;
     [SerializeField] private Button soundButton;
+    [SerializeField] private Button plantsButton;
     [SerializeField] private TextMeshProUGUI soundText;
     [SerializeField] private Sprite soundOnSprite;
     [SerializeField] private Sprite soundOffSprite;
@@ -35,6 +36,9 @@ public class MainMenuManager : MonoBehaviour {
         }
         if (soundButton != null) {
             soundButton.onClick.AddListener(ToggleSound);
+        }
+        if (plantsButton != null) {
+            plantsButton.onClick.AddListener(OpenPlantCollection);
         }
 
         // Initialize sound state from AudioListener
@@ -95,6 +99,25 @@ public class MainMenuManager : MonoBehaviour {
 
         // Load the Demo Scene
         SceneManager.LoadScene("demo");
+    }
+
+    public void OpenPlantCollection() {
+        if (isStarting) return;
+        isStarting = true;
+        StartCoroutine(OpenPlantCollectionRoutine());
+    }
+
+    private IEnumerator OpenPlantCollectionRoutine() {
+        // Fade out
+        if (fadeOverlay != null) {
+            fadeOverlay.gameObject.SetActive(true);
+            yield return StartCoroutine(FadeRoutine(0f, 1f));
+        } else {
+            yield return new WaitForSeconds(0.5f);
+        }
+
+        // Load the PlantCollectionScene
+        SceneManager.LoadScene("PlantCollectionScene");
     }
 
     private IEnumerator FadeRoutine(float fromAlpha, float toAlpha) {
