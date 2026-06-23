@@ -530,6 +530,13 @@ public class WaveManager : MonoBehaviour {
             waveCompletePanel.SetActive(true);
         }
 
+        // Reward Global Progression Coins on wave completion
+        if (GlobalProgressionManager.Instance != null) {
+            int rewardAmount = 50 + (currentWaveNumber - 1) * 25;
+            GlobalProgressionManager.Instance.AddCoins(rewardAmount);
+            Debug.Log($"Rewarded {rewardAmount} Global Progression Coins for completing Wave {currentWaveNumber}.");
+        }
+
         yield return new WaitForSeconds(3.0f);
 
         if (waveCompletePanel != null) {

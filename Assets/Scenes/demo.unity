@@ -1983,6 +1983,7 @@ GameObject:
   - component: {fileID: 404978851}
   - component: {fileID: 404978852}
   - component: {fileID: 404978853}
+  - component: {fileID: 404978854}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -2289,6 +2290,19 @@ MonoBehaviour:
     coinAmount: 10
   validPreviewColor: {r: 0.2, g: 1, b: 0.2, a: 0.6}
   invalidPreviewColor: {r: 1, g: 0.2, b: 0.2, a: 0.6}
+--- !u!114 &404978854
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 404978849}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c062ccf4ad5e18395801b3f1977569b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  saveKey: GlobalProgressionCoins
 --- !u!1 &408370805
 GameObject:
   m_ObjectHideFlags: 0
