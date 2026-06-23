@@ -14,6 +14,7 @@ public static class PlantVisuals {
     private static Sprite magicBlossomProjSprite;
     private static Sprite gunGuardianSprite;
     private static Sprite gunGuardianProjSprite;
+    private static Sprite sunflowerTreeSprite;
 
     public static Sprite GetPlantSprite(string name) {
         if (name == null) name = "";
@@ -50,6 +51,11 @@ public static class PlantVisuals {
             if (gunGuardianSprite != null) return gunGuardianSprite;
             gunGuardianSprite = CreateGunGuardianSprite();
             return gunGuardianSprite;
+        }
+        else if (name.Contains("Sunflower") || name.Contains("Economy")) {
+            if (sunflowerTreeSprite != null) return sunflowerTreeSprite;
+            sunflowerTreeSprite = CreateSunflowerTreeSprite();
+            return sunflowerTreeSprite;
         }
 
         // Fallback to default flower texture if nothing matched
@@ -607,6 +613,56 @@ public static class PlantVisuals {
                     c = Color.Lerp(Color.white, new Color(0f, 0.85f, 1f, 1f), t);
                     float edge = 14f - d;
                     if (edge < 2f) c.a *= (edge / 2f);
+                }
+                cols[y * w + x] = c;
+            }
+        }
+
+        tex.SetPixels(cols);
+        tex.Apply();
+        return Sprite.Create(tex, new Rect(0, 0, w, h), new Vector2(0.5f, 0.5f), 100f);
+    }
+
+    private static Sprite CreateSunflowerTreeSprite() {
+        int w = 128, h = 128;
+        Texture2D tex = new Texture2D(w, h, TextureFormat.RGBA32, false);
+        tex.wrapMode = TextureWrapMode.Clamp;
+        Color[] cols = new Color[w * h];
+        Vector2 center = new Vector2(w / 2f, h / 2f);
+
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                Vector2 pos = new Vector2(x, y);
+                float dist = Vector2.Distance(pos, center);
+                Vector2 dir = (pos - center).normalized;
+                float angle = Mathf.Atan2(dir.y, dir.x);
+
+                // 12 petals (golden sunflower)
+                float petalVal = Mathf.Max(0f, Mathf.Cos(12f * angle));
+                float maxPetalRadius = 28f + 22f * petalVal;
+                float midPetalRadius = 20f + 16f * petalVal;
+                float innerRadius = 14f;
+
+                Color c = Color.clear;
+                if (dist <= maxPetalRadius) {
+                    float t = dist / maxPetalRadius;
+                    // Outer petals: Golden yellow
+                    c = Color.Lerp(new Color(1f, 0.85f, 0.1f, 1f), new Color(1f, 0.7f, 0.05f, 1f), t);
+
+                    if (dist <= midPetalRadius) {
+                        float tMid = dist / midPetalRadius;
+                        c = Color.Lerp(new Color(1f, 0.7f, 0.05f, 1f), new Color(1f, 0.9f, 0.15f, 1f), tMid);
+                    }
+                    if (dist <= innerRadius) {
+                        float tInner = dist / innerRadius;
+                        // Dark brown center for sunflower seeds
+                        c = Color.Lerp(new Color(0.3f, 0.15f, 0.05f, 1f), new Color(0.6f, 0.3f, 0.05f, 1f), tInner);
+                    }
+
+                    float edgeDist = maxPetalRadius - dist;
+                    if (edgeDist < 3f) {
+                        c.a *= (edgeDist / 3f);
+                    }
                 }
                 cols[y * w + x] = c;
             }

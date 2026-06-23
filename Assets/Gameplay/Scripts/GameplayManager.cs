@@ -1141,6 +1141,59 @@ public class GameplayManager : MonoBehaviour {
         Destroy(go);
     }
 
+    public void SpawnFlyingCoin(Vector3 screenStartPos, int amount) {
+        if (hudCanvas == null) return;
+        StartCoroutine(AnimateFlyingCoin(screenStartPos, amount));
+    }
+
+    private IEnumerator AnimateFlyingCoin(Vector3 screenStartPos, int amount) {
+        var coinGo = new GameObject("FlyingCoin");
+        coinGo.AddComponent<RectTransform>();
+        coinGo.transform.SetParent(hudCanvas.transform, false);
+        var coinImg = coinGo.AddComponent<UnityEngine.UI.Image>();
+        coinImg.sprite = activeCoinSprite;
+        coinImg.color = Color.white;
+
+        var rect = coinGo.GetComponent<RectTransform>();
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.zero;
+        rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = screenStartPos;
+        rect.sizeDelta = new Vector2(48f, 48f);
+
+        Vector2 targetPos = new Vector2(Screen.width * 0.5f - 110f, Screen.height - 40f);
+        Vector2 midPoint = new Vector2(
+            (screenStartPos.x + targetPos.x) * 0.5f,
+            screenStartPos.y + 120f
+        );
+
+        float duration = 0.5f;
+        float elapsed = 0f;
+        Vector2 startScale = Vector2.one;
+
+        while (elapsed < duration) {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            float tSmooth = t * t * (3f - 2f * t);
+
+            Vector2 a = Vector2.Lerp(screenStartPos, midPoint, tSmooth);
+            Vector2 b = Vector2.Lerp(midPoint, targetPos, tSmooth);
+            rect.anchoredPosition = Vector2.Lerp(a, b, tSmooth);
+
+            float scale = Mathf.Lerp(1f, 0.5f, tSmooth);
+            rect.localScale = Vector3.one * scale;
+
+            coinImg.color = new Color(1f, 1f, 1f, 1f - tSmooth * 0.3f);
+
+            yield return null;
+        }
+
+        Destroy(coinGo);
+
+        AddCoins(amount);
+        ShowCoinGain(amount);
+    }
+
     private IEnumerator PulsePill(Transform pillTransform, float targetScale) {
         float elapsed = 0f;
         float duration = 0.15f;

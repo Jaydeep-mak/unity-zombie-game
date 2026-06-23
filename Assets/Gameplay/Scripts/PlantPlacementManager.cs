@@ -26,6 +26,10 @@ public class PlantPlacementManager : MonoBehaviour {
         public float projectileSpeed = 5f;
         public float cooldown = 5f;
         public float lifetime = -1f;
+
+        [Header("Economy Config (Economy plants only)")]
+        public float coinGenerationInterval = 8f;
+        public int coinAmount = 10;
     }
 
     [Header("Placement References")]
@@ -209,8 +213,11 @@ public class PlantPlacementManager : MonoBehaviour {
                 }
 
                 if (Input.GetMouseButtonDown(0)) {
-                    if (slots[selectedSlotIndex].category == PlantCategory.Attack && (cell.column != 0 && cell.column != 1)) {
-                        Debug.LogWarning("Placement Blocked: Attack Plants can only be placed in the last two columns near the player base.");
+                    var cat = slots[selectedSlotIndex].category;
+                    if (cat == PlantCategory.Attack && (cell.column != 0 && cell.column != 1)) {
+                        Debug.LogWarning("Placement Blocked: Attack plants can only be placed in the last two columns near the player base.");
+                    } else if (cat == PlantCategory.Economy && (cell.column == 0 || cell.column == 1)) {
+                        Debug.LogWarning("Placement Blocked: Economy plants cannot be placed in the last two columns. Place them closer to the zombies!");
                     }
                 }
             }
@@ -273,11 +280,18 @@ public class PlantPlacementManager : MonoBehaviour {
                     DestroyImmediate(oldPlant);
                 }
                 plant = plantGo.AddComponent<GunGuardianPlant>();
+            } else if (data.category == PlantCategory.Economy || (data.name != null && data.name.Contains("Sunflower"))) {
+                if (oldPlant != null) {
+                    DestroyImmediate(oldPlant);
+                }
+                var econPlant = plantGo.AddComponent<SunflowerTreePlant>();
+                econPlant.ConfigureEconomy(data.damage, data.attackInterval, data.projectileSpeed, data.tintColor, data.name, data.lifetime, data.coinGenerationInterval, data.coinAmount);
+                plant = econPlant;
             } else {
                 plant = plantGo.GetComponent<PlantBase>();
             }
 
-            if (plant != null) {
+            if (plant != null && !(plant is EconomyPlantBase)) {
                 if (projPrefab != null) {
                     plant.ProjectilePrefab = projPrefab;
                 }
@@ -309,8 +323,10 @@ public class PlantPlacementManager : MonoBehaviour {
         if (cell.isOccupied) return false;
 
         if (data.category == PlantCategory.Attack) {
-            // Can only be placed in the last two columns nearest the player's base side (columns 0 and 1)
             return cell.column == 0 || cell.column == 1;
+        }
+        if (data.category == PlantCategory.Economy) {
+            return cell.column != 0 && cell.column != 1;
         }
 
         return true;
