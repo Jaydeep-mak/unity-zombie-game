@@ -110,9 +110,9 @@ public class GameplayManager : MonoBehaviour {
         activeZombieCount = Mathf.Max(0, activeZombieCount - 1);
     }
 
-    public void ZombieKilled() {
+    public void ZombieKilled(int coinReward = 10) {
         zombiesKilled++;
-        AddCoins(10); // Standard award on zombie kill
+        AddCoins(coinReward);
     }
 
     public void ZombieReachedBase(GameObject zombie, int baseDamage = 1) {

@@ -2018,8 +2018,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxBaseHealth: 10
-  coins: 1000
-  currentWave: 3
+  coins: 500
+  currentWave: 1
   spawner: {fileID: 1924248990}
   plantPrefab: {fileID: 8474474974889607615, guid: 4845888309657d2aa91c7b458a1ddbbd,
     type: 3}
@@ -2048,6 +2048,7 @@ MonoBehaviour:
     speed: 1.5
     maxHealth: 4
     baseDamage: 1
+    coinReward: 20
     localScale: {x: -1, y: 1.2, z: 1}
     spriteColor: {r: 1, g: 1, b: 1, a: 1}
   - typeName: Runner
@@ -2055,6 +2056,7 @@ MonoBehaviour:
     speed: 2.5
     maxHealth: 3
     baseDamage: 1
+    coinReward: 25
     localScale: {x: -0.8, y: 0.96, z: 1}
     spriteColor: {r: 0.9, g: 0.9, b: 0.5, a: 1}
   - typeName: Tank
@@ -2062,6 +2064,7 @@ MonoBehaviour:
     speed: 0.8
     maxHealth: 30
     baseDamage: 3
+    coinReward: 35
     localScale: {x: -1.5, y: 1.8, z: 1}
     spriteColor: {r: 0.5, g: 0.6, b: 0.7, a: 1}
   - typeName: Berserker
@@ -2069,25 +2072,26 @@ MonoBehaviour:
     speed: 1.3
     maxHealth: 15
     baseDamage: 5
+    coinReward: 40
     localScale: {x: -1.1, y: 1.3, z: 1}
     spriteColor: {r: 1, g: 0.4, b: 0.4, a: 1}
   waveConfigs:
-  - zombieCount: 15
-    spawnInterval: 1.8
+  - zombieCount: 6
+    spawnInterval: 2
     healthMultiplier: 1
     speedMultiplier: 1
     spawnWeights:
     - typeName: Normal
       weight: 100
-  - zombieCount: 25
-    spawnInterval: 1.5
+  - zombieCount: 9
+    spawnInterval: 1.6
     healthMultiplier: 1
     speedMultiplier: 1
     spawnWeights:
     - typeName: Normal
       weight: 100
-  - zombieCount: 40
-    spawnInterval: 1.2
+  - zombieCount: 11
+    spawnInterval: 1.4
     healthMultiplier: 1
     speedMultiplier: 1
     spawnWeights:
@@ -2095,8 +2099,8 @@ MonoBehaviour:
       weight: 70
     - typeName: Runner
       weight: 30
-  - zombieCount: 55
-    spawnInterval: 1
+  - zombieCount: 13
+    spawnInterval: 1.2
     healthMultiplier: 1
     speedMultiplier: 1
     spawnWeights:
@@ -2104,8 +2108,8 @@ MonoBehaviour:
       weight: 60
     - typeName: Runner
       weight: 40
-  - zombieCount: 75
-    spawnInterval: 0.8
+  - zombieCount: 16
+    spawnInterval: 1
     healthMultiplier: 1
     speedMultiplier: 1
     spawnWeights:
@@ -2115,9 +2119,9 @@ MonoBehaviour:
       weight: 35
     - typeName: Tank
       weight: 15
-  - zombieCount: 100
-    spawnInterval: 0.7
-    healthMultiplier: 1.1
+  - zombieCount: 20
+    spawnInterval: 0.9
+    healthMultiplier: 1.05
     speedMultiplier: 1
     spawnWeights:
     - typeName: Normal
@@ -2126,9 +2130,9 @@ MonoBehaviour:
       weight: 35
     - typeName: Tank
       weight: 20
-  - zombieCount: 120
-    spawnInterval: 0.6
-    healthMultiplier: 1.15
+  - zombieCount: 24
+    spawnInterval: 0.8
+    healthMultiplier: 1.1
     speedMultiplier: 1
     spawnWeights:
     - typeName: Normal
@@ -2136,41 +2140,41 @@ MonoBehaviour:
     - typeName: Runner
       weight: 30
     - typeName: Tank
-      weight: 15
+      weight: 20
     - typeName: Berserker
-      weight: 15
-  - zombieCount: 150
+      weight: 10
+  - zombieCount: 28
+    spawnInterval: 0.7
+    healthMultiplier: 1.12
+    speedMultiplier: 1
+    spawnWeights:
+    - typeName: Normal
+      weight: 30
+    - typeName: Runner
+      weight: 30
+    - typeName: Tank
+      weight: 20
+    - typeName: Berserker
+      weight: 20
+  - zombieCount: 33
+    spawnInterval: 0.6
+    healthMultiplier: 1.15
+    speedMultiplier: 1.03
+    spawnWeights:
+    - typeName: Normal
+      weight: 25
+    - typeName: Runner
+      weight: 25
+    - typeName: Tank
+      weight: 25
+    - typeName: Berserker
+      weight: 25
+  - zombieCount: 38
     spawnInterval: 0.5
     healthMultiplier: 1.2
     speedMultiplier: 1.05
     spawnWeights:
     - typeName: Normal
-      weight: 30
-    - typeName: Runner
-      weight: 30
-    - typeName: Tank
-      weight: 20
-    - typeName: Berserker
-      weight: 20
-  - zombieCount: 180
-    spawnInterval: 0.45
-    healthMultiplier: 1.25
-    speedMultiplier: 1.05
-    spawnWeights:
-    - typeName: Normal
-      weight: 25
-    - typeName: Runner
-      weight: 25
-    - typeName: Tank
-      weight: 25
-    - typeName: Berserker
-      weight: 25
-  - zombieCount: 220
-    spawnInterval: 0.4
-    healthMultiplier: 1.3
-    speedMultiplier: 1.1
-    spawnWeights:
-    - typeName: Normal
       weight: 20
     - typeName: Runner
       weight: 25
@@ -2178,10 +2182,10 @@ MonoBehaviour:
       weight: 25
     - typeName: Berserker
       weight: 30
-  countScaleFactor: 1.25
-  intervalScaleFactor: 0.9
-  healthScaleFactor: 1.15
-  speedScaleFactor: 1.05
+  countScaleFactor: 1.12
+  intervalScaleFactor: 0.95
+  healthScaleFactor: 1.08
+  speedScaleFactor: 1.03
   spawner: {fileID: 1924248990}
 --- !u!114 &404978853
 MonoBehaviour:
@@ -2200,27 +2204,27 @@ MonoBehaviour:
   gridParent: {fileID: 2007700445}
   slots:
   - name: "Fire Bloom \U0001F525"
-    cost: 100
+    cost: 50
     tintColor: {r: 1, g: 0.45, b: 0.15, a: 1}
     isLocked: 0
     category: 0
     damage: 2
     attackInterval: 1.5
     projectileSpeed: 6
-    cooldown: 5
+    cooldown: 3
     lifetime: 40
   - name: "Frost Flower \u2744\uFE0F"
-    cost: 125
+    cost: 75
     tintColor: {r: 0.2, g: 0.6, b: 1, a: 1}
     isLocked: 0
     category: 1
     damage: 2
     attackInterval: 1.8
     projectileSpeed: 5
-    cooldown: 5
+    cooldown: 3
     lifetime: -1
   - name: "Thorn Vine \U0001F33F"
-    cost: 75
+    cost: 100
     tintColor: {r: 0.2, g: 0.75, b: 0.15, a: 1}
     isLocked: 0
     category: 0
@@ -2240,15 +2244,15 @@ MonoBehaviour:
     cooldown: 6
     lifetime: -1
   - name: "Magic Blossom \U0001F338"
-    cost: 175
+    cost: 400
     tintColor: {r: 0.85, g: 0.2, b: 0.85, a: 1}
     isLocked: 0
     category: 0
     damage: 2
     attackInterval: 0.5
     projectileSpeed: 10
-    cooldown: 5
-    lifetime: 20
+    cooldown: 6
+    lifetime: 25
   - name: "Gun Guardian \U0001F52B"
     cost: 125
     tintColor: {r: 0, g: 0.85, b: 1, a: 1}
@@ -2260,7 +2264,7 @@ MonoBehaviour:
     cooldown: 5
     lifetime: -1
   - name: "Sunflower Tree \U0001F33B"
-    cost: 150
+    cost: 250
     tintColor: {r: 1, g: 0.9, b: 0.2, a: 1}
     isLocked: 0
     category: 3

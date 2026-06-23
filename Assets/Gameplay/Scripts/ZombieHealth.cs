@@ -5,6 +5,7 @@ public class ZombieHealth : MonoBehaviour {
     [SerializeField] private int maxHealth = 10;
     private int currentHealth;
     public int baseDamage = 1;
+    public int coinReward = 10;
 
     [Header("Visuals")]
     private SpriteRenderer sr;
@@ -132,7 +133,7 @@ public class ZombieHealth : MonoBehaviour {
         isDead = true;
 
         if (GameplayManager.Instance != null) {
-            GameplayManager.Instance.ZombieKilled();
+            GameplayManager.Instance.ZombieKilled(coinReward);
         }
 
         // Spawn fire death burst

@@ -16,6 +16,7 @@ public class ZombieTypeConfig {
     public float speed = 1.5f;
     public int maxHealth = 10;
     public int baseDamage = 1;
+    public int coinReward = 10;
     public Vector3 localScale = Vector3.one;
     public Color spriteColor = Color.white;
 }

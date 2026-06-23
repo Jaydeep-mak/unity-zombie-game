@@ -40,6 +40,7 @@ public class ZombieSpawner : MonoBehaviour {
             var health = zombie.GetComponent<ZombieHealth>();
             if (health != null) {
                 health.baseDamage = config.baseDamage;
+                health.coinReward = config.coinReward;
                 health.Setup(Mathf.RoundToInt(config.maxHealth * waveHealthMultiplier));
             }
 
