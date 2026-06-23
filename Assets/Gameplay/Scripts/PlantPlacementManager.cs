@@ -301,6 +301,10 @@ public class PlantPlacementManager : MonoBehaviour {
             cell.isOccupied = true;
             cell.placedPlant = plantGo;
 
+            if (GameplayManager.Instance != null) {
+                GameplayManager.Instance.IncrementPlantsPlaced();
+            }
+
             cell.ResetHighlight();
             
             // Trigger cooldown for this slot
