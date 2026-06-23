@@ -2025,7 +2025,7 @@ MonoBehaviour:
   plantPrefab: {fileID: 8474474974889607615, guid: 4845888309657d2aa91c7b458a1ddbbd,
     type: 3}
   heartSprite: {fileID: 0}
-  coinSprite: {fileID: 0}
+  coinSprite: {fileID: 21300000, guid: 53831ffd2c1064d07b3fcc10982b1e0d, type: 3}
   waveSprite: {fileID: 0}
   lockSprite: {fileID: 0}
   pauseSprite: {fileID: 0}

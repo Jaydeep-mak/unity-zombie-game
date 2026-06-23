@@ -18,6 +18,10 @@ public class GlobalProgressionManager : MonoBehaviour {
     [Header("Storage Configuration")]
     [SerializeField] private string saveKey = "GlobalProgressionCoins";
 
+    // Match Session Coins (Temporary)
+    private int matchEarnedCoins = 0;
+    public int MatchEarnedCoins => matchEarnedCoins;
+
     private void Awake() {
         if (instance == null) {
             instance = this;
@@ -47,8 +51,24 @@ public class GlobalProgressionManager : MonoBehaviour {
             PlayerPrefs.Save();
             TriggerCoinsChanged();
             return true;
-          }
-          return false;
+        }
+        return false;
+    }
+
+    // Match Session API
+    public void ResetMatchCoins() {
+        matchEarnedCoins = 0;
+    }
+
+    public void AddMatchCoins(int amount) {
+        matchEarnedCoins += amount;
+    }
+
+    public void ApplyMatchCoinsToWallet() {
+        if (matchEarnedCoins > 0) {
+            AddCoins(matchEarnedCoins);
+            matchEarnedCoins = 0; // Clear to prevent double addition
+        }
     }
 
     // Event for UI displays to subscribe to

@@ -100,6 +100,10 @@ public class GameplayManager : MonoBehaviour {
         currentBaseHealth = maxBaseHealth;
         Time.timeScale = 1f;
 
+        if (GlobalProgressionManager.Instance != null) {
+            GlobalProgressionManager.Instance.ResetMatchCoins();
+        }
+
         CreateUI();
         UpdateUI();
     }
@@ -317,6 +321,12 @@ public class GameplayManager : MonoBehaviour {
         int survived = isVictory ? currentWave : (currentWave - 1);
         survived = Mathf.Max(0, survived);
 
+        int matchProgressionCoins = 0;
+        if (GlobalProgressionManager.Instance != null) {
+            matchProgressionCoins = GlobalProgressionManager.Instance.MatchEarnedCoins;
+            GlobalProgressionManager.Instance.ApplyMatchCoinsToWallet();
+        }
+
         var statsTransform = gameOverPopup.transform.Find("Background/Stats");
         if (statsTransform != null) {
             for (int i = statsTransform.childCount - 1; i >= 0; i--) {
@@ -326,7 +336,7 @@ public class GameplayManager : MonoBehaviour {
             string[] lines = {
                 $"🌊 Waves Completed: <color=#50E3C2>{survived}</color>",
                 $"☠ Zombies Killed: <color=#FF4A4A>{zombiesKilled}</color>",
-                $"💰 Coins Earned: <color=#FFD700>{coinsEarned}</color>"
+                $"💰 Coins Earned: <color=#FFD700>{matchProgressionCoins}</color>"
             };
 
             for (int j = 0; j < 3; j++) {

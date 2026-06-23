@@ -2,6 +2,9 @@ using UnityEngine;
 using TMPro;
 
 public class MainMenuProgressionCoinsDisplay : MonoBehaviour {
+    [Header("UI Sprites")]
+    [SerializeField] private Sprite coinIconSprite;
+
     private GameObject displayPill;
     private TextMeshProUGUI coinsText;
 
@@ -23,7 +26,11 @@ public class MainMenuProgressionCoinsDisplay : MonoBehaviour {
     private void UpdateDisplay() {
         if (coinsText != null) {
             int coins = GlobalProgressionManager.Instance != null ? GlobalProgressionManager.Instance.GetCoins() : 0;
-            coinsText.text = $"💰 {coins}";
+            if (coinIconSprite != null) {
+                coinsText.text = coins.ToString();
+            } else {
+                coinsText.text = $"💰 {coins}";
+            }
         }
     }
 
@@ -50,19 +57,52 @@ public class MainMenuProgressionCoinsDisplay : MonoBehaviour {
         rect.anchoredPosition = new Vector2(40f, -40f);
         rect.sizeDelta = new Vector2(180f, 60f);
 
-        // Text
-        var textGo = new GameObject("Text");
-        var textRect = textGo.AddComponent<RectTransform>();
-        textGo.transform.SetParent(displayPill.transform, false);
-        coinsText = textGo.AddComponent<TextMeshProUGUI>();
-        coinsText.fontSize = 24;
-        coinsText.fontStyle = FontStyles.Bold;
-        coinsText.color = Color.white;
-        coinsText.alignment = TextAlignmentOptions.Center;
+        // Icon (if sprite is assigned)
+        if (coinIconSprite != null) {
+            var iconGo = new GameObject("Icon");
+            var iconRect = iconGo.AddComponent<RectTransform>();
+            iconGo.transform.SetParent(displayPill.transform, false);
+            
+            var iconImg = iconGo.AddComponent<UnityEngine.UI.Image>();
+            iconImg.sprite = coinIconSprite;
+            iconImg.preserveAspect = true;
 
-        textRect.anchorMin = Vector2.zero;
-        textRect.anchorMax = Vector2.one;
-        textRect.sizeDelta = Vector2.zero;
+            iconRect.anchorMin = new Vector2(0f, 0.5f);
+            iconRect.anchorMax = new Vector2(0f, 0.5f);
+            iconRect.pivot = new Vector2(0f, 0.5f);
+            iconRect.anchoredPosition = new Vector2(20f, 0f);
+            iconRect.sizeDelta = new Vector2(32f, 32f);
+
+            // Text next to icon
+            var textGo = new GameObject("Text");
+            var textRect = textGo.AddComponent<RectTransform>();
+            textGo.transform.SetParent(displayPill.transform, false);
+            coinsText = textGo.AddComponent<TextMeshProUGUI>();
+            coinsText.fontSize = 24;
+            coinsText.fontStyle = FontStyles.Bold;
+            coinsText.color = Color.white;
+            coinsText.alignment = TextAlignmentOptions.MidlineLeft;
+
+            textRect.anchorMin = new Vector2(0f, 0.5f);
+            textRect.anchorMax = new Vector2(1f, 0.5f);
+            textRect.pivot = new Vector2(0f, 0.5f);
+            textRect.anchoredPosition = new Vector2(65f, 0f);
+            textRect.sizeDelta = new Vector2(-80f, 40f);
+        } else {
+            // Text only (with emoji)
+            var textGo = new GameObject("Text");
+            var textRect = textGo.AddComponent<RectTransform>();
+            textGo.transform.SetParent(displayPill.transform, false);
+            coinsText = textGo.AddComponent<TextMeshProUGUI>();
+            coinsText.fontSize = 24;
+            coinsText.fontStyle = FontStyles.Bold;
+            coinsText.color = Color.white;
+            coinsText.alignment = TextAlignmentOptions.Center;
+
+            textRect.anchorMin = Vector2.zero;
+            textRect.anchorMax = Vector2.one;
+            textRect.sizeDelta = Vector2.zero;
+        }
     }
 
     private Sprite CreateRoundedRectGradientSprite(int width, int height, int radius, Color bottomColor, Color topColor, Color borderColor, int borderWidth) {

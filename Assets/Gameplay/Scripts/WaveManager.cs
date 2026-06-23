@@ -533,7 +533,7 @@ public class WaveManager : MonoBehaviour {
         // Reward Global Progression Coins on wave completion
         if (GlobalProgressionManager.Instance != null) {
             int rewardAmount = 50 + (currentWaveNumber - 1) * 25;
-            GlobalProgressionManager.Instance.AddCoins(rewardAmount);
+            GlobalProgressionManager.Instance.AddMatchCoins(rewardAmount);
             Debug.Log($"Rewarded {rewardAmount} Global Progression Coins for completing Wave {currentWaveNumber}.");
         }
 
