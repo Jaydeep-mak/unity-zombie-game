@@ -2045,12 +2045,13 @@ MonoBehaviour:
   totalWaves: 10
   zombieTypes:
   - typeName: Normal
-    prefabOverride: {fileID: 0}
+    prefabOverride: {fileID: 1403118614233169069, guid: 7639746993a1d0fd384c14725e2c6d5c,
+      type: 3}
     speed: 1.5
     maxHealth: 4
     baseDamage: 1
     coinReward: 20
-    localScale: {x: -1, y: 1.2, z: 1}
+    localScale: {x: 1, y: 1.2, z: 1}
     spriteColor: {r: 1, g: 1, b: 1, a: 1}
   - typeName: Runner
     prefabOverride: {fileID: 0}
@@ -9599,6 +9600,52 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1958335723
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1958335725}
+  - component: {fileID: 1958335724}
+  m_Layer: 0
+  m_Name: AttackTest
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1958335724
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1958335723}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a397de18200d2fa1dbb2567cb4a58be5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  testPlant: {fileID: 0}
+  testZombieGo: {fileID: 0}
+--- !u!4 &1958335725
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1958335723}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1982919798
 GameObject:
   m_ObjectHideFlags: 0
@@ -10697,3 +10744,4 @@ SceneRoots:
   m_Roots:
   - {fileID: 555923083}
   - {fileID: 1246900794}
+  - {fileID: 1958335725}

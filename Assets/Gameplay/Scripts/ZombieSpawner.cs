@@ -20,9 +20,14 @@ public class ZombieSpawner : MonoBehaviour {
             zombie.transform.localScale = config.localScale;
 
             // Apply sprite color tint
-            var sr = zombie.GetComponent<SpriteRenderer>();
-            if (sr != null) {
-                sr.color = config.spriteColor;
+            var health = zombie.GetComponent<ZombieHealth>();
+            if (health != null) {
+                health.SetTintColor(config.spriteColor);
+            } else {
+                var sr = zombie.GetComponent<SpriteRenderer>();
+                if (sr != null) {
+                    sr.color = config.spriteColor;
+                }
             }
 
             // Apply speed scaling
@@ -37,7 +42,6 @@ public class ZombieSpawner : MonoBehaviour {
             }
 
             // Apply health scaling and damage settings
-            var health = zombie.GetComponent<ZombieHealth>();
             if (health != null) {
                 health.baseDamage = config.baseDamage;
                 health.coinReward = config.coinReward;

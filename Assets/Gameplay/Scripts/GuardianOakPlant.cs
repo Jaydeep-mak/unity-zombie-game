@@ -27,6 +27,29 @@ public class GuardianOakPlant : PlantBase {
             particleTimer = 0f;
             SpawnSubtleGlowParticle();
         }
+
+        // Slow zombies in the same lane
+        SlowZombiesInLane();
+    }
+
+    private void SlowZombiesInLane() {
+        var zombies = FindObjectsByType<ZombieController>(FindObjectsSortMode.None);
+        float myY = transform.position.y;
+        float myX = transform.position.x;
+
+        foreach (var zombie in zombies) {
+            if (zombie != null && Mathf.Abs(zombie.transform.position.y - myY) < 0.2f) {
+                // Slow zombies approaching the oak tree (from 5 units to the right up to 1 unit past the left)
+                float dist = zombie.transform.position.x - myX;
+                if (dist >= -1f && dist <= 5f) {
+                    var slow = zombie.GetComponent<ZombieSlowEffect>();
+                    if (slow == null) {
+                        slow = zombie.gameObject.AddComponent<ZombieSlowEffect>();
+                    }
+                    slow.ApplySlow(0.5f, 0.5f); // Slow by 50% for 0.5 seconds
+                }
+            }
+        }
     }
 
     private void SpawnSubtleGlowParticle() {

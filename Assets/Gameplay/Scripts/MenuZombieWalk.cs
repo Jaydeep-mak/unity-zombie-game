@@ -11,6 +11,10 @@ public class MenuZombieWalk : MonoBehaviour {
     void Start() {
         startPos = transform.position;
         originalScale = transform.localScale;
+        Animator animator = GetComponentInChildren<Animator>();
+        if (animator != null) {
+            animator.Play("Walk");
+        }
     }
 
     void Update() {

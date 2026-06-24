@@ -12,6 +12,8 @@ public class ZombieHealth : MonoBehaviour {
     private Color originalColor;
     private Coroutine flashCoroutine;
     [SerializeField] private Sprite hitSprite;
+    private SpriteRenderer[] childRenderers;
+    private Color[] originalColors;
 
     [Header("Health Bar")]
     private GameObject healthBarGroup;
@@ -35,6 +37,14 @@ public class ZombieHealth : MonoBehaviour {
         sr = GetComponent<SpriteRenderer>();
         if (sr != null) {
             originalColor = sr.color;
+        }
+
+        childRenderers = GetComponentsInChildren<SpriteRenderer>(true);
+        if (childRenderers != null && childRenderers.Length > 0) {
+            originalColors = new Color[childRenderers.Length];
+            for (int i = 0; i < childRenderers.Length; i++) {
+                originalColors[i] = childRenderers[i].color;
+            }
         }
 
         CreateHealthBar();
@@ -86,6 +96,20 @@ public class ZombieHealth : MonoBehaviour {
         fillSr.sortingOrder = 9;
     }
 
+    public void SetTintColor(Color color) {
+        InitializeIfNeeded();
+        if (childRenderers != null) {
+            for (int i = 0; i < childRenderers.Length; i++) {
+                if (childRenderers[i] != null) {
+                    childRenderers[i].color = color;
+                    if (originalColors != null && i < originalColors.Length) {
+                        originalColors[i] = color;
+                    }
+                }
+            }
+        }
+    }
+
     public void TakeDamage(int damage) {
         if (isDead) return;
 
@@ -96,6 +120,13 @@ public class ZombieHealth : MonoBehaviour {
 
         if (flashCoroutine != null) StopCoroutine(flashCoroutine);
         flashCoroutine = StartCoroutine(FlashRedRoutine());
+
+        // Play Hurt animation
+        var animator = GetComponentInChildren<Animator>();
+        if (animator != null) {
+            animator.speed = 1.0f; // Reset animator speed for damage feedback
+            animator.Play("Hurt", 0, 0f);
+        }
 
         if (currentHealth <= 0) {
             Die();
@@ -122,7 +153,19 @@ public class ZombieHealth : MonoBehaviour {
     }
 
     private IEnumerator FlashRedRoutine() {
-        if (sr != null) {
+        if (childRenderers != null && childRenderers.Length > 0) {
+            for (int i = 0; i < childRenderers.Length; i++) {
+                if (childRenderers[i] != null) {
+                    childRenderers[i].color = new Color(1f, 0.4f, 0.4f, 1f);
+                }
+            }
+            yield return new WaitForSeconds(0.1f);
+            for (int i = 0; i < childRenderers.Length; i++) {
+                if (childRenderers[i] != null) {
+                    childRenderers[i].color = originalColors[i];
+                }
+            }
+        } else if (sr != null) {
             sr.color = new Color(1f, 0.4f, 0.4f, 1f);
             yield return new WaitForSeconds(0.1f);
             sr.color = originalColor;
@@ -163,8 +206,14 @@ public class ZombieHealth : MonoBehaviour {
     }
 
     private IEnumerator DeathAnimationRoutine() {
+        var animator = GetComponentInChildren<Animator>();
+        if (animator != null) {
+            animator.speed = 1.0f; // Reset animator speed for death animation
+            animator.Play("Die");
+        }
+
         float elapsed = 0f;
-        float duration = 0.4f;
+        float duration = animator != null ? 1.2f : 0.4f;
         Vector3 startScale = transform.localScale;
         Quaternion startRot = transform.rotation;
         Quaternion endRot = Quaternion.Euler(0f, 0f, 90f);
@@ -173,12 +222,28 @@ public class ZombieHealth : MonoBehaviour {
             elapsed += Time.deltaTime;
             float t = elapsed / duration;
 
-            transform.rotation = Quaternion.Lerp(startRot, endRot, t);
-            transform.localScale = Vector3.Lerp(startScale, Vector3.zero, t);
-            if (sr != null) {
-                Color c = sr.color;
-                c.a = Mathf.Lerp(1f, 0f, t);
-                sr.color = c;
+            if (animator == null) {
+                transform.rotation = Quaternion.Lerp(startRot, endRot, t);
+                transform.localScale = Vector3.Lerp(startScale, Vector3.zero, t);
+                if (sr != null) {
+                    Color c = sr.color;
+                    c.a = Mathf.Lerp(1f, 0f, t);
+                    sr.color = c;
+                }
+            } else {
+                if (childRenderers != null && originalColors != null) {
+                    for (int i = 0; i < childRenderers.Length; i++) {
+                        if (childRenderers[i] != null && i < originalColors.Length) {
+                            Color c = childRenderers[i].color;
+                            c.a = Mathf.Lerp(originalColors[i].a, 0f, t);
+                            childRenderers[i].color = c;
+                        }
+                    }
+                }
+                if (t > 0.5f) {
+                    float shrinkT = (t - 0.5f) / 0.5f;
+                    transform.localScale = Vector3.Lerp(startScale, Vector3.zero, shrinkT);
+                }
             }
 
             yield return null;

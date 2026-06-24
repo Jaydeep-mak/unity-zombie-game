@@ -2,15 +2,15 @@ using UnityEngine;
 
 public class ZombieSlowEffect : MonoBehaviour {
     private ZombieController zombie;
-    private SpriteRenderer sr;
+    private SpriteRenderer[] childRenderers;
+    private Color[] originalColors;
     private float originalSpeed;
-    private Color originalColor;
     private float durationTimer = 0f;
     private bool isSlowed = false;
 
     private void Awake() {
         zombie = GetComponent<ZombieController>();
-        sr = GetComponent<SpriteRenderer>();
+        childRenderers = GetComponentsInChildren<SpriteRenderer>(true);
     }
 
     public void ApplySlow(float speedMultiplier, float duration) {
@@ -19,8 +19,11 @@ public class ZombieSlowEffect : MonoBehaviour {
         // If not already slowed, store the current speed
         if (!isSlowed) {
             originalSpeed = zombie.speed;
-            if (sr != null) {
-                originalColor = sr.color;
+            if (childRenderers != null && childRenderers.Length > 0) {
+                originalColors = new Color[childRenderers.Length];
+                for (int i = 0; i < childRenderers.Length; i++) {
+                    originalColors[i] = childRenderers[i].color;
+                }
             }
             isSlowed = true;
         }
@@ -29,8 +32,12 @@ public class ZombieSlowEffect : MonoBehaviour {
         zombie.speed = originalSpeed * speedMultiplier;
 
         // Visual feedback: blue/cyan tint for frozen effect
-        if (sr != null) {
-            sr.color = new Color(0.3f, 0.65f, 1f, originalColor.a);
+        if (childRenderers != null) {
+            for (int i = 0; i < childRenderers.Length; i++) {
+                if (childRenderers[i] != null && originalColors != null && i < originalColors.Length) {
+                    childRenderers[i].color = new Color(0.3f, 0.65f, 1f, originalColors[i].a);
+                }
+            }
         }
 
         durationTimer = duration;
@@ -42,9 +49,13 @@ public class ZombieSlowEffect : MonoBehaviour {
         durationTimer -= Time.deltaTime;
         
         // Pulse the freeze color slightly for visual feedback
-        if (sr != null) {
-            float pulse = 0.85f + Mathf.PingPong(Time.time * 2f, 0.15f);
-            sr.color = new Color(0.3f * pulse, 0.65f * pulse, 1f * pulse, originalColor.a);
+        float pulse = 0.85f + Mathf.PingPong(Time.time * 2f, 0.15f);
+        if (childRenderers != null) {
+            for (int i = 0; i < childRenderers.Length; i++) {
+                if (childRenderers[i] != null && originalColors != null && i < originalColors.Length) {
+                    childRenderers[i].color = new Color(0.3f * pulse, 0.65f * pulse, 1f * pulse, originalColors[i].a);
+                }
+            }
         }
 
         if (durationTimer <= 0f) {
@@ -56,9 +67,7 @@ public class ZombieSlowEffect : MonoBehaviour {
         if (zombie != null) {
             zombie.speed = originalSpeed;
         }
-        if (sr != null) {
-            sr.color = originalColor;
-        }
+        RestoreColors();
         Destroy(this);
     }
 
@@ -66,7 +75,17 @@ public class ZombieSlowEffect : MonoBehaviour {
         // Clean up speed and color just in case
         if (isSlowed) {
             if (zombie != null) zombie.speed = originalSpeed;
-            if (sr != null) sr.color = originalColor;
+            RestoreColors();
+        }
+    }
+
+    private void RestoreColors() {
+        if (childRenderers != null && originalColors != null) {
+            for (int i = 0; i < childRenderers.Length; i++) {
+                if (childRenderers[i] != null && i < originalColors.Length) {
+                    childRenderers[i].color = originalColors[i];
+                }
+            }
         }
     }
 }

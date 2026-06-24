@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 05eec9728bbe95048a8451ef1817a489
+timeCreated: 1469816432
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 68508
+  packageName: 2D Chibi Boy Zombie - Character Animated Ready for Mobile
+  packageVersion: 1.1
+  assetPath: Assets/AppFast/2D Chibi Boy Zombie - Character Animated Ready for Mobile/Scripts/IncreaseSortingOrder.cs
+  uploadId: 740536
