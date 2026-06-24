@@ -65,19 +65,27 @@ public class GameplayManager : MonoBehaviour {
     [SerializeField] private Sprite pauseSprite;
 
     [Header("UI Canvas References")]
-    private GameObject hudCanvas;
-    private TextMeshProUGUI healthText;
-    private TextMeshProUGUI coinsText;
-    private TextMeshProUGUI waveText;
-    private GameObject gameOverPopup;
-    private GameObject pausePopup;
+    [SerializeField] private GameObject hudCanvas;
+    [SerializeField] private TextMeshProUGUI healthText;
+    [SerializeField] private TextMeshProUGUI coinsText;
+    [SerializeField] private TextMeshProUGUI waveText;
+    [SerializeField] private GameObject gameOverPopup;
+    [SerializeField] private GameObject pausePopup;
     
-    private GameObject healthPillInstance;
-    private GameObject coinsPillInstance;
+    [SerializeField] private GameObject healthPillInstance;
+    [SerializeField] private GameObject coinsPillInstance;
+    [SerializeField] private List<PlantCard> plantCards = new List<PlantCard>();
+
+    [Header("UI Button References")]
+    [SerializeField] private UnityEngine.UI.Button pauseButton;
+    [SerializeField] private UnityEngine.UI.Button resumeButton;
+    [SerializeField] private UnityEngine.UI.Button pauseRestartButton;
+    [SerializeField] private UnityEngine.UI.Button pauseMainMenuButton;
+    [SerializeField] private UnityEngine.UI.Button gameOverRestartButton;
+    [SerializeField] private UnityEngine.UI.Button gameOverMainMenuButton;
+
     private Coroutine coinPulseCoroutine;
     private Coroutine healthPulseCoroutine;
-    
-    private List<PlantCard> plantCards = new List<PlantCard>();
     private bool isPaused = false;
 
     public int activeZombieCount = 0;
@@ -578,7 +586,85 @@ public class GameplayManager : MonoBehaviour {
         return Sprite.Create(tex, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f), 100f);
     }
 
+    private void SetupExistingUI() {
+        if (UnityEngine.EventSystems.EventSystem.current == null) {
+            var eventSystemGo = new GameObject("EventSystem");
+            eventSystemGo.AddComponent<UnityEngine.EventSystems.EventSystem>();
+            eventSystemGo.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+        }
+
+        activeHeartSprite = heartSprite != null ? heartSprite : CreateHeartSprite(64, 64);
+        activeCoinSprite = coinSprite != null ? coinSprite : CreateCoinSprite(64, 64);
+        activeWaveSprite = waveSprite != null ? waveSprite : CreateWaveSprite(64, 64);
+        activeLockSprite = lockSprite != null ? lockSprite : CreateLockSprite(64, 64);
+        activePauseSprite = pauseSprite != null ? pauseSprite : CreatePauseSprite(64, 64);
+
+        if (pauseButton != null) {
+            pauseButton.onClick.RemoveAllListeners();
+            pauseButton.onClick.AddListener(TogglePause);
+        }
+        if (resumeButton != null) {
+            resumeButton.onClick.RemoveAllListeners();
+            resumeButton.onClick.AddListener(TogglePause);
+        }
+        if (pauseRestartButton != null) {
+            pauseRestartButton.onClick.RemoveAllListeners();
+            pauseRestartButton.onClick.AddListener(OnRestartButtonClicked);
+        }
+        if (pauseMainMenuButton != null) {
+            pauseMainMenuButton.onClick.RemoveAllListeners();
+            pauseMainMenuButton.onClick.AddListener(OnMainMenuButtonClicked);
+        }
+        if (gameOverRestartButton != null) {
+            gameOverRestartButton.onClick.RemoveAllListeners();
+            gameOverRestartButton.onClick.AddListener(OnRestartButtonClicked);
+        }
+        if (gameOverMainMenuButton != null) {
+            gameOverMainMenuButton.onClick.RemoveAllListeners();
+            gameOverMainMenuButton.onClick.AddListener(OnMainMenuButtonClicked);
+        }
+
+        var ppm = GetComponent<PlantPlacementManager>();
+        for (int i = 0; i < plantCards.Count; i++) {
+            if (plantCards[i] == null) continue;
+
+            bool locked = ppm != null ? ppm.IsSlotLocked(i) : false;
+            string fullName = ppm != null ? ppm.GetSlotName(i) : "Plant";
+            int cost = ppm != null ? ppm.GetSlotCost(i) : 100;
+            Color slotTint = ppm != null ? ppm.GetSlotTintColor(i) : Color.white;
+
+            string cleanName, emoji;
+            ParseNameAndIcon(fullName, out cleanName, out emoji);
+
+            var slotBtnComp = plantCards[i].GetComponent<UnityEngine.UI.Button>();
+            if (slotBtnComp != null) {
+                slotBtnComp.onClick.RemoveAllListeners();
+                int index = i;
+                slotBtnComp.onClick.AddListener(() => {
+                    if (PlantPlacementManager.Instance != null) {
+                        PlantPlacementManager.Instance.SelectPlant(index);
+                    }
+                });
+            }
+
+            Sprite plantSprite = PlantVisuals.GetPlantSprite(fullName);
+            if (plantSprite == null && plantPrefab != null) {
+                var sr = plantPrefab.GetComponent<SpriteRenderer>();
+                if (sr != null) {
+                    plantSprite = sr.sprite;
+                }
+            }
+
+            plantCards[i].InitializeRuntime(locked, cleanName, cost, plantSprite, slotTint);
+        }
+    }
+
     private void CreateUI() {
+        if (hudCanvas != null) {
+            SetupExistingUI();
+            return;
+        }
+
         if (UnityEngine.EventSystems.EventSystem.current == null) {
             var eventSystemGo = new GameObject("EventSystem");
             eventSystemGo.AddComponent<UnityEngine.EventSystems.EventSystem>();

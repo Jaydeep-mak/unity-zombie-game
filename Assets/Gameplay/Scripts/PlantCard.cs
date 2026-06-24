@@ -3,14 +3,14 @@ using TMPro;
 using UnityEngine.UI;
 
 public class PlantCard : MonoBehaviour {
-    private Image glowImage;
-    private Image cooldownOverlay;
-    private TextMeshProUGUI cooldownText;
-    private Image cardBg;
-    private Image iconImage;
-    private TextMeshProUGUI costText;
-    private GameObject lockOverlay;
-    private TextMeshProUGUI nameText;
+    [SerializeField] private Image glowImage;
+    [SerializeField] private Image cooldownOverlay;
+    [SerializeField] private TextMeshProUGUI cooldownText;
+    [SerializeField] private Image cardBg;
+    [SerializeField] private Image iconImage;
+    [SerializeField] private TextMeshProUGUI costText;
+    [SerializeField] private GameObject lockOverlay;
+    [SerializeField] private TextMeshProUGUI nameText;
     
     private float currentCooldown = 0f;
     private float maxCooldown = 0f;
@@ -41,6 +41,38 @@ public class PlantCard : MonoBehaviour {
         if (cooldownText != null) cooldownText.gameObject.SetActive(false);
         if (lockOverlay != null) lockOverlay.SetActive(isLocked);
         
+        UpdateVisualTint();
+    }
+
+    public void InitializeRuntime(bool locked, string cleanName, int cost, Sprite plantSprite, Color slotTint) {
+        isLocked = locked;
+        originalScale = transform.localScale;
+
+        if (glowImage != null) glowImage.gameObject.SetActive(isSelected);
+        if (cooldownOverlay != null) {
+            cooldownOverlay.type = Image.Type.Filled;
+            cooldownOverlay.fillMethod = Image.FillMethod.Vertical;
+            cooldownOverlay.fillAmount = currentCooldown > 0f ? currentCooldown / maxCooldown : 0f;
+        }
+        if (cooldownText != null) {
+            cooldownText.gameObject.SetActive(currentCooldown > 0f);
+            if (currentCooldown > 0f) {
+                cooldownText.text = Mathf.CeilToInt(currentCooldown).ToString();
+            }
+        }
+        if (lockOverlay != null) lockOverlay.SetActive(isLocked);
+        if (nameText != null) nameText.text = isLocked ? "Locked" : cleanName;
+        if (costText != null) costText.text = isLocked ? "Soon" : $"Cost: {cost}";
+        if (iconImage != null) {
+            if (!isLocked) {
+                iconImage.sprite = plantSprite;
+                iconImage.color = plantSprite != null ? Color.white : slotTint;
+            } else {
+                iconImage.sprite = plantSprite;
+                iconImage.color = new Color(0.3f, 0.3f, 0.3f, 0.2f);
+            }
+        }
+
         UpdateVisualTint();
     }
 
