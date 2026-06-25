@@ -2,17 +2,47 @@ using UnityEngine;
 using TMPro;
 
 public class MainMenuProgressionCoinsDisplay : MonoBehaviour {
+    public enum ScreenAlignment {
+        TopLeft,
+        TopRight
+    }
+
     [Header("UI Sprites")]
     [SerializeField] private Sprite coinIconSprite;
 
+    [Header("Layout Settings")]
+    [SerializeField] private ScreenAlignment alignment = ScreenAlignment.TopLeft;
+
     private GameObject displayPill;
     private TextMeshProUGUI coinsText;
+    private bool isInitialized = false;
+
+    public void SetCoinIconSprite(Sprite sprite) {
+        coinIconSprite = sprite;
+        if (isInitialized) {
+            if (displayPill != null) Destroy(displayPill);
+            CreateDisplay();
+            UpdateDisplay();
+        }
+    }
+
+    public void SetAlignment(ScreenAlignment align) {
+        alignment = align;
+        if (isInitialized) {
+            if (displayPill != null) Destroy(displayPill);
+            CreateDisplay();
+            UpdateDisplay();
+        }
+    }
 
     private void Start() {
-        CreateDisplay();
-        UpdateDisplay();
-        
-        GlobalProgressionManager.OnCoinsChanged += OnCoinsChanged;
+        if (!isInitialized) {
+            CreateDisplay();
+            UpdateDisplay();
+            
+            GlobalProgressionManager.OnCoinsChanged += OnCoinsChanged;
+            isInitialized = true;
+        }
     }
 
     private void OnDestroy() {
@@ -51,10 +81,17 @@ public class MainMenuProgressionCoinsDisplay : MonoBehaviour {
         img.sprite = CreateRoundedRectGradientSprite(180, 60, 30, coinsBottom, coinsTop, coinsBorder, 3);
 
         var rect = displayPill.GetComponent<RectTransform>();
-        rect.anchorMin = new Vector2(0f, 1f);
-        rect.anchorMax = new Vector2(0f, 1f);
-        rect.pivot = new Vector2(0f, 1f);
-        rect.anchoredPosition = new Vector2(40f, -40f);
+        if (alignment == ScreenAlignment.TopRight) {
+            rect.anchorMin = new Vector2(1f, 1f);
+            rect.anchorMax = new Vector2(1f, 1f);
+            rect.pivot = new Vector2(1f, 1f);
+            rect.anchoredPosition = new Vector2(-40f, -40f);
+        } else {
+            rect.anchorMin = new Vector2(0f, 1f);
+            rect.anchorMax = new Vector2(0f, 1f);
+            rect.pivot = new Vector2(0f, 1f);
+            rect.anchoredPosition = new Vector2(40f, -40f);
+        }
         rect.sizeDelta = new Vector2(180f, 60f);
 
         // Icon (if sprite is assigned)
@@ -102,6 +139,24 @@ public class MainMenuProgressionCoinsDisplay : MonoBehaviour {
             textRect.anchorMin = Vector2.zero;
             textRect.anchorMax = Vector2.one;
             textRect.sizeDelta = Vector2.zero;
+        }
+
+        // Apply a high-quality font if available in the scene
+        ApplyFont(coinsText);
+    }
+
+    private void ApplyFont(TextMeshProUGUI tmpText) {
+        if (tmpText == null) return;
+        var fonts = Resources.FindObjectsOfTypeAll<TMP_FontAsset>();
+        TMP_FontAsset fontToUse = null;
+        foreach (var f in fonts) {
+            if (f.name.Contains("Salsa") || f.name.Contains("Liberation")) {
+                fontToUse = f;
+                break;
+            }
+        }
+        if (fontToUse != null) {
+            tmpText.font = fontToUse;
         }
     }
 

@@ -186,6 +186,7 @@ MonoBehaviour:
   backButton: {fileID: 413879781}
   fadeOverlay: {fileID: 627881898}
   fadeDuration: 0.5
+  coinIconSprite: {fileID: 21300000, guid: 53831ffd2c1064d07b3fcc10982b1e0d, type: 3}
   cardsGridParent: {fileID: 181513275}
   plantConfigs:
   - name: Fire Bloom

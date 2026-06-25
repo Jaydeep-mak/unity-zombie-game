@@ -21,6 +21,9 @@ public class PlantCollectionManager : MonoBehaviour {
     [SerializeField] private CanvasGroup fadeOverlay;
     [SerializeField] private float fadeDuration = 0.5f;
 
+    [Header("Progression Display Settings")]
+    [SerializeField] private Sprite coinIconSprite;
+
     [Header("Container")]
     [SerializeField] private Transform cardsGridParent;
 
@@ -71,7 +74,11 @@ public class PlantCollectionManager : MonoBehaviour {
         // Add progression coins display to the canvas
         var canvasComp = FindFirstObjectByType<Canvas>();
         if (canvasComp != null && canvasComp.gameObject.GetComponent<MainMenuProgressionCoinsDisplay>() == null) {
-            canvasComp.gameObject.AddComponent<MainMenuProgressionCoinsDisplay>();
+            var coinsDisplay = canvasComp.gameObject.AddComponent<MainMenuProgressionCoinsDisplay>();
+            if (coinIconSprite != null) {
+                coinsDisplay.SetCoinIconSprite(coinIconSprite);
+            }
+            coinsDisplay.SetAlignment(MainMenuProgressionCoinsDisplay.ScreenAlignment.TopRight);
         }
 
         if (backButton != null) {
