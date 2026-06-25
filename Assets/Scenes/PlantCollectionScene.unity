@@ -243,8 +243,7 @@ MonoBehaviour:
     lifetime: 10
     description: "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>\u2022
       Extremely high health.\n\n\u2022 Blocks zombies from advancing.\n\n\u2022 Protects
-      nearby attack plants.\n\n\u2022 Does not deal damage.\n\n\u2022 Follows normal
-      plant lifetime rules.</indent></align>"
+      nearby attack plants.</indent></align>"
 --- !u!4 &222917619
 Transform:
   m_ObjectHideFlags: 0

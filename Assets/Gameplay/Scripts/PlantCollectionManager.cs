@@ -671,7 +671,7 @@ public class PlantCollectionManager : MonoBehaviour {
             { "Bomb Cactus", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Explodes when zombies enter its tile.\n\n• Deals area damage.\n\n• Removed after detonation.</indent></align>" },
             { "Magic Blossom", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Attacks zombies anywhere on the battlefield.\n\n• Uses rapid magical attacks.\n\n• High damage over time.</indent></align>" },
             { "Gun Guardian", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Shoots rapid physical projectiles at zombies.\n\n• High rate of fire.\n\n• Excellent for sustaining damage lanes.</indent></align>" },
-            { "Guardian Oak", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Extremely high health.\n\n• Blocks zombies from advancing.\n\n• Protects nearby attack plants.\n\n• Does not deal damage.\n\n• Follows normal plant lifetime rules.</indent></align>" },
+            { "Guardian Oak", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Extremely high health.\n\n• Blocks zombies from advancing.\n\n• Protects nearby attack plants.</indent></align>" },
             { "Sunflower Tree", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Generates coins over time.\n\n• Supports long-term economy growth.\n\n• Helps build stronger defenses.</indent></align>" }
         };
 
