@@ -638,6 +638,7 @@ public class GameplayManager : MonoBehaviour {
 
             var slotBtnComp = plantCards[i].GetComponent<UnityEngine.UI.Button>();
             if (slotBtnComp != null) {
+                slotBtnComp.interactable = !locked;
                 slotBtnComp.onClick.RemoveAllListeners();
                 int index = i;
                 slotBtnComp.onClick.AddListener(() => {

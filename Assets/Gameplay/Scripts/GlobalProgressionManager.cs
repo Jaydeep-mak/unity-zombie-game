@@ -33,6 +33,21 @@ public class GlobalProgressionManager : MonoBehaviour {
         }
     }
 
+    public bool IsPlantLocked(string plantName) {
+        if (string.IsNullOrEmpty(plantName)) return false;
+        if (plantName == "Fire Bloom" || plantName == "Frost Flower") {
+            return false;
+        }
+        return PlayerPrefs.GetInt("PlantUnlocked_" + plantName, 0) == 0;
+    }
+
+    public void UnlockPlant(string plantName) {
+        if (string.IsNullOrEmpty(plantName)) return;
+        PlayerPrefs.SetInt("PlantUnlocked_" + plantName, 1);
+        PlayerPrefs.Save();
+        TriggerCoinsChanged();
+    }
+
     public int GetCoins() {
         return PlayerPrefs.GetInt(saveKey, 0);
     }

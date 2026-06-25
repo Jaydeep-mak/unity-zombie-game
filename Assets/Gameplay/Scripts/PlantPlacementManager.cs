@@ -51,7 +51,15 @@ public class PlantPlacementManager : MonoBehaviour {
 
     public bool IsSlotLocked(int index) {
         if (slots != null && index >= 0 && index < slots.Length) {
-            return slots[index].isLocked;
+            string cleanName = slots[index].name;
+            string[] emojis = { "🔥", "❄️", "🧪", "💣", "⚡", "🌻", "🌸", "🌿", "🔫", "🌳", "🛡️" };
+            foreach (var em in emojis) {
+                cleanName = cleanName.Replace(em, "").Trim();
+            }
+            if (GlobalProgressionManager.Instance != null) {
+                return GlobalProgressionManager.Instance.IsPlantLocked(cleanName);
+            }
+            return cleanName != "Fire Bloom" && cleanName != "Frost Flower" && PlayerPrefs.GetInt("PlantUnlocked_" + cleanName, 0) == 0;
         }
         return true;
     }
@@ -109,7 +117,7 @@ public class PlantPlacementManager : MonoBehaviour {
 
         var data = slots[slotIndex];
         
-        if (data.isLocked) {
+        if (IsSlotLocked(slotIndex)) {
             Debug.Log(data.name + " is locked!");
             return;
         }

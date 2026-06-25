@@ -195,6 +195,7 @@ MonoBehaviour:
     description: "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>\u2022
       Launches fire projectiles at zombies in its lane.\n\n\u2022 Reliable damage
       dealer.\n\n\u2022 Good starter attack plant.</indent></align>"
+    unlockCost: 0
   - name: Frost Flower
     cost: 75
     category: Trap
@@ -202,6 +203,7 @@ MonoBehaviour:
     description: "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>\u2022
       Freezes zombies that enter its tile.\n\n\u2022 Stops enemy movement temporarily.\n\n\u2022
       Consumed after activation.</indent></align>"
+    unlockCost: 0
   - name: Thorn Vine
     cost: 100
     category: Attack
@@ -209,6 +211,7 @@ MonoBehaviour:
     description: "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>\u2022
       Very fast attack speed.\n\n\u2022 Continuously damages zombies.\n\n\u2022 Effective
       against weaker enemies.</indent></align>"
+    unlockCost: 1000
   - name: Bomb Cactus
     cost: 150
     category: Trap
@@ -216,6 +219,7 @@ MonoBehaviour:
     description: "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>\u2022
       Explodes when zombies enter its tile.\n\n\u2022 Deals area damage.\n\n\u2022
       Removed after detonation.</indent></align>"
+    unlockCost: 2000
   - name: Magic Blossom
     cost: 400
     category: Attack
@@ -223,6 +227,7 @@ MonoBehaviour:
     description: "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>\u2022
       Attacks zombies anywhere on the battlefield.\n\n\u2022 Uses rapid magical attacks.\n\n\u2022
       High damage over time.</indent></align>"
+    unlockCost: 7500
   - name: Gun Guardian
     cost: 125
     category: Attack
@@ -230,6 +235,7 @@ MonoBehaviour:
     description: "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>\u2022
       Shoots rapid physical projectiles at zombies.\n\n\u2022 High rate of fire.\n\n\u2022
       Excellent for sustaining damage lanes.</indent></align>"
+    unlockCost: 3000
   - name: Sunflower Tree
     cost: 250
     category: Economy
@@ -237,6 +243,7 @@ MonoBehaviour:
     description: "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>\u2022
       Generates coins over time.\n\n\u2022 Supports long-term economy growth.\n\n\u2022
       Helps build stronger defenses.</indent></align>"
+    unlockCost: 3500
   - name: Guardian Oak
     cost: 200
     category: Tank
@@ -244,6 +251,7 @@ MonoBehaviour:
     description: "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>\u2022
       Extremely high health.\n\n\u2022 Blocks zombies from advancing.\n\n\u2022 Protects
       nearby attack plants.</indent></align>"
+    unlockCost: 5000
 --- !u!4 &222917619
 Transform:
   m_ObjectHideFlags: 0

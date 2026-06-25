@@ -13,6 +13,7 @@ public class PlantCollectionManager : MonoBehaviour {
         public float lifetime;
         [TextArea(3, 5)]
         public string description;
+        public int unlockCost; // Cost in Global Coins to unlock permanently
     }
 
     [Header("UI References")]
@@ -55,7 +56,24 @@ public class PlantCollectionManager : MonoBehaviour {
     private UnityEngine.UI.Image popupPanelBg;
     private CanvasGroup popupCanvasGroup;
 
+    // Unlock Button references
+    private GameObject popupUnlockButtonGo;
+    private Button popupUnlockButton;
+    private TextMeshProUGUI popupUnlockText;
+    private RectTransform popupCloseButtonRect;
+
     private void Start() {
+        // Initialize lock states from progression
+        for (int i = 0; i < plantItems.Length; i++) {
+            plantItems[i].isLocked = IsPlantLocked(plantItems[i].name);
+        }
+
+        // Add progression coins display to the canvas
+        var canvasComp = FindFirstObjectByType<Canvas>();
+        if (canvasComp != null && canvasComp.gameObject.GetComponent<MainMenuProgressionCoinsDisplay>() == null) {
+            canvasComp.gameObject.AddComponent<MainMenuProgressionCoinsDisplay>();
+        }
+
         if (backButton != null) {
             backButton.onClick.AddListener(GoBackToMainMenu);
         }
@@ -417,6 +435,41 @@ public class PlantCollectionManager : MonoBehaviour {
         closeText.color = Color.white;
         closeText.alignment = TextAlignmentOptions.Center;
 
+        // Unlock Button
+        var unlockGo = new GameObject("UnlockButton");
+        var unlockRect = unlockGo.AddComponent<RectTransform>();
+        unlockGo.transform.SetParent(panelGo.transform, false);
+        unlockRect.anchorMin = new Vector2(0.5f, 0.5f);
+        unlockRect.anchorMax = new Vector2(0.5f, 0.5f);
+        unlockRect.pivot = new Vector2(0.5f, 0.5f);
+        unlockRect.anchoredPosition = new Vector2(0f, -305f);
+        unlockRect.sizeDelta = new Vector2(220f, 55f);
+
+        var unlockBg = unlockGo.AddComponent<UnityEngine.UI.Image>();
+        unlockBg.sprite = CreateRoundedRectGradientSprite(220, 55, 15, new Color(0.15f, 0.45f, 0.2f, 0.95f), new Color(0.25f, 0.65f, 0.3f, 0.95f), new Color(0.25f, 0.85f, 0.35f, 1f), 3);
+
+        var unlockBtn = unlockGo.AddComponent<UnityEngine.UI.Button>();
+        unlockGo.AddComponent<UIButtonEffects>();
+
+        var unlockTextGo = new GameObject("Text");
+        var unlockTextRect = unlockTextGo.AddComponent<RectTransform>();
+        unlockTextGo.transform.SetParent(unlockGo.transform, false);
+        unlockTextRect.anchorMin = Vector2.zero;
+        unlockTextRect.anchorMax = Vector2.one;
+        unlockTextRect.sizeDelta = Vector2.zero;
+        var unlockText = unlockTextGo.AddComponent<TextMeshProUGUI>();
+        unlockText.text = "UNLOCK";
+        unlockText.fontSize = 24;
+        unlockText.fontStyle = FontStyles.Bold;
+        unlockText.color = Color.white;
+        unlockText.alignment = TextAlignmentOptions.Center;
+
+        // Store references
+        popupUnlockButtonGo = unlockGo;
+        popupUnlockButton = unlockBtn;
+        popupUnlockText = unlockText;
+        popupCloseButtonRect = closeRect;
+
         var fonts = Resources.FindObjectsOfTypeAll<TMP_FontAsset>();
         TMP_FontAsset fontToUse = null;
         foreach (var f in fonts) {
@@ -433,6 +486,7 @@ public class PlantCollectionManager : MonoBehaviour {
             popupLifetimeText.font = fontToUse;
             popupDescText.font = fontToUse;
             closeText.font = fontToUse;
+            unlockText.font = fontToUse;
         }
     }
 
@@ -466,10 +520,34 @@ public class PlantCollectionManager : MonoBehaviour {
         popupIconImg.color = isLocked ? new Color(0.25f, 0.25f, 0.25f, 0.6f) : Color.white;
 
         popupTypeText.text = $"Type: {GetPlantType(config.category, config.name)}";
-        popupCostText.text = $"Cost: {config.cost} Coins";
+        if (isLocked) {
+            popupCostText.text = $"Cost: {config.unlockCost} Global Coins";
+        } else {
+            popupCostText.text = $"Cost: {config.cost} Coins";
+        }
         popupLifetimeText.text = $"Lifetime: {GetLifetimeText(config.lifetime, config.category)}";
 
         popupDescText.text = config.description;
+
+        // Manage buttons placement
+        if (isLocked) {
+            if (popupUnlockButtonGo != null) {
+                popupUnlockButtonGo.SetActive(true);
+                popupUnlockButton.onClick.RemoveAllListeners();
+                popupUnlockButton.onClick.AddListener(() => OnClickUnlock(config));
+                popupUnlockButtonGo.GetComponent<RectTransform>().anchoredPosition = new Vector2(-120f, -305f);
+            }
+            if (popupCloseButtonRect != null) {
+                popupCloseButtonRect.anchoredPosition = new Vector2(120f, -305f);
+            }
+        } else {
+            if (popupUnlockButtonGo != null) {
+                popupUnlockButtonGo.SetActive(false);
+            }
+            if (popupCloseButtonRect != null) {
+                popupCloseButtonRect.anchoredPosition = new Vector2(0f, -305f);
+            }
+        }
 
         Color bgBottom = isLocked ? new Color(0.12f, 0.12f, 0.12f, 0.98f) : new Color(0.08f, 0.18f, 0.11f, 0.98f);
         Color bgTop = isLocked ? new Color(0.20f, 0.20f, 0.20f, 0.98f) : new Color(0.15f, 0.30f, 0.18f, 0.95f);
@@ -526,6 +604,57 @@ public class PlantCollectionManager : MonoBehaviour {
             return "Permanent";
         }
         return $"{lifetime} Seconds";
+    }
+
+    private bool IsPlantLocked(string plantName) {
+        if (GlobalProgressionManager.Instance != null) {
+            return GlobalProgressionManager.Instance.IsPlantLocked(plantName);
+        }
+        if (plantName == "Fire Bloom" || plantName == "Frost Flower") {
+            return false;
+        }
+        return PlayerPrefs.GetInt("PlantUnlocked_" + plantName, 0) == 0;
+    }
+
+    private void OnClickUnlock(PlantConfig config) {
+        if (GlobalProgressionManager.Instance == null) return;
+
+        if (GlobalProgressionManager.Instance.GetCoins() >= config.unlockCost) {
+            if (GlobalProgressionManager.Instance.RemoveCoins(config.unlockCost)) {
+                GlobalProgressionManager.Instance.UnlockPlant(config.name);
+
+                // Update lock states locally
+                for (int i = 0; i < plantItems.Length; i++) {
+                    if (plantItems[i].name == config.name) {
+                        plantItems[i].isLocked = false;
+                        break;
+                    }
+                }
+
+                // Regenerate the list of cards
+                GeneratePlantCards();
+
+                // Refresh details popup to unlocked view
+                OpenDetailsPopup(config.name, false);
+            }
+        } else {
+            StartCoroutine(ShowFeedbackRoutine("NOT ENOUGH COINS"));
+        }
+    }
+
+    private IEnumerator ShowFeedbackRoutine(string message) {
+        if (popupUnlockText != null && popupUnlockButton != null) {
+            string originalText = popupUnlockText.text;
+            popupUnlockText.text = message;
+            popupUnlockText.color = new Color(1.0f, 0.3f, 0.3f, 1f);
+            popupUnlockButton.interactable = false;
+
+            yield return new WaitForSeconds(1.5f);
+
+            popupUnlockText.text = originalText;
+            popupUnlockText.color = Color.white;
+            popupUnlockButton.interactable = true;
+        }
     }
 
     // --- PROCEDURAL SPRITE GENERATORS ---
