@@ -284,6 +284,11 @@ public class PlantPlacementManager : MonoBehaviour {
                     DestroyImmediate(oldPlant);
                 }
                 plant = plantGo.AddComponent<MagicBlossomPlant>();
+            } else if (data.name != null && (data.name.Contains("Lightning") || data.name.Contains("Lotus"))) {
+                if (oldPlant != null) {
+                    DestroyImmediate(oldPlant);
+                }
+                plant = plantGo.AddComponent<LightningLotusPlant>();
             } else if (data.name != null && data.name.Contains("Gun") && data.name.Contains("Guardian")) {
                 if (oldPlant != null) {
                     DestroyImmediate(oldPlant);

@@ -44,7 +44,8 @@ public class PlantCollectionManager : MonoBehaviour {
         new PlantCollectionItem { name = "Magic Blossom", displayName = "Magic Blossom", isLocked = true },
         new PlantCollectionItem { name = "Gun Guardian", displayName = "Gun Guardian", isLocked = true },
         new PlantCollectionItem { name = "Guardian Oak", displayName = "Guardian Oak", isLocked = true },
-        new PlantCollectionItem { name = "Sunflower Tree", displayName = "Sunflower Tree", isLocked = true }
+        new PlantCollectionItem { name = "Sunflower Tree", displayName = "Sunflower Tree", isLocked = true },
+        new PlantCollectionItem { name = "Lightning Lotus", displayName = "Lightning Lotus", isLocked = true }
     };
 
     // Popup UI references
@@ -592,6 +593,9 @@ public class PlantCollectionManager : MonoBehaviour {
     }
 
     private string GetPlantType(string categoryName, string name) {
+        if (name != null && (name.Contains("Lightning") || name.Contains("Lotus"))) {
+            return "Chain Attack Plant";
+        }
         if (categoryName.Contains("Attack")) {
             if (name.Contains("Magic")) return "Global Attack Plant";
             return "Damage Plant";
@@ -808,7 +812,20 @@ public class PlantCollectionManager : MonoBehaviour {
             { "Magic Blossom", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Attacks zombies anywhere on the battlefield.\n\n• Uses rapid magical attacks.\n\n• High damage over time.</indent></align>" },
             { "Gun Guardian", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Shoots rapid physical projectiles at zombies.\n\n• High rate of fire.\n\n• Excellent for sustaining damage lanes.</indent></align>" },
             { "Guardian Oak", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Extremely high health.\n\n• Blocks zombies from advancing.\n\n• Protects nearby attack plants.</indent></align>" },
-            { "Sunflower Tree", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Generates coins over time.\n\n• Supports long-term economy growth.\n\n• Helps build stronger defenses.</indent></align>" }
+            { "Sunflower Tree", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Generates coins over time.\n\n• Supports long-term economy growth.\n\n• Helps build stronger defenses.</indent></align>" },
+            { "Lightning Lotus", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• <b>Ability:</b> Fires lightning that jumps between nearby zombies.\n\n• <b>Effect:</b> Damages multiple zombies with a single attack.\n\n• <b>Damage:</b> Highest on first target, reduced on chained targets.\n\n• <b>Purpose:</b> Strong against groups of zombies.</indent></align>" }
+        };
+
+        var unlockCostMap = new System.Collections.Generic.Dictionary<string, int> {
+            { "Fire Bloom", 0 },
+            { "Frost Flower", 0 },
+            { "Thorn Vine", 1000 },
+            { "Bomb Cactus", 2000 },
+            { "Gun Guardian", 3000 },
+            { "Sunflower Tree", 3500 },
+            { "Guardian Oak", 5000 },
+            { "Lightning Lotus", 6000 },
+            { "Magic Blossom", 7500 }
         };
 
         foreach (var slot in slotsList) {
@@ -826,12 +843,14 @@ public class PlantCollectionManager : MonoBehaviour {
             }
 
             if (descMap.ContainsKey(cleanName)) {
+                int unlockCostVal = unlockCostMap.ContainsKey(cleanName) ? unlockCostMap[cleanName] : 0;
                 var config = new PlantConfig {
                     name = cleanName,
                     cost = cost,
                     category = category,
                     lifetime = lifetime,
-                    description = descMap[cleanName]
+                    description = descMap[cleanName],
+                    unlockCost = unlockCostVal
                 };
                 list.Add(config);
             }

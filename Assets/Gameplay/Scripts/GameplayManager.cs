@@ -11,7 +11,7 @@ public class GameplayManager : MonoBehaviour {
     private int currentBaseHealth;
 
     [Header("HUD Settings")]
-    [SerializeField] private int coins = 1000;
+    [SerializeField] private int coins = 10000;
     public int Coins => coins;
 
     public bool UseCoins(int amount) {
@@ -625,6 +625,204 @@ public class GameplayManager : MonoBehaviour {
         }
 
         var ppm = GetComponent<PlantPlacementManager>();
+        int slotsCount = ppm != null ? ppm.SlotsCount : 8;
+
+        // If there are more slots in placement manager than existing plant cards in scene HUD,
+        // dynamically generate the missing cards and add them to the toolbar!
+        if (ppm != null && plantCards.Count < slotsCount) {
+            Transform toolbar = hudCanvas != null ? hudCanvas.transform.Find("PlantToolbar") : null;
+            if (toolbar != null) {
+                // Update toolbar width and background to fit all slots
+                float toolbarWidth = slotsCount * 125f + 35f;
+                var toolbarRect = toolbar.GetComponent<RectTransform>();
+                if (toolbarRect != null) {
+                    toolbarRect.sizeDelta = new Vector2(toolbarWidth, 170f);
+                }
+                var toolbarImg = toolbar.GetComponent<UnityEngine.UI.Image>();
+                if (toolbarImg != null) {
+                    Color toolbarBottom = new Color(0.08f, 0.15f, 0.09f, 0.85f);
+                    Color toolbarTop = new Color(0.18f, 0.32f, 0.20f, 0.85f);
+                    Color toolbarBorder = new Color(0.85f, 0.75f, 0.25f, 1f);
+                    toolbarImg.sprite = CreateRoundedRectGradientSprite(Mathf.RoundToInt(toolbarWidth), 170, 30, toolbarBottom, toolbarTop, toolbarBorder, 5);
+                }
+
+                // Color configuration constants for cards
+                Color slotActiveBottom = new Color(0.12f, 0.25f, 0.14f, 0.9f);
+                Color slotActiveTop = new Color(0.24f, 0.48f, 0.28f, 0.9f);
+                Color slotActiveBorder = new Color(0.85f, 0.75f, 0.25f, 1f);
+                Color slotLockedBottom = new Color(0.15f, 0.15f, 0.18f, 0.85f);
+                Color slotLockedTop = new Color(0.28f, 0.28f, 0.32f, 0.85f);
+                Color slotLockedBorder = new Color(0.45f, 0.45f, 0.5f, 0.8f);
+
+                int existingCount = plantCards.Count;
+                for (int i = existingCount; i < slotsCount; i++) {
+                    bool locked = ppm.IsSlotLocked(i);
+                    string fullName = ppm.GetSlotName(i);
+                    int cost = ppm.GetSlotCost(i);
+                    Color slotTint = ppm.GetSlotTintColor(i);
+
+                    string cleanName, emoji;
+                    ParseNameAndIcon(fullName, out cleanName, out emoji);
+
+                    var slotGo = new GameObject($"Slot_{i}");
+                    slotGo.AddComponent<RectTransform>();
+                    slotGo.transform.SetParent(toolbar, false);
+
+                    var cardRect = slotGo.GetComponent<RectTransform>();
+                    cardRect.anchorMin = new Vector2(0.5f, 0.5f);
+                    cardRect.anchorMax = new Vector2(0.5f, 0.5f);
+                    cardRect.pivot = new Vector2(0.5f, 0.5f);
+                    cardRect.sizeDelta = new Vector2(110f, 135f);
+
+                    var cardBgImg = slotGo.AddComponent<UnityEngine.UI.Image>();
+                    if (locked) {
+                        cardBgImg.sprite = CreateRoundedRectGradientSprite(110, 135, 22, slotLockedBottom, slotLockedTop, slotLockedBorder, 4);
+                    } else {
+                        cardBgImg.sprite = CreateRoundedRectGradientSprite(110, 135, 22, slotActiveBottom, slotActiveTop, slotActiveBorder, 4);
+                    }
+
+                    // Selection Glow
+                    var glowGo = new GameObject("SelectionGlow");
+                    glowGo.AddComponent<RectTransform>();
+                    glowGo.transform.SetParent(slotGo.transform, false);
+                    var glowImg = glowGo.AddComponent<UnityEngine.UI.Image>();
+                    glowImg.sprite = CreateRoundedRectGradientSprite(124, 149, 27, new Color(0,0,0,0), new Color(0,0,0,0), new Color(1f, 0.85f, 0.2f, 1f), 6);
+                    var glowRect = glowGo.GetComponent<RectTransform>();
+                    glowRect.anchorMin = Vector2.zero;
+                    glowRect.anchorMax = Vector2.one;
+                    glowRect.sizeDelta = new Vector2(14f, 14f);
+
+                    // Icon
+                    var iconGo = new GameObject("Icon");
+                    var iconRect = iconGo.AddComponent<RectTransform>();
+                    iconGo.transform.SetParent(slotGo.transform, false);
+                    var iconImg = iconGo.AddComponent<UnityEngine.UI.Image>();
+                    Sprite plantSprite = PlantVisuals.GetPlantSprite(fullName);
+                    if (plantSprite == null && plantPrefab != null) {
+                        var sr = plantPrefab.GetComponent<SpriteRenderer>();
+                        if (sr != null) {
+                            plantSprite = sr.sprite;
+                        }
+                    }
+                    iconImg.sprite = plantSprite;
+                    iconImg.color = plantSprite != null ? Color.white : slotTint;
+                    iconRect.anchorMin = new Vector2(0.5f, 1f);
+                    iconRect.anchorMax = new Vector2(0.5f, 1f);
+                    iconRect.pivot = new Vector2(0.5f, 0.5f);
+                    iconRect.anchoredPosition = new Vector2(0f, -40f);
+                    iconRect.sizeDelta = new Vector2(60f, 60f);
+
+                    // Name Label
+                    var nameGo = new GameObject("NameLabel");
+                    nameGo.AddComponent<RectTransform>();
+                    nameGo.transform.SetParent(slotGo.transform, false);
+                    var nameText = nameGo.AddComponent<TextMeshProUGUI>();
+                    nameText.text = cleanName;
+                    nameText.fontSize = 14;
+                    nameText.fontStyle = FontStyles.Bold;
+                    nameText.color = Color.white;
+                    nameText.alignment = TextAlignmentOptions.Center;
+                    var nameRect = nameGo.GetComponent<RectTransform>();
+                    nameRect.anchorMin = new Vector2(0.5f, 0.5f);
+                    nameRect.anchorMax = new Vector2(0.5f, 0.5f);
+                    nameRect.pivot = new Vector2(0.5f, 0.5f);
+                    nameRect.anchoredPosition = new Vector2(0f, -25f);
+                    nameRect.sizeDelta = new Vector2(100f, 25f);
+
+                    // Cost Label
+                    var costGo = new GameObject("CostLabel");
+                    costGo.AddComponent<RectTransform>();
+                    costGo.transform.SetParent(slotGo.transform, false);
+                    var costText = costGo.AddComponent<TextMeshProUGUI>();
+                    costText.text = $"Cost: {cost}";
+                    costText.fontSize = 18;
+                    costText.fontStyle = FontStyles.Bold;
+                    costText.color = new Color(1f, 0.85f, 0.15f, 1f);
+                    costText.alignment = TextAlignmentOptions.Center;
+                    var costRect = costGo.GetComponent<RectTransform>();
+                    costRect.anchorMin = new Vector2(0.5f, 0f);
+                    costRect.anchorMax = new Vector2(0.5f, 0f);
+                    costRect.pivot = new Vector2(0.5f, 0.5f);
+                    costRect.anchoredPosition = new Vector2(0f, 15f);
+                    costRect.sizeDelta = new Vector2(100f, 25f);
+
+                    // Lock Overlay
+                    GameObject lockOverlayGo = new GameObject("LockOverlay");
+                    lockOverlayGo.AddComponent<RectTransform>();
+                    lockOverlayGo.transform.SetParent(slotGo.transform, false);
+                    var lockBg = lockOverlayGo.AddComponent<UnityEngine.UI.Image>();
+                    lockBg.sprite = CreateRoundedRectSprite(110, 135, 22, new Color(0.05f, 0.05f, 0.05f, 0.65f));
+                    var lockOverlayRect = lockOverlayGo.GetComponent<RectTransform>();
+                    lockOverlayRect.anchorMin = Vector2.zero;
+                    lockOverlayRect.anchorMax = Vector2.one;
+                    lockOverlayRect.sizeDelta = Vector2.zero;
+
+                    var lockIconGo = new GameObject("LockIcon");
+                    var lockIconRect = lockIconGo.AddComponent<RectTransform>();
+                    lockIconGo.transform.SetParent(lockOverlayGo.transform, false);
+                    var lockIconImg = lockIconGo.AddComponent<UnityEngine.UI.Image>();
+                    lockIconImg.sprite = activeLockSprite;
+                    lockIconRect.anchorMin = new Vector2(0.5f, 0.5f);
+                    lockIconRect.anchorMax = new Vector2(0.5f, 0.5f);
+                    lockIconRect.pivot = new Vector2(0.5f, 0.5f);
+                    lockIconRect.anchoredPosition = Vector2.zero;
+                    lockIconRect.sizeDelta = new Vector2(36f, 36f);
+
+                    // Cooldown Overlay
+                    var cdOvlGo = new GameObject("CooldownOverlay");
+                    cdOvlGo.AddComponent<RectTransform>();
+                    cdOvlGo.transform.SetParent(slotGo.transform, false);
+                    var cdImg = cdOvlGo.AddComponent<UnityEngine.UI.Image>();
+                    cdImg.sprite = CreateRoundedRectSprite(110, 135, 22, new Color(0f, 0f, 0f, 0.65f));
+                    var cdRect = cdOvlGo.GetComponent<RectTransform>();
+                    cdRect.anchorMin = Vector2.zero;
+                    cdRect.anchorMax = Vector2.one;
+                    cdRect.sizeDelta = Vector2.zero;
+
+                    var cdTextGo = new GameObject("CooldownText");
+                    cdTextGo.transform.SetParent(cdOvlGo.transform, false);
+                    var cdText = cdTextGo.AddComponent<TextMeshProUGUI>();
+                    cdText.fontSize = 38;
+                    cdText.fontStyle = FontStyles.Bold;
+                    cdText.color = Color.white;
+                    cdText.alignment = TextAlignmentOptions.Center;
+                    var cdTextRect = cdTextGo.GetComponent<RectTransform>();
+                    cdTextRect.anchorMin = Vector2.zero;
+                    cdTextRect.anchorMax = Vector2.one;
+                    cdTextRect.sizeDelta = Vector2.zero;
+
+                    // Button
+                    var slotBtnComp = slotGo.AddComponent<UnityEngine.UI.Button>();
+                    slotBtnComp.interactable = !locked;
+                    int index = i;
+                    slotBtnComp.onClick.AddListener(() => {
+                        if (PlantPlacementManager.Instance != null) {
+                            PlantPlacementManager.Instance.SelectPlant(index);
+                        }
+                    });
+                    slotGo.AddComponent<UIButtonEffects>();
+
+                    // Initialize Card
+                    var card = slotGo.AddComponent<PlantCard>();
+                    card.Initialize(cardBgImg, glowImg, cdImg, cdText, iconImg, costText, lockOverlayGo, locked, nameText);
+                    plantCards.Add(card);
+                }
+            }
+        }
+
+        // Reposition all cards dynamically so they are perfectly centered
+        float cardW = 110f;
+        float spacingAmt = 15f;
+        float startXOffset = -((slotsCount - 1) * (cardW + spacingAmt)) / 2f;
+        for (int i = 0; i < plantCards.Count; i++) {
+            if (plantCards[i] == null) continue;
+            var cardRect = plantCards[i].GetComponent<RectTransform>();
+            if (cardRect != null) {
+                cardRect.anchoredPosition = new Vector2(startXOffset + i * (cardW + spacingAmt), 0f);
+            }
+        }
+
+        // Configure all cards visual state
         for (int i = 0; i < plantCards.Count; i++) {
             if (plantCards[i] == null) continue;
 

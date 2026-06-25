@@ -6,6 +6,7 @@ public static class PlantVisuals {
     private static Sprite thornVineSprite;
     private static Sprite bombCactusSprite;
     private static Sprite magicBlossomSprite;
+    private static Sprite lightningLotusSprite;
 
     private static Sprite fireBloomProjSprite;
     private static Sprite frostFlowerProjSprite;
@@ -20,7 +21,12 @@ public static class PlantVisuals {
     public static Sprite GetPlantSprite(string name) {
         if (name == null) name = "";
         
-        if (name.Contains("Fire") || name.Contains("Bloom")) {
+        if (name.Contains("Lightning") || name.Contains("Lotus")) {
+            if (lightningLotusSprite != null) return lightningLotusSprite;
+            lightningLotusSprite = CreateLightningLotusSprite();
+            return lightningLotusSprite;
+        }
+        else if (name.Contains("Fire") || name.Contains("Bloom")) {
             if (fireBloomSprite != null) return fireBloomSprite;
             fireBloomSprite = CreateFireBloomSprite();
             return fireBloomSprite;
@@ -806,6 +812,62 @@ public static class PlantVisuals {
                     }
                 }
 
+                cols[y * w + x] = c;
+            }
+        }
+
+        tex.SetPixels(cols);
+        tex.Apply();
+        return Sprite.Create(tex, new Rect(0, 0, w, h), new Vector2(0.5f, 0.5f), 100f);
+    }
+
+    private static Sprite CreateLightningLotusSprite() {
+        int w = 128, h = 128;
+        Texture2D tex = new Texture2D(w, h, TextureFormat.RGBA32, false);
+        tex.wrapMode = TextureWrapMode.Clamp;
+        Color[] cols = new Color[w * h];
+        Vector2 center = new Vector2(w / 2f, h / 2f);
+
+        // Draw a multi-layered electric lotus flower:
+        // Outer petals: Electric blue to neon cyan
+        // Inner petals: Violet to hot magenta
+        // Core: Bright yellow/white
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                Vector2 pos = new Vector2(x, y);
+                float dist = Vector2.Distance(pos, center);
+                Vector2 dir = (pos - center).normalized;
+                float angle = Mathf.Atan2(dir.y, dir.x);
+
+                // 8 pointed petals pattern
+                float petalVal = Mathf.Max(0f, Mathf.Cos(8f * angle));
+                float maxPetalRadius = 24f + 26f * petalVal;
+                float midPetalRadius = 16f + 16f * petalVal;
+                float innerRadius = 12f;
+
+                Color c = Color.clear;
+                if (dist <= maxPetalRadius) {
+                    // Outer Petals: Blue to Neon Cyan
+                    float t = dist / maxPetalRadius;
+                    c = Color.Lerp(new Color(0.0f, 0.4f, 1.0f, 1.0f), new Color(0.0f, 0.9f, 1.0f, 1.0f), t);
+
+                    if (dist <= midPetalRadius) {
+                        // Mid Petals: Cyan to Violet/Magenta
+                        float tMid = dist / midPetalRadius;
+                        c = Color.Lerp(new Color(0.0f, 0.9f, 1.0f, 1.0f), new Color(0.85f, 0.1f, 0.85f, 1.0f), tMid);
+                    }
+                    if (dist <= innerRadius) {
+                        // Inner Core: Yellow to White
+                        float tInner = dist / innerRadius;
+                        c = Color.Lerp(Color.yellow, Color.white, tInner);
+                    }
+
+                    // Soft alpha edge
+                    float edgeDist = maxPetalRadius - dist;
+                    if (edgeDist < 3f) {
+                        c.a *= (edgeDist / 3f);
+                    }
+                }
                 cols[y * w + x] = c;
             }
         }

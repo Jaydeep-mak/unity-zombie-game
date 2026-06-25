@@ -253,6 +253,16 @@ MonoBehaviour:
       Extremely high health.\n\n\u2022 Blocks zombies from advancing.\n\n\u2022 Protects
       nearby attack plants.</indent></align>"
     unlockCost: 5000
+  - name: Lightning Lotus
+    cost: 350
+    category: Attack
+    lifetime: 15
+    description: "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>\u2022
+      <b>Ability:</b> Fires lightning that jumps between nearby zombies.\n\n\u2022
+      <b>Effect:</b> Damages multiple zombies with a single attack.\n\n\u2022 <b>Damage:</b>
+      Highest on first target, reduced on chained targets.\n\n\u2022 <b>Purpose:</b>
+      Strong against groups of zombies.</indent></align>"
+    unlockCost: 6000
 --- !u!4 &222917619
 Transform:
   m_ObjectHideFlags: 0
