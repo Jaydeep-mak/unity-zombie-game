@@ -69,6 +69,14 @@ public class WaveManager : MonoBehaviour {
     [SerializeField] private float healthScaleFactor = 1.15f;
     [SerializeField] private float speedScaleFactor = 1.05f;
 
+    [Header("Endless Mode Settings")]
+    [SerializeField] private bool endlessMode = true;
+    [SerializeField] private float minSpawnInterval = 0.2f;
+    [SerializeField] private float normalWeightDecay = 0.9f;
+    [SerializeField] private float runnerWeightGrowth = 1.02f;
+    [SerializeField] private float tankWeightGrowth = 1.03f;
+    [SerializeField] private float berserkerWeightGrowth = 1.04f;
+
     [Header("References")]
     [SerializeField] private ZombieSpawner spawner;
 
@@ -291,17 +299,34 @@ public class WaveManager : MonoBehaviour {
             // Scale dynamically for endless progression (mix of all unlocked types)
             var lastConfig = waveConfigs[waveConfigs.Count - 1];
             int waveDiff = waveNum - waveConfigs.Count;
+
+            // Generate spawn weights dynamically based on lastConfig's weights
+            List<ZombieSpawnWeight> dynamicWeights = new List<ZombieSpawnWeight>();
+            if (lastConfig.spawnWeights != null) {
+                foreach (var sw in lastConfig.spawnWeights) {
+                    float finalWeight = sw.weight;
+                    if (sw.typeName == "Normal") {
+                        finalWeight *= Mathf.Pow(normalWeightDecay, waveDiff);
+                    } else {
+                        float growth = 1.03f;
+                        if (sw.typeName == "Runner") growth = runnerWeightGrowth;
+                        else if (sw.typeName == "Tank") growth = tankWeightGrowth;
+                        else if (sw.typeName == "Berserker") growth = berserkerWeightGrowth;
+                        finalWeight *= Mathf.Pow(growth, waveDiff);
+                    }
+                    dynamicWeights.Add(new ZombieSpawnWeight {
+                        typeName = sw.typeName,
+                        weight = Mathf.Max(1f, finalWeight)
+                    });
+                }
+            }
+
             currentWaveConfig = new WaveConfig {
                 zombieCount = Mathf.RoundToInt(lastConfig.zombieCount * Mathf.Pow(countScaleFactor, waveDiff)),
-                spawnInterval = Mathf.Max(0.4f, lastConfig.spawnInterval * Mathf.Pow(intervalScaleFactor, waveDiff)),
+                spawnInterval = Mathf.Max(minSpawnInterval, lastConfig.spawnInterval * Mathf.Pow(intervalScaleFactor, waveDiff)),
                 healthMultiplier = lastConfig.healthMultiplier * Mathf.Pow(healthScaleFactor, waveDiff),
                 speedMultiplier = lastConfig.speedMultiplier * Mathf.Pow(speedScaleFactor, waveDiff),
-                spawnWeights = new List<ZombieSpawnWeight> {
-                    new ZombieSpawnWeight { typeName = "Normal", weight = 20f },
-                    new ZombieSpawnWeight { typeName = "Runner", weight = 25f },
-                    new ZombieSpawnWeight { typeName = "Tank", weight = 25f },
-                    new ZombieSpawnWeight { typeName = "Berserker", weight = 30f }
-                }
+                spawnWeights = dynamicWeights
             };
         }
 
@@ -543,7 +568,7 @@ public class WaveManager : MonoBehaviour {
             waveCompletePanel.SetActive(false);
         }
 
-        if (currentWaveNumber >= totalWaves) {
+        if (!endlessMode && currentWaveNumber >= totalWaves) {
             if (GameplayManager.Instance != null) {
                 GameplayManager.Instance.TriggerVictory();
             }
