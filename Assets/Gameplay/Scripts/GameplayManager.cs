@@ -120,6 +120,11 @@ public class GameplayManager : MonoBehaviour {
 
         CreateUI();
         UpdateUI();
+
+        // Temporarily disable the Wave Number UI visual display as per requirements
+        if (waveText != null && waveText.transform.parent != null) {
+            waveText.transform.parent.gameObject.SetActive(false);
+        }
     }
 
     private void Update() {
