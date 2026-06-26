@@ -10,14 +10,9 @@ public class MainMenuManager : MonoBehaviour {
     [SerializeField] private float fadeDuration = 0.8f;
     [SerializeField] private Button startButton;
     [SerializeField] private Button settingsButton;
-    [SerializeField] private Button soundButton;
     [SerializeField] private Button plantsButton;
-    [SerializeField] private TextMeshProUGUI soundText;
-    [SerializeField] private Sprite soundOnSprite;
-    [SerializeField] private Sprite soundOffSprite;
 
     private bool isStarting = false;
-    private bool isMuted = false;
 
     private void Start() {
         // Ensure EventSystem exists so that UI clicks are registered
@@ -34,21 +29,14 @@ public class MainMenuManager : MonoBehaviour {
         if (settingsButton != null) {
             settingsButton.onClick.AddListener(OpenSettings);
         }
-        if (soundButton != null) {
-            soundButton.onClick.AddListener(ToggleSound);
-        }
         if (plantsButton != null) {
             plantsButton.onClick.AddListener(OpenPlantCollection);
         }
 
-        // Initialize sound state from AudioManager if available, else AudioListener
+        // Force initialize AudioManager and apply sound settings
         if (AudioManager.Instance != null) {
-            isMuted = AudioManager.Instance.IsMuted;
-        } else {
-            isMuted = PlayerPrefs.GetInt("SFX_Muted", 0) == 1;
+            // This initializes the singleton and loads the muted setting
         }
-        AudioListener.volume = isMuted ? 0f : 1f;
-        UpdateSoundUI();
 
         // Fade in at start
         if (fadeOverlay != null) {
@@ -71,36 +59,7 @@ public class MainMenuManager : MonoBehaviour {
         Debug.Log("Settings button clicked! Opening settings is not implemented yet.");
     }
 
-    private void ToggleSound() {
-        if (AudioManager.Instance != null) {
-            AudioManager.Instance.IsMuted = !AudioManager.Instance.IsMuted;
-            isMuted = AudioManager.Instance.IsMuted;
-        } else {
-            isMuted = !isMuted;
-            PlayerPrefs.SetInt("SFX_Muted", isMuted ? 1 : 0);
-            PlayerPrefs.Save();
-            AudioListener.volume = isMuted ? 0f : 1f;
-        }
-        UpdateSoundUI();
-        Debug.Log("Sound toggled. Muted: " + isMuted);
-    }
 
-    private void UpdateSoundUI() {
-        if (soundText != null) {
-            soundText.text = isMuted ? "🔇" : "🔊";
-        }
-        if (soundButtonImage != null) {
-            soundButtonImage.sprite = isMuted ? soundOffSprite : soundOnSprite;
-        }
-    }
-
-    private Image soundButtonImage;
-
-    private void Awake() {
-        if (soundButton != null) {
-            soundButtonImage = soundButton.GetComponent<Image>();
-        }
-    }
 
 
     private IEnumerator StartGameRoutine() {
