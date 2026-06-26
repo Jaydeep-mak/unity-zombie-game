@@ -19,6 +19,8 @@ public class PlantCard : MonoBehaviour {
     private bool isAffordable = true;
     
     private Vector3 originalScale = Vector3.one;
+    
+    [HideInInspector] public int realSlotIndex = 0;
 
     public void Initialize(Image bg, Image glow, Image cdOverlay, TextMeshProUGUI cdText, Image icon, TextMeshProUGUI cost, GameObject lockOvl, bool locked, TextMeshProUGUI nameTxt) {
         cardBg = bg;
