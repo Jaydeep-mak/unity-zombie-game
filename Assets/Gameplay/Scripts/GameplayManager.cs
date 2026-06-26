@@ -84,6 +84,7 @@ public class GameplayManager : MonoBehaviour {
     [SerializeField] private UnityEngine.UI.Button gameOverRestartButton;
     [SerializeField] private UnityEngine.UI.Button gameOverMainMenuButton;
 
+    private int matchCoinsDisplayed = 0;
     private Coroutine coinPulseCoroutine;
     private Coroutine healthPulseCoroutine;
     private bool isPaused = false;
@@ -227,8 +228,22 @@ public class GameplayManager : MonoBehaviour {
             var restartBtn = panel?.Find("RestartBtn");
             var mainMenuBtn = panel?.Find("MainMenuBtn");
 
-            // Setup initial values
+            // Setup initial values & styling
             UpdateGameOverStats(isVictory);
+
+            // Fetch newly created stat value texts so we can animate them
+            TextMeshProUGUI zombiesValText = null;
+            TextMeshProUGUI coinsValText = null;
+            if (stats != null) {
+                var zombieCard = stats.Find("StatCard_Zombies");
+                if (zombieCard != null) {
+                    zombiesValText = zombieCard.Find("Value")?.GetComponent<TextMeshProUGUI>();
+                }
+                var coinCard = stats.Find("StatCard_Coins");
+                if (coinCard != null) {
+                    coinsValText = coinCard.Find("Value")?.GetComponent<TextMeshProUGUI>();
+                }
+            }
 
             // Set everything to inactive / invisible for step-by-step entry
             if (overlayImg != null) overlayImg.color = new Color(0f, 0f, 0f, 0f);
@@ -237,73 +252,85 @@ public class GameplayManager : MonoBehaviour {
             if (restartBtn != null) restartBtn.localScale = Vector3.zero;
             if (mainMenuBtn != null) mainMenuBtn.localScale = Vector3.zero;
 
-            List<Transform> statBlocks = new List<Transform>();
-            if (stats != null) {
-                foreach (Transform child in stats) {
-                    child.localScale = Vector3.zero;
-                    statBlocks.Add(child);
-                }
-            }
+            // Stats cards (we want them to scale up too)
+            Transform zombiesCardTrans = stats?.Find("StatCard_Zombies");
+            Transform coinsCardTrans = stats?.Find("StatCard_Coins");
+            if (zombiesCardTrans != null) zombiesCardTrans.localScale = Vector3.zero;
+            if (coinsCardTrans != null) coinsCardTrans.localScale = Vector3.zero;
 
-            // Phase 1: Fade overlay and Scale panel
+            // Phase 1: Fade overlay and Scale panel with bounce
             float elapsed = 0f;
-            float duration = 0.45f;
+            float duration = 0.5f;
             while (elapsed < duration) {
                 elapsed += Time.unscaledDeltaTime;
                 float t = elapsed / duration;
-                float tEase = 1f - Mathf.Pow(1f - t, 3f); // Ease out cubic
                 
+                // Fade overlay
                 if (overlayImg != null) {
                     overlayImg.color = new Color(0f, 0f, 0f, Mathf.Lerp(0f, 0.75f, t));
                 }
+                
+                // Scale panel with nice EaseOutBack bounce
                 if (panel != null) {
-                    panel.localScale = Vector3.one * Mathf.Lerp(0f, 1.03f, tEase);
+                    float tMinusOne = t - 1f;
+                    float easeOutBack = tMinusOne * tMinusOne * ((1.70158f + 1f) * tMinusOne + 1.70158f) + 1f;
+                    panel.localScale = Vector3.one * easeOutBack;
                 }
                 yield return null;
             }
             if (panel != null) panel.localScale = Vector3.one;
             if (overlayImg != null) overlayImg.color = new Color(0f, 0f, 0f, 0.75f);
 
-            // Phase 2: Title Pop In
+            // Phase 2: Title & Cards cascade entry
+            // Show the Title with a bounce
             elapsed = 0f;
             duration = 0.3f;
             while (elapsed < duration) {
                 elapsed += Time.unscaledDeltaTime;
                 float t = elapsed / duration;
-                float tBounce = Mathf.Sin(t * Mathf.PI * 0.75f) * 0.15f + t;
-                tBounce = Mathf.Clamp01(tBounce);
+                float tMinusOne = t - 1f;
+                float easeOutBack = tMinusOne * tMinusOne * ((1.70158f + 1f) * tMinusOne + 1.70158f) + 1f;
 
-                if (title != null) title.localScale = Vector3.one * tBounce;
+                if (title != null) title.localScale = Vector3.one * easeOutBack;
                 yield return null;
             }
             if (title != null) title.localScale = Vector3.one;
 
-            // Phase 3: Stat Blocks Cascade Pop
-            for (int i = 0; i < statBlocks.Count; i++) {
-                var block = statBlocks[i];
-                elapsed = 0f;
-                duration = 0.18f;
-                while (elapsed < duration) {
-                    elapsed += Time.unscaledDeltaTime;
-                    float t = elapsed / duration;
-                    float tBounce = Mathf.Sin(t * Mathf.PI * 0.75f) * 0.15f + t;
-                    tBounce = Mathf.Clamp01(tBounce);
-                    if (block != null) block.localScale = Vector3.one * tBounce;
-                    yield return null;
-                }
-                if (block != null) block.localScale = Vector3.one;
-                yield return new WaitForSecondsRealtime(0.06f);
-            }
-
-            // Phase 4: Buttons scale up
+            // Pop in the statistics cards
             elapsed = 0f;
-            duration = 0.25f;
+            duration = 0.35f;
             while (elapsed < duration) {
                 elapsed += Time.unscaledDeltaTime;
                 float t = elapsed / duration;
-                float tEase = 1f - Mathf.Pow(1f - t, 2f); // Ease out quad
-                if (restartBtn != null) restartBtn.localScale = Vector3.one * tEase;
-                if (mainMenuBtn != null) mainMenuBtn.localScale = Vector3.one * tEase;
+                float tMinusOne = t - 1f;
+                float easeOutBack = tMinusOne * tMinusOne * ((1.70158f + 1f) * tMinusOne + 1.70158f) + 1f;
+
+                if (zombiesCardTrans != null) zombiesCardTrans.localScale = Vector3.one * easeOutBack;
+                if (coinsCardTrans != null) coinsCardTrans.localScale = Vector3.one * easeOutBack;
+                yield return null;
+            }
+            if (zombiesCardTrans != null) zombiesCardTrans.localScale = Vector3.one;
+            if (coinsCardTrans != null) coinsCardTrans.localScale = Vector3.one;
+
+            // Phase 3: Start Count-up of Stats
+            int finalZombies = zombiesKilled;
+            int finalCoins = matchCoinsDisplayed;
+            
+            // Start the count up animation
+            StartCoroutine(CountUpStatsRoutine(zombiesValText, coinsValText, finalZombies, finalCoins));
+
+            // Phase 4: Buttons scale up with a slight delay
+            yield return new WaitForSecondsRealtime(0.1f);
+            elapsed = 0f;
+            duration = 0.3f;
+            while (elapsed < duration) {
+                elapsed += Time.unscaledDeltaTime;
+                float t = elapsed / duration;
+                float tMinusOne = t - 1f;
+                float easeOutBack = tMinusOne * tMinusOne * ((1.70158f + 1f) * tMinusOne + 1.70158f) + 1f;
+
+                if (restartBtn != null) restartBtn.localScale = Vector3.one * easeOutBack;
+                if (mainMenuBtn != null) mainMenuBtn.localScale = Vector3.one * easeOutBack;
                 yield return null;
             }
             if (restartBtn != null) restartBtn.localScale = Vector3.one;
@@ -312,58 +339,285 @@ public class GameplayManager : MonoBehaviour {
     }
 
     private void UpdateGameOverStats(bool isVictory) {
-        var titleTextComp = gameOverPopup.transform.Find("Background/Title")?.GetComponent<TextMeshProUGUI>();
-        if (titleTextComp != null) {
-            titleTextComp.text = isVictory ? "VICTORY!" : "GAME OVER";
-            titleTextComp.color = isVictory ? new Color(0.3f, 1f, 0.4f, 1f) : new Color(1f, 0.3f, 0.2f, 1f);
+        // Find panel, title, stats, buttons and style them to be gorgeous fantasy themed elements
+        var panel = gameOverPopup.transform.Find("Background")?.GetComponent<RectTransform>();
+        if (panel != null) {
+            panel.anchorMin = new Vector2(0.5f, 0.5f);
+            panel.anchorMax = new Vector2(0.5f, 0.5f);
+            panel.pivot = new Vector2(0.5f, 0.5f);
+            panel.anchoredPosition = Vector2.zero;
+            panel.sizeDelta = new Vector2(680f, 540f);
+            
+            var bgImageComp = panel.GetComponent<UnityEngine.UI.Image>();
+            if (bgImageComp != null) {
+                Color gameOverBgBottom = new Color(0.08f, 0.16f, 0.10f, 0.98f); // Deep forest green
+                Color gameOverBgTop = new Color(0.15f, 0.30f, 0.18f, 0.98f);    // Bright forest green
+                Color gameOverBgBorder = isVictory ? new Color(0.95f, 0.82f, 0.18f, 1f) : new Color(0.85f, 0.75f, 0.25f, 1f); // Gold border
+                bgImageComp.sprite = CreateRoundedRectGradientSprite(680, 540, 36, gameOverBgBottom, gameOverBgTop, gameOverBgBorder, 6);
+            }
         }
 
-        var bgImageComp = gameOverPopup.transform.Find("Background")?.GetComponent<UnityEngine.UI.Image>();
-        if (bgImageComp != null) {
-            Color gameOverBgBottom = new Color(0.08f, 0.16f, 0.10f, 0.98f);
-            Color gameOverBgTop = new Color(0.15f, 0.30f, 0.18f, 0.98f);
-            Color gameOverBgBorder = isVictory ? new Color(0.3f, 1f, 0.4f, 1f) : new Color(0.85f, 0.75f, 0.25f, 1f);
-            bgImageComp.sprite = CreateRoundedRectGradientSprite(640, 520, 36, gameOverBgBottom, gameOverBgTop, gameOverBgBorder, 5);
+        var titleRect = gameOverPopup.transform.Find("Background/Title")?.GetComponent<RectTransform>();
+        if (titleRect != null) {
+            titleRect.anchorMin = new Vector2(0.5f, 1f);
+            titleRect.anchorMax = new Vector2(0.5f, 1f);
+            titleRect.pivot = new Vector2(0.5f, 1f);
+            titleRect.anchoredPosition = new Vector2(0f, -40f);
+            titleRect.sizeDelta = new Vector2(500f, 80f);
+            
+            var titleTextComp = titleRect.GetComponent<TextMeshProUGUI>();
+            if (titleTextComp != null) {
+                titleTextComp.text = isVictory ? "VICTORY!" : "GAME OVER";
+                titleTextComp.color = isVictory ? new Color(0.95f, 0.82f, 0.18f, 1f) : new Color(0.95f, 0.25f, 0.25f, 1f); // Gold / red
+                titleTextComp.fontSize = 64;
+                titleTextComp.fontStyle = FontStyles.Bold;
+                titleTextComp.alignment = TextAlignmentOptions.Center;
+                ApplyFont(titleTextComp);
+            }
         }
 
-        int survived = isVictory ? currentWave : (currentWave - 1);
-        survived = Mathf.Max(0, survived);
+        // Style the buttons to look extremely polished and matching
+        var restartBtnRect = gameOverPopup.transform.Find("Background/RestartBtn")?.GetComponent<RectTransform>();
+        if (restartBtnRect != null) {
+            restartBtnRect.anchorMin = new Vector2(0.5f, 0f);
+            restartBtnRect.anchorMax = new Vector2(0.5f, 0f);
+            restartBtnRect.pivot = new Vector2(0.5f, 0f);
+            restartBtnRect.anchoredPosition = new Vector2(-140f, 55f);
+            restartBtnRect.sizeDelta = new Vector2(220f, 70f);
 
-        int matchProgressionCoins = 0;
+            var img = restartBtnRect.GetComponent<UnityEngine.UI.Image>();
+            if (img != null) {
+                img.sprite = CreateRoundedRectGradientSprite(220, 70, 22, 
+                    new Color(0.6f, 0.3f, 0.05f, 1f), 
+                    new Color(0.85f, 0.45f, 0.1f, 1f), 
+                    new Color(1f, 0.85f, 0.3f, 1f), 5);
+            }
+            var text = restartBtnRect.Find("Text")?.GetComponent<TextMeshProUGUI>();
+            if (text != null) {
+                text.text = "PLAY AGAIN";
+                text.color = Color.white;
+                text.fontStyle = FontStyles.Bold;
+                text.fontSize = 24;
+                text.alignment = TextAlignmentOptions.Center;
+                ApplyFont(text);
+            }
+        }
+
+        var mainMenuBtnRect = gameOverPopup.transform.Find("Background/MainMenuBtn")?.GetComponent<RectTransform>();
+        if (mainMenuBtnRect != null) {
+            mainMenuBtnRect.anchorMin = new Vector2(0.5f, 0f);
+            mainMenuBtnRect.anchorMax = new Vector2(0.5f, 0f);
+            mainMenuBtnRect.pivot = new Vector2(0.5f, 0f);
+            mainMenuBtnRect.anchoredPosition = new Vector2(140f, 55f);
+            mainMenuBtnRect.sizeDelta = new Vector2(220f, 70f);
+
+            var img = mainMenuBtnRect.GetComponent<UnityEngine.UI.Image>();
+            if (img != null) {
+                img.sprite = CreateRoundedRectGradientSprite(220, 70, 22, 
+                    new Color(0.18f, 0.4f, 0.12f, 1f), 
+                    new Color(0.35f, 0.65f, 0.25f, 1f), 
+                    new Color(0.85f, 0.75f, 0.25f, 1f), 5);
+            }
+            var text = mainMenuBtnRect.Find("Text")?.GetComponent<TextMeshProUGUI>();
+            if (text != null) {
+                text.text = "MAIN MENU";
+                text.color = Color.white;
+                text.fontStyle = FontStyles.Bold;
+                text.fontSize = 24;
+                text.alignment = TextAlignmentOptions.Center;
+                ApplyFont(text);
+            }
+        }
+
+        // Coins and Wallet handling (preserving logic exactly as original)
+        matchCoinsDisplayed = 0;
         if (GlobalProgressionManager.Instance != null) {
-            matchProgressionCoins = GlobalProgressionManager.Instance.MatchEarnedCoins;
+            matchCoinsDisplayed = GlobalProgressionManager.Instance.MatchEarnedCoins;
             GlobalProgressionManager.Instance.ApplyMatchCoinsToWallet();
         }
 
-        var statsTransform = gameOverPopup.transform.Find("Background/Stats");
-        if (statsTransform != null) {
-            for (int i = statsTransform.childCount - 1; i >= 0; i--) {
-                Destroy(statsTransform.GetChild(i).gameObject);
+        var statsRect = gameOverPopup.transform.Find("Background/Stats")?.GetComponent<RectTransform>();
+        if (statsRect != null) {
+            statsRect.anchorMin = new Vector2(0.5f, 0.5f);
+            statsRect.anchorMax = new Vector2(0.5f, 0.5f);
+            statsRect.pivot = new Vector2(0.5f, 0.5f);
+            statsRect.anchoredPosition = new Vector2(0f, 10f);
+            statsRect.sizeDelta = new Vector2(600f, 230f);
+
+            var statsImg = statsRect.GetComponent<UnityEngine.UI.Image>();
+            if (statsImg == null) {
+                statsImg = statsRect.gameObject.AddComponent<UnityEngine.UI.Image>();
+            }
+            Color innerBgBottom = new Color(0.04f, 0.08f, 0.05f, 0.95f); // Deep forest green inner panel
+            Color innerBgTop = new Color(0.07f, 0.14f, 0.09f, 0.95f);
+            Color innerBorder = new Color(0.55f, 0.48f, 0.15f, 0.8f);    // Gold frame
+            statsImg.sprite = CreateRoundedRectGradientSprite(600, 230, 24, innerBgBottom, innerBgTop, innerBorder, 3);
+
+            // Rebuild stats children inside statsRect
+            for (int i = statsRect.childCount - 1; i >= 0; i--) {
+                Destroy(statsRect.GetChild(i).gameObject);
             }
 
-            string[] lines = {
-                $"🌊 Waves Completed: <color=#50E3C2>{survived}</color>",
-                $"☠ Zombies Killed: <color=#FF4A4A>{zombiesKilled}</color>",
-                $"💰 Coins Earned: <color=#FFD700>{matchProgressionCoins}</color>"
-            };
+            // Create Zombies Defeated card on the left with skull sprite
+            Sprite skullSprite = CreateSkullSprite(64, 64);
+            CreateStatCard("StatCard_Zombies", statsRect, new Vector2(-135f, 0f), skullSprite, Color.white, "ZOMBIES KILLED", "0", new Color(0.95f, 0.35f, 0.35f, 1f));
 
-            for (int j = 0; j < 3; j++) {
-                var blockGo = new GameObject($"StatRow_{j}");
-                var blockRect = blockGo.AddComponent<RectTransform>();
-                blockGo.transform.SetParent(statsTransform, false);
-                blockRect.anchorMin = new Vector2(0.5f, 0.5f);
-                blockRect.anchorMax = new Vector2(0.5f, 0.5f);
-                blockRect.pivot = new Vector2(0.5f, 0.5f);
-                blockRect.anchoredPosition = new Vector2(0f, 60f - j * 60f); // Spaced vertically
-                blockRect.sizeDelta = new Vector2(500f, 50f);
+            // Create Coins Earned card on the right with coin sprite
+            CreateStatCard("StatCard_Coins", statsRect, new Vector2(135f, 0f), activeCoinSprite, Color.white, "COINS EARNED", "0", new Color(1f, 0.85f, 0.15f, 1f));
+        }
+    }
 
-                var text = blockGo.AddComponent<TextMeshProUGUI>();
-                text.text = lines[j];
-                text.fontSize = 28;
-                text.fontStyle = FontStyles.Bold;
-                text.color = Color.white;
-                text.alignment = TextAlignmentOptions.Center;
+    private void CreateStatCard(string name, Transform parent, Vector2 pos, Sprite iconSprite, Color iconColor, string headerText, string startVal, Color valColor) {
+        var cardGo = new GameObject(name);
+        var cardRect = cardGo.AddComponent<RectTransform>();
+        cardGo.transform.SetParent(parent, false);
+        
+        cardRect.anchorMin = new Vector2(0.5f, 0.5f);
+        cardRect.anchorMax = new Vector2(0.5f, 0.5f);
+        cardRect.pivot = new Vector2(0.5f, 0.5f);
+        cardRect.anchoredPosition = pos;
+        cardRect.sizeDelta = new Vector2(245f, 180f);
+
+        var cardImg = cardGo.AddComponent<UnityEngine.UI.Image>();
+        Color cardBgBottom = new Color(0.02f, 0.05f, 0.03f, 0.95f); // Very dark forest green
+        Color cardBgTop = new Color(0.04f, 0.09f, 0.06f, 0.95f);
+        Color cardBorder = new Color(0.2f, 0.5f, 0.3f, 0.6f);
+        cardImg.sprite = CreateRoundedRectGradientSprite(245, 180, 18, cardBgBottom, cardBgTop, cardBorder, 2);
+
+        // Icon Image
+        var iconGo = new GameObject("Icon");
+        var iconRect = iconGo.AddComponent<RectTransform>();
+        iconGo.transform.SetParent(cardGo.transform, false);
+        var iconImgComp = iconGo.AddComponent<UnityEngine.UI.Image>();
+        iconImgComp.sprite = iconSprite;
+        iconImgComp.color = iconColor;
+        iconImgComp.preserveAspect = true;
+        
+        iconRect.anchorMin = new Vector2(0.5f, 0.5f);
+        iconRect.anchorMax = new Vector2(0.5f, 0.5f);
+        iconRect.pivot = new Vector2(0.5f, 0.5f);
+        iconRect.anchoredPosition = new Vector2(0f, 45f);
+        iconRect.sizeDelta = new Vector2(48f, 48f);
+
+        // Heading
+        var headingGo = new GameObject("Heading");
+        var headingRect = headingGo.AddComponent<RectTransform>();
+        headingGo.transform.SetParent(cardGo.transform, false);
+        var headingTextComp = headingGo.AddComponent<TextMeshProUGUI>();
+        headingTextComp.text = headerText;
+        headingTextComp.fontSize = 15;
+        headingTextComp.fontStyle = FontStyles.Bold;
+        headingTextComp.color = new Color(0.9f, 0.75f, 0.2f, 1f); // Gold heading
+        headingTextComp.alignment = TextAlignmentOptions.Center;
+
+        headingRect.anchorMin = new Vector2(0.5f, 0.5f);
+        headingRect.anchorMax = new Vector2(0.5f, 0.5f);
+        headingRect.pivot = new Vector2(0.5f, 0.5f);
+        headingRect.anchoredPosition = new Vector2(0f, 5f);
+        headingRect.sizeDelta = new Vector2(230f, 30f);
+        ApplyFont(headingTextComp);
+
+        // Value
+        var valGo = new GameObject("Value");
+        var valRect = valGo.AddComponent<RectTransform>();
+        valGo.transform.SetParent(cardGo.transform, false);
+        var valTextComp = valGo.AddComponent<TextMeshProUGUI>();
+        valTextComp.text = startVal;
+        valTextComp.fontSize = 42;
+        valTextComp.fontStyle = FontStyles.Bold;
+        valTextComp.color = valColor;
+        valTextComp.alignment = TextAlignmentOptions.Center;
+
+        valRect.anchorMin = new Vector2(0.5f, 0.5f);
+        valRect.anchorMax = new Vector2(0.5f, 0.5f);
+        valRect.pivot = new Vector2(0.5f, 0.5f);
+        valRect.anchoredPosition = new Vector2(0f, -38f);
+        valRect.sizeDelta = new Vector2(200f, 50f);
+        ApplyFont(valTextComp);
+    }
+
+    private Sprite CreateSkullSprite(int width, int height) {
+        Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
+        Color[] cols = new Color[width * height];
+        float cx = width / 2f;
+        float cy = height * 0.58f;
+        float rHead = width * 0.3f;
+        
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                float dx = x - cx;
+                float dy = y - cy;
+                
+                // Base head circle
+                bool inHead = (dx * dx + dy * dy <= rHead * rHead);
+                
+                // Jaw area below head
+                bool inJaw = (Mathf.Abs(dx) <= width * 0.16f && y >= height * 0.16f && y <= height * 0.45f);
+                
+                // Combine skull base
+                bool isSkullBase = inHead || inJaw;
+                
+                // Eye sockets
+                float eyeY = height * 0.58f;
+                float eyeL_X = cx - width * 0.12f;
+                float eyeR_X = cx + width * 0.12f;
+                float rEye = width * 0.08f;
+                bool isLeftEye = ((x - eyeL_X) * (x - eyeL_X) + (y - eyeY) * (y - eyeY) <= rEye * rEye);
+                bool isRightEye = ((x - eyeR_X) * (x - eyeR_X) + (y - eyeY) * (y - eyeY) <= rEye * rEye);
+                
+                // Nose cavity
+                float noseY = height * 0.44f;
+                bool isNose = (Mathf.Abs(dx) <= width * 0.04f && Mathf.Abs(y - noseY) <= height * 0.05f);
+                
+                // Teeth slits
+                bool isTeeth = (y >= height * 0.16f && y <= height * 0.28f && (Mathf.Abs(x - cx) < 2f || Mathf.Abs(x - (cx - 6f)) < 2f || Mathf.Abs(x - (cx + 6f)) < 2f));
+                
+                if (isSkullBase && !isLeftEye && !isRightEye && !isNose && !isTeeth) {
+                    cols[y * width + x] = new Color(0.9f, 0.9f, 0.9f, 1f); // White/light gray bone color
+                } else {
+                    cols[y * width + x] = new Color(0f, 0f, 0f, 0f);
+                }
             }
+        }
+        tex.SetPixels(cols);
+        tex.Apply();
+        return Sprite.Create(tex, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f), 100f);
+    }
+
+    private IEnumerator CountUpStatsRoutine(TextMeshProUGUI zombiesText, TextMeshProUGUI coinsText, int targetZombies, int targetCoins) {
+        float elapsed = 0f;
+        float duration = 1.2f;
+        
+        while (elapsed < duration) {
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            float tEase = 1f - Mathf.Pow(1f - t, 3f); // Ease out cubic
+            
+            int currentZombies = Mathf.RoundToInt(Mathf.Lerp(0, targetZombies, tEase));
+            int currentCoins = Mathf.RoundToInt(Mathf.Lerp(0, targetCoins, tEase));
+            
+            if (zombiesText != null) zombiesText.text = currentZombies.ToString();
+            if (coinsText != null) coinsText.text = currentCoins.ToString();
+            
+            yield return null;
+        }
+        
+        if (zombiesText != null) zombiesText.text = targetZombies.ToString();
+        if (coinsText != null) coinsText.text = targetCoins.ToString();
+    }
+
+    private void ApplyFont(TextMeshProUGUI tmpText) {
+        if (tmpText == null) return;
+        var fonts = Resources.FindObjectsOfTypeAll<TMP_FontAsset>();
+        TMP_FontAsset fontToUse = null;
+        foreach (var f in fonts) {
+            if (f.name.Contains("Salsa") || f.name.Contains("Liberation")) {
+                fontToUse = f;
+                break;
+            }
+        }
+        if (fontToUse != null) {
+            tmpText.font = fontToUse;
         }
     }
 
@@ -1357,14 +1611,14 @@ public class GameplayManager : MonoBehaviour {
         Color gameOverBgBottom = new Color(0.08f, 0.16f, 0.10f, 0.98f); // Deep forest green/swamp
         Color gameOverBgTop = new Color(0.15f, 0.30f, 0.18f, 0.98f);    // Bright forest green
         Color gameOverBgBorder = new Color(0.85f, 0.75f, 0.25f, 1f);   // Fantasy gold/leafy border
-        bgImage.sprite = CreateRoundedRectGradientSprite(640, 520, 36, gameOverBgBottom, gameOverBgTop, gameOverBgBorder, 5);
+        bgImage.sprite = CreateRoundedRectGradientSprite(680, 540, 36, gameOverBgBottom, gameOverBgTop, gameOverBgBorder, 6);
         
         var bgRect = popupBg.GetComponent<RectTransform>();
         bgRect.anchorMin = new Vector2(0.5f, 0.5f);
         bgRect.anchorMax = new Vector2(0.5f, 0.5f);
         bgRect.pivot = new Vector2(0.5f, 0.5f);
         bgRect.anchoredPosition = Vector2.zero;
-        bgRect.sizeDelta = new Vector2(640f, 520f);
+        bgRect.sizeDelta = new Vector2(680f, 540f);
 
         // Title
         var titleGo = new GameObject("Title");
@@ -1392,15 +1646,21 @@ public class GameplayManager : MonoBehaviour {
         statsRect.anchorMin = new Vector2(0.5f, 0.5f);
         statsRect.anchorMax = new Vector2(0.5f, 0.5f);
         statsRect.pivot = new Vector2(0.5f, 0.5f);
-        statsRect.anchoredPosition = new Vector2(0f, 15f);
-        statsRect.sizeDelta = new Vector2(500f, 210f);
+        statsRect.anchoredPosition = new Vector2(0f, 10f);
+        statsRect.sizeDelta = new Vector2(600f, 230f);
+
+        var statsImg = statsGo.AddComponent<UnityEngine.UI.Image>();
+        Color innerBgBottom = new Color(0.04f, 0.08f, 0.05f, 0.95f);
+        Color innerBgTop = new Color(0.07f, 0.14f, 0.09f, 0.95f);
+        Color innerBorder = new Color(0.55f, 0.48f, 0.15f, 0.8f);
+        statsImg.sprite = CreateRoundedRectGradientSprite(600, 230, 24, innerBgBottom, innerBgTop, innerBorder, 3);
 
         // Restart and Main Menu Buttons (Children of popupBg now!)
-        CreateStyledButton("RestartBtn", popupBg.transform, new Vector2(-135f, 40f), new Vector2(220f, 70f), "PLAY AGAIN",
+        CreateStyledButton("RestartBtn", popupBg.transform, new Vector2(-140f, 55f), new Vector2(220f, 70f), "PLAY AGAIN",
             new Color(0.6f, 0.3f, 0.05f, 1f), new Color(0.85f, 0.45f, 0.1f, 1f), new Color(1f, 0.85f, 0.3f, 1f), 5, OnRestartButtonClicked);
 
-        CreateStyledButton("MainMenuBtn", popupBg.transform, new Vector2(135f, 40f), new Vector2(220f, 70f), "MAIN MENU",
-            new Color(0.18f, 0.4f, 0.12f, 1f), new Color(0.35f, 0.65f, 0.25f, 1f), new Color(0.7f, 0.9f, 0.5f, 1f), 5, OnMainMenuButtonClicked);
+        CreateStyledButton("MainMenuBtn", popupBg.transform, new Vector2(140f, 55f), new Vector2(220f, 70f), "MAIN MENU",
+            new Color(0.18f, 0.4f, 0.12f, 1f), new Color(0.35f, 0.65f, 0.25f, 1f), new Color(0.85f, 0.75f, 0.25f, 1f), 5, OnMainMenuButtonClicked);
 
         // 8. Create Pause Popup (Initially Inactive)
         pausePopup = new GameObject("PausePopup");
