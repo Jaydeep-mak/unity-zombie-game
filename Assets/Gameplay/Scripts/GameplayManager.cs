@@ -211,6 +211,10 @@ public class GameplayManager : MonoBehaviour {
     }
 
     private IEnumerator GameOverSequenceRoutine(bool isVictory = false) {
+        if (WaveManager.Instance != null) {
+            WaveManager.Instance.CancelWaveAnnouncement();
+        }
+
         // Stop active gameplay components, but don't pause yet
         foreach (var wm in FindObjectsByType<WaveManager>(FindObjectsSortMode.None)) {
             wm.enabled = false;
@@ -650,6 +654,9 @@ public class GameplayManager : MonoBehaviour {
         Time.timeScale = isPaused ? 0f : 1f;
         if (pausePopup != null) {
             if (isPaused) {
+                if (WaveManager.Instance != null) {
+                    WaveManager.Instance.CancelWaveAnnouncement();
+                }
                 pausePopup.SetActive(true);
                 StopAllCoroutines();
                 StartCoroutine(PopupScaleIn(pausePopup.transform));
@@ -1973,6 +1980,7 @@ public class GameplayManager : MonoBehaviour {
         float elapsed = 0f;
 
         while (elapsed < halfDuration) {
+            if (img == null) yield break;
             elapsed += Time.deltaTime;
             img.color = new Color(color.r, color.g, color.b, Mathf.Lerp(0f, maxAlpha, elapsed / halfDuration));
             yield return null;
@@ -1980,12 +1988,15 @@ public class GameplayManager : MonoBehaviour {
 
         elapsed = 0f;
         while (elapsed < halfDuration) {
+            if (img == null) yield break;
             elapsed += Time.deltaTime;
             img.color = new Color(color.r, color.g, color.b, Mathf.Lerp(maxAlpha, 0f, elapsed / halfDuration));
             yield return null;
         }
 
-        Destroy(flashGo);
+        if (flashGo != null) {
+            Destroy(flashGo);
+        }
     }
 
     private IEnumerator CameraShakeRoutine(float duration, float magnitude) {

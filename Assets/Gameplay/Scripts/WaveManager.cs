@@ -92,6 +92,14 @@ public class WaveManager : MonoBehaviour {
     private GameObject waveCompletePanel;
     private TextMeshProUGUI waveCompleteText;
 
+    private Coroutine announcementCoroutine;
+    private GameObject waveAnnouncementPanel;
+    private Coroutine flashCoroutine;
+    private GameObject flashGo;
+    private Coroutine shakeCoroutine;
+    private Vector3 cameraOriginalPos;
+    private bool isAnnouncementCancelled = false;
+
     private void Awake() {
         if (Instance == null) {
             Instance = this;
@@ -336,7 +344,10 @@ public class WaveManager : MonoBehaviour {
         }
 
         // Play the Wave Start Announcement UI Animation first
-        yield return StartCoroutine(AnimateWaveAnnouncement(currentWaveNumber));
+        isAnnouncementCancelled = false;
+        announcementCoroutine = StartCoroutine(AnimateWaveAnnouncement(currentWaveNumber));
+        yield return announcementCoroutine;
+        announcementCoroutine = null;
 
         zombiesToSpawn = currentWaveConfig.zombieCount;
         spawnCooldown = 0.5f; // Short delay before spawning starts
@@ -349,9 +360,9 @@ public class WaveManager : MonoBehaviour {
         if (canvas == null) yield break;
 
         // Create Panel GameObject
-        var panelGo = new GameObject("WaveAnnouncementPanel");
-        panelGo.transform.SetParent(canvas.transform, false);
-        var panelRect = panelGo.AddComponent<RectTransform>();
+        waveAnnouncementPanel = new GameObject("WaveAnnouncementPanel");
+        waveAnnouncementPanel.transform.SetParent(canvas.transform, false);
+        var panelRect = waveAnnouncementPanel.AddComponent<RectTransform>();
         panelRect.anchorMin = new Vector2(0.5f, 0.5f);
         panelRect.anchorMax = new Vector2(0.5f, 0.5f);
         panelRect.pivot = new Vector2(0.5f, 0.5f);
@@ -363,7 +374,7 @@ public class WaveManager : MonoBehaviour {
 
         // Top Line Border
         var topLineGo = new GameObject("TopLine");
-        topLineGo.transform.SetParent(panelGo.transform, false);
+        topLineGo.transform.SetParent(waveAnnouncementPanel.transform, false);
         var topLineImg = topLineGo.AddComponent<UnityEngine.UI.Image>();
         topLineImg.color = goldColor;
         var topRect = topLineGo.GetComponent<RectTransform>();
@@ -375,7 +386,7 @@ public class WaveManager : MonoBehaviour {
 
         // Announcement Text
         var textGo = new GameObject("AnnouncementText");
-        textGo.transform.SetParent(panelGo.transform, false);
+        textGo.transform.SetParent(waveAnnouncementPanel.transform, false);
         var textMesh = textGo.AddComponent<TextMeshProUGUI>();
         textMesh.text = $"WAVE {waveNum}";
         textMesh.fontSize = 96;
@@ -394,7 +405,7 @@ public class WaveManager : MonoBehaviour {
 
         // Bottom Line Border
         var bottomLineGo = new GameObject("BottomLine");
-        bottomLineGo.transform.SetParent(panelGo.transform, false);
+        bottomLineGo.transform.SetParent(waveAnnouncementPanel.transform, false);
         var bottomLineImg = bottomLineGo.AddComponent<UnityEngine.UI.Image>();
         bottomLineImg.color = goldColor;
         var bottomRect = bottomLineGo.GetComponent<RectTransform>();
@@ -405,13 +416,14 @@ public class WaveManager : MonoBehaviour {
         bottomRect.sizeDelta = new Vector2(600f, 8f);
 
         // Spawns screen flash and screen shake juice
-        StartCoroutine(ScreenFlashRoutine(0.25f, Color.white, 0.15f));
-        StartCoroutine(CameraShakeRoutine(0.2f, 0.08f));
+        flashCoroutine = StartCoroutine(ScreenFlashRoutine(0.25f, Color.white, 0.15f));
+        shakeCoroutine = StartCoroutine(CameraShakeRoutine(0.2f, 0.08f));
 
         // 1. Scale In (Bounce)
         float elapsed = 0f;
         float scaleInDuration = 0.35f;
         while (elapsed < scaleInDuration) {
+            if (isAnnouncementCancelled) yield break;
             elapsed += Time.deltaTime;
             float t = elapsed / scaleInDuration;
             float scale = Mathf.Lerp(0.2f, 1.15f, t);
@@ -422,23 +434,27 @@ public class WaveManager : MonoBehaviour {
             panelRect.localScale = Vector3.one * scale;
             yield return null;
         }
+        if (isAnnouncementCancelled) yield break;
         panelRect.localScale = Vector3.one;
 
         // 2. Hold (Pulse)
         elapsed = 0f;
         float holdDuration = 1.0f;
         while (elapsed < holdDuration) {
+            if (isAnnouncementCancelled) yield break;
             elapsed += Time.deltaTime;
             float pulse = 1.0f + Mathf.Sin(elapsed * Mathf.PI * 2f) * 0.03f;
             panelRect.localScale = Vector3.one * pulse;
             yield return null;
         }
+        if (isAnnouncementCancelled) yield break;
 
         // 3. Fade Out
         elapsed = 0f;
         float fadeDuration = 0.4f;
-        var textGroup = panelGo.AddComponent<CanvasGroup>();
+        var textGroup = waveAnnouncementPanel.AddComponent<CanvasGroup>();
         while (elapsed < fadeDuration) {
+            if (isAnnouncementCancelled) yield break;
             elapsed += Time.deltaTime;
             float t = elapsed / fadeDuration;
             textGroup.alpha = Mathf.Lerp(1f, 0f, t);
@@ -446,14 +462,17 @@ public class WaveManager : MonoBehaviour {
             yield return null;
         }
 
-        Destroy(panelGo);
+        if (waveAnnouncementPanel != null) {
+            Destroy(waveAnnouncementPanel);
+            waveAnnouncementPanel = null;
+        }
     }
 
     private IEnumerator ScreenFlashRoutine(float duration, Color color, float maxAlpha) {
         var canvas = FindFirstObjectByType<Canvas>();
         if (canvas == null) yield break;
 
-        var flashGo = new GameObject("ScreenFlash");
+        flashGo = new GameObject("WaveStartScreenFlash");
         flashGo.transform.SetParent(canvas.transform, false);
         var img = flashGo.AddComponent<UnityEngine.UI.Image>();
         img.color = new Color(color.r, color.g, color.b, 0f);
@@ -467,6 +486,7 @@ public class WaveManager : MonoBehaviour {
         float elapsed = 0f;
 
         while (elapsed < halfDuration) {
+            if (img == null) yield break;
             elapsed += Time.deltaTime;
             img.color = new Color(color.r, color.g, color.b, Mathf.Lerp(0f, maxAlpha, elapsed / halfDuration));
             yield return null;
@@ -474,30 +494,74 @@ public class WaveManager : MonoBehaviour {
 
         elapsed = 0f;
         while (elapsed < halfDuration) {
+            if (img == null) yield break;
             elapsed += Time.deltaTime;
             img.color = new Color(color.r, color.g, color.b, Mathf.Lerp(maxAlpha, 0f, elapsed / halfDuration));
             yield return null;
         }
 
-        Destroy(flashGo);
+        if (flashGo != null) {
+            Destroy(flashGo);
+            flashGo = null;
+        }
+        flashCoroutine = null;
     }
 
     private IEnumerator CameraShakeRoutine(float duration, float magnitude) {
         var camera = Camera.main;
         if (camera == null) yield break;
 
-        Vector3 originalPos = camera.transform.position;
+        cameraOriginalPos = camera.transform.position;
         float elapsed = 0f;
 
         while (elapsed < duration) {
             float x = Random.Range(-1f, 1f) * magnitude;
             float y = Random.Range(-1f, 1f) * magnitude;
-            camera.transform.position = new Vector3(originalPos.x + x, originalPos.y + y, originalPos.z);
+            camera.transform.position = new Vector3(cameraOriginalPos.x + x, cameraOriginalPos.y + y, cameraOriginalPos.z);
             elapsed += Time.deltaTime;
             yield return null;
         }
 
-        camera.transform.position = originalPos;
+        camera.transform.position = cameraOriginalPos;
+        shakeCoroutine = null;
+    }
+
+    public void CancelWaveAnnouncement() {
+        isAnnouncementCancelled = true;
+
+        if (waveAnnouncementPanel != null) {
+            Destroy(waveAnnouncementPanel);
+            waveAnnouncementPanel = null;
+        }
+        if (flashCoroutine != null) {
+            StopCoroutine(flashCoroutine);
+            flashCoroutine = null;
+        }
+        if (flashGo != null) {
+            Destroy(flashGo);
+            flashGo = null;
+        }
+        if (shakeCoroutine != null) {
+            StopCoroutine(shakeCoroutine);
+            shakeCoroutine = null;
+            var camera = Camera.main;
+            if (camera != null) {
+                camera.transform.position = cameraOriginalPos;
+            }
+        }
+
+        // Clean up any stray GameObjects by name to ensure no overlays block input
+        var canvas = FindFirstObjectByType<Canvas>();
+        if (canvas != null) {
+            var panel = canvas.transform.Find("WaveAnnouncementPanel");
+            if (panel != null) {
+                Destroy(panel.gameObject);
+            }
+            var flash = canvas.transform.Find("WaveStartScreenFlash");
+            if (flash != null) {
+                Destroy(flash.gameObject);
+            }
+        }
     }
 
     private void Update() {
