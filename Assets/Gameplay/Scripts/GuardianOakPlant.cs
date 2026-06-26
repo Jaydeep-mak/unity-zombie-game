@@ -4,7 +4,12 @@ using UnityEngine;
 public class GuardianOakPlant : PlantBase {
     private float particleTimer = 0f;
 
-
+    protected override void Start() {
+        base.Start();
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.GuardianOakActivate);
+        }
+    }
 
     protected override void Update() {
         base.Update();
@@ -45,6 +50,9 @@ public class GuardianOakPlant : PlantBase {
                     var slow = zombie.GetComponent<ZombieSlowEffect>();
                     if (slow == null) {
                         slow = zombie.gameObject.AddComponent<ZombieSlowEffect>();
+                        if (AudioManager.Instance != null) {
+                            AudioManager.Instance.Play(SFXType.GuardianOakShield);
+                        }
                     }
                     slow.ApplySlow(0.5f, 0.5f); // Slow by 50% for 0.5 seconds
                 }

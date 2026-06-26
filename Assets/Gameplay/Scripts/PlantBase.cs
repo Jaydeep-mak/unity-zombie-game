@@ -185,6 +185,9 @@ public abstract class PlantBase : MonoBehaviour {
                 spriteRenderer.enabled = true;
             }
             FreeGridCell();
+            if (AudioManager.Instance != null) {
+                AudioManager.Instance.Play(SFXType.PlantFade);
+            }
             PlayDeathAnimation();
         }
     }

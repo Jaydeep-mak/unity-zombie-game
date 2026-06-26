@@ -108,6 +108,9 @@ public class PlantCollectionManager : MonoBehaviour {
     }
 
     private void GoBackToMainMenu() {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.UIClickBack);
+        }
         StartCoroutine(GoBackRoutine());
     }
 
@@ -562,12 +565,18 @@ public class PlantCollectionManager : MonoBehaviour {
         Color bgBorder = isLocked ? new Color(0.35f, 0.35f, 0.35f, 0.8f) : new Color(0.85f, 0.75f, 0.25f, 1f);
         popupPanelBg.sprite = CreateRoundedRectGradientSprite(640, 720, 36, bgBottom, bgTop, bgBorder, 5);
 
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.UIPopupOpen);
+        }
         StopAllCoroutines();
         detailsPopupGo.SetActive(true);
         StartCoroutine(FadePopupRoutine(0f, 1f));
     }
 
     private void CloseDetailsPopup() {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.UIPopupClose);
+        }
         StopAllCoroutines();
         StartCoroutine(FadePopupRoutine(1f, 0f, () => {
             detailsPopupGo.SetActive(false);
@@ -634,6 +643,11 @@ public class PlantCollectionManager : MonoBehaviour {
             if (GlobalProgressionManager.Instance.RemoveCoins(config.unlockCost)) {
                 GlobalProgressionManager.Instance.UnlockPlant(config.name);
 
+                if (AudioManager.Instance != null) {
+                    // Play purchase success sound
+                    AudioManager.Instance.Play(SFXType.UIPurchaseSuccess);
+                }
+
                 // Update lock states locally
                 for (int i = 0; i < plantItems.Length; i++) {
                     if (plantItems[i].name == config.name) {
@@ -649,6 +663,10 @@ public class PlantCollectionManager : MonoBehaviour {
                 OpenDetailsPopup(config.name, false);
             }
         } else {
+            if (AudioManager.Instance != null) {
+                // Play purchase failed sound
+                AudioManager.Instance.Play(SFXType.UIPurchaseFailed);
+            }
             StartCoroutine(ShowFeedbackRoutine("NOT ENOUGH COINS"));
         }
     }

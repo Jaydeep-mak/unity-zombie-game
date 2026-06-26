@@ -23,6 +23,7 @@ public class ZombieSpawner : MonoBehaviour {
             var health = zombie.GetComponent<ZombieHealth>();
             if (health != null) {
                 health.SetTintColor(config.spriteColor);
+                health.zombieType = config.typeName;
             } else {
                 var sr = zombie.GetComponent<SpriteRenderer>();
                 if (sr != null) {

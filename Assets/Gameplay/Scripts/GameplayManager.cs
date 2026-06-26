@@ -35,6 +35,9 @@ public class GameplayManager : MonoBehaviour {
             if (coinPulseCoroutine != null) StopCoroutine(coinPulseCoroutine);
             coinPulseCoroutine = StartCoroutine(PulsePill(coinsPillInstance.transform, 1.15f));
         }
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.CoinCollected);
+        }
         ShowCoinGain(amount);
     }
 
@@ -68,6 +71,13 @@ public class GameplayManager : MonoBehaviour {
     [SerializeField] private Sprite waveSprite;
     [SerializeField] private Sprite lockSprite;
     [SerializeField] private Sprite pauseSprite;
+    [SerializeField] private Sprite soundOnSprite;
+    [SerializeField] private Sprite soundOffSprite;
+
+    private UnityEngine.UI.Button soundToggleButtonComp;
+    private UnityEngine.UI.Image soundIconImgComp;
+    private Sprite activeSoundOnSprite;
+    private Sprite activeSoundOffSprite;
 
     [Header("UI Canvas References")]
     [SerializeField] private GameObject hudCanvas;
@@ -229,6 +239,9 @@ public class GameplayManager : MonoBehaviour {
 
         if (gameOverPopup != null) {
             gameOverPopup.SetActive(true);
+            if (AudioManager.Instance != null) {
+                AudioManager.Instance.Play(SFXType.GameOver);
+            }
 
             // Fetch references
             var overlayImg = gameOverPopup.transform.Find("Overlay")?.GetComponent<UnityEngine.UI.Image>();
@@ -1151,6 +1164,7 @@ public class GameplayManager : MonoBehaviour {
                 plantCards.Add(card);
             }
         }
+        CreateOrSetupSoundButton();
     }
 
     private void CreateUI() {
@@ -1313,7 +1327,7 @@ public class GameplayManager : MonoBehaviour {
         waveRect.anchorMin = new Vector2(1f, 1f);
         waveRect.anchorMax = new Vector2(1f, 1f);
         waveRect.pivot = new Vector2(1f, 1f);
-        waveRect.anchoredPosition = new Vector2(-190f, -40f); // Spaced nicely from Pause
+        waveRect.anchoredPosition = new Vector2(-230f, -40f); // Spaced nicely from Pause and Sound Toggle
         waveRect.sizeDelta = new Vector2(220f, 75f);
 
         var waveIconGo = new GameObject("WaveIcon");
@@ -1370,6 +1384,9 @@ public class GameplayManager : MonoBehaviour {
         var btn = pauseBtn.AddComponent<UnityEngine.UI.Button>();
         btn.onClick.AddListener(TogglePause);
         pauseBtn.AddComponent<UIButtonEffects>();
+
+        // 5b. Sound Toggle Button
+        CreateOrSetupSoundButton();
 
         // 6. Bottom Plant Toolbar
         var toolbar = new GameObject("PlantToolbar");
@@ -1866,6 +1883,10 @@ public class GameplayManager : MonoBehaviour {
         coinImg.sprite = activeCoinSprite;
         coinImg.color = Color.white;
 
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.CoinEarned);
+        }
+
         var rect = coinGo.GetComponent<RectTransform>();
         rect.anchorMin = Vector2.zero;
         rect.anchorMax = Vector2.zero;
@@ -2001,6 +2022,179 @@ public class GameplayManager : MonoBehaviour {
             yield return null;
         }
         trans.localScale = Vector3.one;
+    }
+
+    private void CreateOrSetupSoundButton() {
+        if (hudCanvas == null) return;
+
+        activeSoundOnSprite = soundOnSprite != null ? soundOnSprite : CreateSoundOnSprite(64, 64);
+        activeSoundOffSprite = soundOffSprite != null ? soundOffSprite : CreateSoundOffSprite(64, 64);
+
+        Transform existingButton = hudCanvas.transform.Find("SoundToggleButton");
+        GameObject buttonGo;
+
+        if (existingButton != null) {
+            buttonGo = existingButton.gameObject;
+        } else {
+            buttonGo = new GameObject("SoundToggleButton");
+            buttonGo.transform.SetParent(hudCanvas.transform, false);
+
+            var rect = buttonGo.AddComponent<RectTransform>();
+            rect.anchorMin = new Vector2(1f, 1f);
+            rect.anchorMax = new Vector2(1f, 1f);
+            rect.pivot = new Vector2(1f, 1f);
+            rect.anchoredPosition = new Vector2(-135f, -40f);
+            rect.sizeDelta = new Vector2(75f, 75f);
+
+            var img = buttonGo.AddComponent<UnityEngine.UI.Image>();
+            Color pauseBottom = new Color(0.10f, 0.10f, 0.12f, 0.85f);
+            Color pauseTop = new Color(0.22f, 0.22f, 0.25f, 0.85f);
+            Color pauseBorder = new Color(0.70f, 0.70f, 0.75f, 1f);
+            img.sprite = CreateRoundedRectGradientSprite(75, 75, 37, pauseBottom, pauseTop, pauseBorder, 4);
+
+            var iconGo = new GameObject("SoundIcon");
+            var iconRect = iconGo.AddComponent<RectTransform>();
+            iconGo.transform.SetParent(buttonGo.transform, false);
+            
+            var iconImg = iconGo.AddComponent<UnityEngine.UI.Image>();
+            iconImg.preserveAspect = true;
+            iconRect.anchorMin = new Vector2(0.5f, 0.5f);
+            iconRect.anchorMax = new Vector2(0.5f, 0.5f);
+            iconRect.pivot = new Vector2(0.5f, 0.5f);
+            iconRect.anchoredPosition = Vector2.zero;
+            iconRect.sizeDelta = new Vector2(38f, 38f);
+
+            var btnComp = buttonGo.AddComponent<UnityEngine.UI.Button>();
+            buttonGo.AddComponent<UIButtonEffects>();
+        }
+
+        soundToggleButtonComp = buttonGo.GetComponent<UnityEngine.UI.Button>();
+        
+        var iconTrans = buttonGo.transform.Find("SoundIcon");
+        if (iconTrans != null) {
+            soundIconImgComp = iconTrans.GetComponent<UnityEngine.UI.Image>();
+        }
+
+        if (soundToggleButtonComp != null) {
+            soundToggleButtonComp.onClick.RemoveAllListeners();
+            soundToggleButtonComp.onClick.AddListener(ToggleSoundGameplay);
+        }
+
+        UpdateSoundButtonVisuals();
+    }
+
+    private void ToggleSoundGameplay() {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.IsMuted = !AudioManager.Instance.IsMuted;
+        }
+        UpdateSoundButtonVisuals();
+    }
+
+    private void UpdateSoundButtonVisuals() {
+        if (soundIconImgComp == null) return;
+
+        bool muted = false;
+        if (AudioManager.Instance != null) {
+            muted = AudioManager.Instance.IsMuted;
+        }
+
+        soundIconImgComp.sprite = muted ? activeSoundOffSprite : activeSoundOnSprite;
+    }
+
+    private Sprite CreateSoundOnSprite(int width, int height) {
+        Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
+        Color[] cols = new Color[width * height];
+        float cx = width / 2f;
+        float cy = height / 2f;
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                float sx = x + width * 0.08f;
+                float dx = sx - cx;
+                float dy = y - cy;
+
+                bool inBody = (dx >= -width * 0.22f && dx <= -width * 0.08f && Mathf.Abs(dy) <= height * 0.14f);
+
+                bool inCone = false;
+                if (dx >= -width * 0.08f && dx <= width * 0.08f) {
+                    float t = (dx + width * 0.08f) / (width * 0.16f);
+                    float h = Mathf.Lerp(height * 0.14f, height * 0.32f, t);
+                    if (Mathf.Abs(dy) <= h) {
+                        inCone = true;
+                    }
+                }
+
+                float arcCx = cx - width * 0.08f;
+                float adx = x - arcCx;
+                float ady = y - cy;
+                float dist = Mathf.Sqrt(adx * adx + ady * ady);
+                float angle = Mathf.Atan2(ady, adx);
+
+                bool inWaves = false;
+                if (Mathf.Abs(angle) <= Mathf.PI * 0.3f) {
+                    bool innerWave = (dist >= width * 0.22f && dist <= width * 0.28f);
+                    bool outerWave = (dist >= width * 0.38f && dist <= width * 0.44f);
+                    if (innerWave || outerWave) {
+                        inWaves = true;
+                    }
+                }
+
+                if (inBody || inCone || inWaves) {
+                    cols[y * width + x] = Color.white;
+                } else {
+                    cols[y * width + x] = new Color(0f, 0f, 0f, 0f);
+                }
+            }
+        }
+        tex.SetPixels(cols);
+        tex.Apply();
+        return Sprite.Create(tex, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f), 100f);
+    }
+
+    private Sprite CreateSoundOffSprite(int width, int height) {
+        Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
+        Color[] cols = new Color[width * height];
+        float cx = width / 2f;
+        float cy = height / 2f;
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                float sx = x + width * 0.08f;
+                float dx = sx - cx;
+                float dy = y - cy;
+
+                bool inBody = (dx >= -width * 0.22f && dx <= -width * 0.08f && Mathf.Abs(dy) <= height * 0.14f);
+
+                bool inCone = false;
+                if (dx >= -width * 0.08f && dx <= width * 0.08f) {
+                    float t = (dx + width * 0.08f) / (width * 0.16f);
+                    float h = Mathf.Lerp(height * 0.14f, height * 0.32f, t);
+                    if (Mathf.Abs(dy) <= h) {
+                        inCone = true;
+                    }
+                }
+
+                float xCx = cx + width * 0.22f;
+                float rdx = x - xCx;
+                float rdy = y - cy;
+                bool inX = false;
+                if (Mathf.Abs(rdx) <= width * 0.12f && Mathf.Abs(rdy) <= height * 0.12f) {
+                    float thickness = 3.5f;
+                    if (Mathf.Abs(rdx - rdy) <= thickness || Mathf.Abs(rdx + rdy) <= thickness) {
+                        inX = true;
+                    }
+                }
+
+                if (inBody || inCone || inX) {
+                    cols[y * width + x] = Color.white;
+                } else {
+                    cols[y * width + x] = new Color(0f, 0f, 0f, 0f);
+                }
+            }
+        }
+        tex.SetPixels(cols);
+        tex.Apply();
+        return Sprite.Create(tex, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f), 100f);
     }
 
 }

@@ -45,6 +45,9 @@ public class GlobalProgressionManager : MonoBehaviour {
         if (string.IsNullOrEmpty(plantName)) return;
         PlayerPrefs.SetInt("PlantUnlocked_" + plantName, 1);
         PlayerPrefs.Save();
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.UIPlantUnlock);
+        }
         TriggerCoinsChanged();
     }
 

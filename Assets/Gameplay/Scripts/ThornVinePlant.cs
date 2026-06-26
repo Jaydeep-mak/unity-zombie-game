@@ -115,6 +115,10 @@ public class ThornVinePlant : PlantBase {
             }
         }
 
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.ThornVineShoot);
+        }
+
         // Muzzle flash — green glow
         GameObject glowGo = new GameObject("ThornMuzzleGlow");
         glowGo.transform.position = spawnPos;

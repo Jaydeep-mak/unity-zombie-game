@@ -59,6 +59,13 @@ public class BombCactusPlant : TrapPlantBase {
     private IEnumerator TriggerSequence(ZombieController zombie) {
         Vector3 triggerPos = transform.position;
 
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.BombCactusThrow);
+        }
+
+        // Short 0.15s fuse delay for anticipation
+        yield return new WaitForSeconds(0.15f);
+
         // 1. Direct damage to the triggering zombie
         if (zombie != null) {
             var health = zombie.GetComponent<ZombieHealth>();
@@ -76,6 +83,10 @@ public class BombCactusPlant : TrapPlantBase {
                 int splashDmg = Mathf.Max(1, Mathf.RoundToInt(damage * splashDamagePercent));
                 nearbyHealth.TakeDamage(splashDmg);
             }
+        }
+
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.BombCactusExplode);
         }
 
         // 3. Explosion effect

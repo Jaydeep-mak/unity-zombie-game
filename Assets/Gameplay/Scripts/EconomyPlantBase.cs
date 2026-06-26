@@ -73,6 +73,10 @@ public abstract class EconomyPlantBase : PlantBase {
     private IEnumerator CoinGenerationAnimation() {
         Vector3 basePos = transform.position;
 
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.SunflowerTreeGenerate);
+        }
+
         // Phase 1: Golden glow pulse on the plant (0.3s)
         float elapsed = 0f;
         float glowDuration = 0.3f;

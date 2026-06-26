@@ -163,6 +163,11 @@ public class MagicProjectile : MonoBehaviour {
         var zombieHealth = other.GetComponent<ZombieHealth>();
         if (zombieHealth != null && !zombieHealth.IsDead) {
             zombieHealth.TakeDamage(damage);
+            
+            if (AudioManager.Instance != null) {
+                AudioManager.Instance.Play(SFXType.MagicBlossomHit);
+            }
+            
             SpawnHitImpactEffect(transform.position);
             ReturnToPool();
         }

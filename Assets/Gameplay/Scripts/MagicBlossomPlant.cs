@@ -85,6 +85,11 @@ public class MagicBlossomPlant : PlantBase {
         }
 
         Color bulletColor = new Color(0.9f, 0.2f, 0.9f, 1.0f); // Magenta/Violet magic tint
+        
+        if (wiggleCoroutine == null && AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.MagicBlossomRapidStart);
+        }
+
         attackSystem.ExecuteAttack(this, firePoint, target, damage, projectileSpeed, projectilePrefab, bulletColor, PlantName);
 
         // Spawn muzzle flash

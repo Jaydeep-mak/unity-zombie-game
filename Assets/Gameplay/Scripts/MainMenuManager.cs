@@ -41,8 +41,13 @@ public class MainMenuManager : MonoBehaviour {
             plantsButton.onClick.AddListener(OpenPlantCollection);
         }
 
-        // Initialize sound state from AudioListener
-        isMuted = AudioListener.volume == 0f;
+        // Initialize sound state from AudioManager if available, else AudioListener
+        if (AudioManager.Instance != null) {
+            isMuted = AudioManager.Instance.IsMuted;
+        } else {
+            isMuted = PlayerPrefs.GetInt("SFX_Muted", 0) == 1;
+        }
+        AudioListener.volume = isMuted ? 0f : 1f;
         UpdateSoundUI();
 
         // Fade in at start
@@ -56,6 +61,9 @@ public class MainMenuManager : MonoBehaviour {
     public void StartGame() {
         if (isStarting) return;
         isStarting = true;
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.UIClickStart);
+        }
         StartCoroutine(StartGameRoutine());
     }
 
@@ -64,8 +72,15 @@ public class MainMenuManager : MonoBehaviour {
     }
 
     private void ToggleSound() {
-        isMuted = !isMuted;
-        AudioListener.volume = isMuted ? 0f : 1f;
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.IsMuted = !AudioManager.Instance.IsMuted;
+            isMuted = AudioManager.Instance.IsMuted;
+        } else {
+            isMuted = !isMuted;
+            PlayerPrefs.SetInt("SFX_Muted", isMuted ? 1 : 0);
+            PlayerPrefs.Save();
+            AudioListener.volume = isMuted ? 0f : 1f;
+        }
         UpdateSoundUI();
         Debug.Log("Sound toggled. Muted: " + isMuted);
     }
@@ -104,6 +119,9 @@ public class MainMenuManager : MonoBehaviour {
     public void OpenPlantCollection() {
         if (isStarting) return;
         isStarting = true;
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.UIClickPlants);
+        }
         StartCoroutine(OpenPlantCollectionRoutine());
     }
 

@@ -75,6 +75,10 @@ public class LightningLotusPlant : PlantBase {
     }
 
     private IEnumerator AnimateAttack(GameObject primaryTarget) {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.LightningLotusCharge);
+        }
+
         // --- 1. Charge Phase (Anticipation) ---
         float chargeTime = 0.25f;
         float elapsed = 0f;
@@ -134,6 +138,13 @@ public class LightningLotusPlant : PlantBase {
             // Small delay for subsequent chain jumps (visual propagation)
             if (i > 0) {
                 yield return new WaitForSeconds(0.06f);
+                if (AudioManager.Instance != null) {
+                    AudioManager.Instance.Play(SFXType.LightningLotusChain);
+                }
+            } else {
+                if (AudioManager.Instance != null) {
+                    AudioManager.Instance.Play(SFXType.LightningLotusStrike);
+                }
             }
 
             var health = currentTarget.GetComponent<ZombieHealth>();

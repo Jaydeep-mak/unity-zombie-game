@@ -228,6 +228,9 @@ public class PlantPlacementManager : MonoBehaviour {
                     } else if (cat == PlantCategory.Economy && (cell.column == 0 || cell.column == 1)) {
                         Debug.LogWarning("Placement Blocked: Economy plants cannot be placed in the last two columns. Place them closer to the zombies!");
                     }
+                    if (AudioManager.Instance != null) {
+                        AudioManager.Instance.Play(SFXType.PlantPlaceInvalid);
+                    }
                 }
             }
         } else {
@@ -334,9 +337,16 @@ public class PlantPlacementManager : MonoBehaviour {
 
             CancelSelection();
 
+            if (AudioManager.Instance != null) {
+                AudioManager.Instance.Play(SFXType.PlantPlaceSuccess);
+            }
+
             Debug.Log("Successfully placed " + data.name + " on Row: " + cell.row + ", Col: " + cell.column);
         } else {
             Debug.Log("Failed placement: Insufficient coins!");
+            if (AudioManager.Instance != null) {
+                AudioManager.Instance.Play(SFXType.PlantPlaceInvalid);
+            }
             CancelSelection();
         }
     }

@@ -65,6 +65,9 @@ public class PlantAttackSystem : MonoBehaviour {
             if (proj != null) {
                 proj.Setup(projectileSpeed, damage, target, color);
             }
+            if (AudioManager.Instance != null) {
+                AudioManager.Instance.Play(SFXType.MagicBlossomShoot);
+            }
         } else {
             // Standard instantiation for other plants to ensure backward compatibility
             if (projectilePrefab != null) {

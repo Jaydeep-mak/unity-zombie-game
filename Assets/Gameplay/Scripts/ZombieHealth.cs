@@ -23,6 +23,8 @@ public class ZombieHealth : MonoBehaviour {
     private bool isDead = false;
     public bool IsDead => isDead;
 
+    [HideInInspector] public string zombieType = "Basic";
+
     private bool isInitialized = false;
 
     private void Start() {
@@ -130,6 +132,8 @@ public class ZombieHealth : MonoBehaviour {
 
         if (currentHealth <= 0) {
             Die();
+        } else {
+            PlayHurtSound();
         }
     }
 
@@ -178,6 +182,8 @@ public class ZombieHealth : MonoBehaviour {
         if (GameplayManager.Instance != null) {
             GameplayManager.Instance.ZombieKilled(coinReward);
         }
+
+        PlayDeathSound();
 
         // Spawn fire death burst
         for (int i = 0; i < 12; i++) {
@@ -256,5 +262,39 @@ public class ZombieHealth : MonoBehaviour {
         if (GameplayManager.Instance != null) {
             GameplayManager.Instance.UnregisterZombie();
         }
+    }
+
+    private void PlayHurtSound() {
+        if (AudioManager.Instance == null) return;
+        
+        SFXType hurtSFX;
+        string type = zombieType != null ? zombieType.ToLower() : "";
+        if (type.Contains("runner") || type.Contains("fast")) {
+            hurtSFX = SFXType.RunnerZombieHurt;
+        } else if (type.Contains("tank") || type.Contains("heavy")) {
+            hurtSFX = SFXType.TankZombieHurt;
+        } else if (type.Contains("berserker") || type.Contains("giant") || type.Contains("boss")) {
+            hurtSFX = SFXType.BerserkerZombieHurt;
+        } else {
+            hurtSFX = SFXType.BasicZombieHurt;
+        }
+        AudioManager.Instance.Play(hurtSFX);
+    }
+
+    private void PlayDeathSound() {
+        if (AudioManager.Instance == null) return;
+        
+        SFXType deathSFX;
+        string type = zombieType != null ? zombieType.ToLower() : "";
+        if (type.Contains("runner") || type.Contains("fast")) {
+            deathSFX = SFXType.RunnerZombieDie;
+        } else if (type.Contains("tank") || type.Contains("heavy")) {
+            deathSFX = SFXType.TankZombieDie;
+        } else if (type.Contains("berserker") || type.Contains("giant") || type.Contains("boss")) {
+            deathSFX = SFXType.BerserkerZombieDie;
+        } else {
+            deathSFX = SFXType.BasicZombieDie;
+        }
+        AudioManager.Instance.Play(deathSFX);
     }
 }

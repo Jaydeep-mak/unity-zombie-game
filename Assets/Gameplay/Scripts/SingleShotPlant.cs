@@ -96,6 +96,14 @@ public class SingleShotPlant : PlantBase {
             }
         }
 
+        if (AudioManager.Instance != null) {
+            if (isIce) {
+                AudioManager.Instance.Play(SFXType.FrostFlowerLaunch);
+            } else {
+                AudioManager.Instance.Play(SFXType.FireBloomShoot);
+            }
+        }
+
         GameObject glowGo = new GameObject("MuzzleGlow");
         glowGo.transform.position = spawnPos;
         var glow = glowGo.AddComponent<MuzzleFlashEffect>();

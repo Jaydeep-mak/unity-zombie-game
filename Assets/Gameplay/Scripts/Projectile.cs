@@ -154,6 +154,18 @@ public class Projectile : MonoBehaviour {
                     slowEffect.ApplySlow(0.4f, 4.0f); // Slow down to 40% speed for 4 seconds
                 }
             }
+            
+            if (AudioManager.Instance != null) {
+                if (isIce || (plantName != null && (plantName.Contains("Ice") || plantName.Contains("Frost")))) {
+                    AudioManager.Instance.Play(SFXType.FrostFlowerHit);
+                    AudioManager.Instance.Play(SFXType.FrostFlowerFreeze);
+                } else if (plantName != null && (plantName.Contains("Thorn") || plantName.Contains("Vine"))) {
+                    AudioManager.Instance.Play(SFXType.ThornVineHit);
+                } else {
+                    AudioManager.Instance.Play(SFXType.FireBloomHit);
+                }
+            }
+            
             SpawnHitImpactEffect(transform.position);
             Destroy(gameObject); // Destroy projectile on hit
         }
