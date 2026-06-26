@@ -56,6 +56,11 @@ public class GameplayManager : MonoBehaviour {
     [Header("References")]
     [SerializeField] private ZombieSpawner spawner;
     [SerializeField] private GameObject plantPrefab;
+    [SerializeField] private GameObject rightBoundary;
+    [SerializeField] private float rightBoundaryX = 7.2f;
+
+    public float RightBoundaryX => rightBoundary != null ? rightBoundary.transform.position.x : rightBoundaryX;
+
 
     [Header("HUD Custom Sprites")]
     [SerializeField] private Sprite heartSprite;

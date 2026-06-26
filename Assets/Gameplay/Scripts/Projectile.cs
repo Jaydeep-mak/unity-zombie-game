@@ -11,6 +11,7 @@ public class Projectile : MonoBehaviour {
 
     private float trailTimer = 0f;
     private float trailInterval = 0.04f;
+    private float rightBoundaryX = 7.2f;
 
     public static Sprite CreateFireballSprite() {
         if (fireballSprite != null) return fireballSprite;
@@ -70,11 +71,22 @@ public class Projectile : MonoBehaviour {
             transform.localScale = new Vector3(0.8f, 0.8f, 1f);
         }
         
+        if (GameplayManager.Instance != null) {
+            rightBoundaryX = GameplayManager.Instance.RightBoundaryX;
+        }
+        
         // Auto-destruct after 5 seconds to prevent memory leaks if it leaves screen
         Destroy(gameObject, 5f);
     }
 
     private void Update() {
+        // Check boundary limit before moving
+        if (transform.position.x >= rightBoundaryX) {
+            SpawnBoundaryImpactEffect(transform.position);
+            Destroy(gameObject);
+            return;
+        }
+
         // Projectile travels from LEFT to RIGHT smoothly
         transform.Translate(Vector2.right * speed * Time.deltaTime);
 
@@ -83,6 +95,21 @@ public class Projectile : MonoBehaviour {
         if (trailTimer >= trailInterval) {
             SpawnTrailParticle();
             trailTimer = 0f;
+        }
+    }
+
+    private void SpawnBoundaryImpactEffect(Vector3 position) {
+        for (int i = 0; i < 4; i++) {
+            var partGo = new GameObject("BoundarySpark");
+            partGo.transform.position = position;
+            var p = partGo.AddComponent<FlameParticle>();
+            float angle = Random.Range(-Mathf.PI * 0.5f, Mathf.PI * 0.5f) + Mathf.PI;
+            float speed = Random.Range(0.6f, 1.8f);
+            Vector3 velocity = new Vector3(Mathf.Cos(angle) * speed, Mathf.Sin(angle) * speed, 0f);
+            Color color = isIce 
+                ? Color.Lerp(Color.cyan, Color.white, Random.value) 
+                : Color.Lerp(Color.yellow, new Color(1f, 0.5f, 0f), Random.value);
+            p.Setup(CreateFireballSprite(), color, velocity, Random.Range(0.15f, 0.25f), Random.Range(0.08f, 0.15f));
         }
     }
 

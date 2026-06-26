@@ -14,6 +14,7 @@ public class MagicProjectile : MonoBehaviour {
 
     private float lifeTime = 5.0f;
     private float lifeTimer = 0f;
+    private float rightBoundaryX = 7.2f;
 
     private static Sprite projectileSprite;
     private static Sprite particleSprite;
@@ -47,6 +48,10 @@ public class MagicProjectile : MonoBehaviour {
         this.lifeTimer = 0f;
         this.trailTimer = 0f;
 
+        if (GameplayManager.Instance != null) {
+            rightBoundaryX = GameplayManager.Instance.RightBoundaryX;
+        }
+
         if (sr != null) {
             if (projectileSprite == null) {
                 projectileSprite = PlantVisuals.GetProjectileSprite("Magic Blossom");
@@ -59,6 +64,13 @@ public class MagicProjectile : MonoBehaviour {
     }
 
     private void Update() {
+        // Check boundary limit before moving
+        if (transform.position.x >= rightBoundaryX) {
+            SpawnBoundaryImpactEffect(transform.position);
+            ReturnToPool();
+            return;
+        }
+
         lifeTimer += Time.deltaTime;
         if (lifeTimer >= lifeTime) {
             ReturnToPool();
@@ -125,6 +137,25 @@ public class MagicProjectile : MonoBehaviour {
             
             Color impactColor = Color.Lerp(color, Color.white, Random.Range(0.1f, 0.7f));
             p.Setup(particleSprite, impactColor, velocity, Random.Range(0.2f, 0.35f), Random.Range(0.15f, 0.3f));
+        }
+    }
+
+    private void SpawnBoundaryImpactEffect(Vector3 position) {
+        if (particleSprite == null) {
+            particleSprite = GetParticleSprite();
+        }
+
+        for (int i = 0; i < 3; i++) {
+            var partGo = new GameObject("MagicBoundaryParticle");
+            partGo.transform.position = position;
+            var p = partGo.AddComponent<MagicParticle>();
+            
+            float angle = Random.Range(Mathf.PI * 0.75f, Mathf.PI * 1.25f);
+            float speed = Random.Range(0.5f, 1.5f);
+            Vector3 velocity = new Vector3(Mathf.Cos(angle) * speed, Mathf.Sin(angle) * speed, 0f);
+            
+            Color impactColor = Color.Lerp(color, Color.white, Random.Range(0.3f, 0.8f));
+            p.Setup(particleSprite, impactColor, velocity, Random.Range(0.15f, 0.3f), Random.Range(0.08f, 0.15f));
         }
     }
 
