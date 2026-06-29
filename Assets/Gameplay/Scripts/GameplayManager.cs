@@ -74,6 +74,12 @@ public class GameplayManager : MonoBehaviour {
     [SerializeField] private Sprite soundOnSprite;
     [SerializeField] private Sprite soundOffSprite;
 
+    [Header("Pause Popup Custom Assets")]
+    [SerializeField] private Sprite pausePopupBgSprite;
+    [SerializeField] private Sprite pauseResumeBtnSprite;
+    [SerializeField] private Sprite pauseRestartBtnSprite;
+    [SerializeField] private Sprite pauseMainMenuBtnSprite;
+
     private UnityEngine.UI.Button soundToggleButtonComp;
     private UnityEngine.UI.Image soundIconImgComp;
     private Sprite activeSoundOnSprite;
@@ -1707,16 +1713,25 @@ public class GameplayManager : MonoBehaviour {
         pausePopupRect.anchorMax = new Vector2(0.5f, 0.5f);
         pausePopupRect.pivot = new Vector2(0.5f, 0.5f);
         pausePopupRect.anchoredPosition = Vector2.zero;
-        pausePopupRect.sizeDelta = new Vector2(700f, 500f);
+        if (pausePopupBgSprite != null) {
+            pausePopupRect.sizeDelta = new Vector2(942f, 770f);
+        } else {
+            pausePopupRect.sizeDelta = new Vector2(700f, 500f);
+        }
 
         var pauseBg = new GameObject("Background");
         pauseBg.AddComponent<RectTransform>();
         pauseBg.transform.SetParent(pausePopup.transform, false);
         var pauseBgImg = pauseBg.AddComponent<UnityEngine.UI.Image>();
-        Color pauseBgBottom = new Color(0.04f, 0.06f, 0.10f, 0.96f);
-        Color pauseBgTop = new Color(0.10f, 0.15f, 0.22f, 0.96f);
-        Color pauseBgBorder = new Color(0.20f, 0.70f, 0.90f, 1f);
-        pauseBgImg.sprite = CreateRoundedRectGradientSprite(700, 500, 40, pauseBgBottom, pauseBgTop, pauseBgBorder, 5);
+        if (pausePopupBgSprite != null) {
+            pauseBgImg.sprite = pausePopupBgSprite;
+            pauseBgImg.color = Color.white;
+        } else {
+            Color pauseBgBottom = new Color(0.04f, 0.12f, 0.06f, 0.96f); // Dark Green
+            Color pauseBgTop = new Color(0.08f, 0.22f, 0.12f, 0.96f);    // Forest Green
+            Color pauseBgBorder = new Color(0.90f, 0.75f, 0.25f, 1f);    // Gold Accent Border
+            pauseBgImg.sprite = CreateRoundedRectGradientSprite(700, 500, 40, pauseBgBottom, pauseBgTop, pauseBgBorder, 5);
+        }
         var pauseBgRect = pauseBg.GetComponent<RectTransform>();
         pauseBgRect.anchorMin = Vector2.zero;
         pauseBgRect.anchorMax = Vector2.one;
@@ -1729,15 +1744,19 @@ public class GameplayManager : MonoBehaviour {
         pauseTitleText.text = "PAUSED";
         pauseTitleText.fontSize = 62;
         pauseTitleText.fontStyle = FontStyles.Bold;
-        pauseTitleText.color = new Color(0.20f, 0.75f, 0.95f, 1f);
+        pauseTitleText.color = new Color(1.00f, 0.82f, 0.22f, 1f); // Gold Accent
         pauseTitleText.alignment = TextAlignmentOptions.Center;
         
         var pauseTitleRect = pauseTitleGo.GetComponent<RectTransform>();
         pauseTitleRect.anchorMin = new Vector2(0.5f, 1f);
         pauseTitleRect.anchorMax = new Vector2(0.5f, 1f);
         pauseTitleRect.pivot = new Vector2(0.5f, 1f);
-        pauseTitleRect.anchoredPosition = new Vector2(0f, -60f);
+        pauseTitleRect.anchoredPosition = new Vector2(0f, -100f);
         pauseTitleRect.sizeDelta = new Vector2(600f, 80f);
+
+        if (pausePopupBgSprite != null) {
+            pauseTitleGo.SetActive(false);
+        }
 
         var pauseSubtitleGo = new GameObject("Subtitle");
         pauseSubtitleGo.AddComponent<RectTransform>();
@@ -1746,34 +1765,54 @@ public class GameplayManager : MonoBehaviour {
         pauseSubtitleText.text = "Garden Guardians • Zombie Defense";
         pauseSubtitleText.fontSize = 24;
         pauseSubtitleText.fontStyle = FontStyles.Italic | FontStyles.Bold;
-        pauseSubtitleText.color = Color.white;
+        pauseSubtitleText.color = new Color(0.95f, 0.92f, 0.85f, 1f); // Soft Cream Text
         pauseSubtitleText.alignment = TextAlignmentOptions.Center;
 
         var pauseSubtitleRect = pauseSubtitleGo.GetComponent<RectTransform>();
         pauseSubtitleRect.anchorMin = new Vector2(0.5f, 1f);
         pauseSubtitleRect.anchorMax = new Vector2(0.5f, 1f);
         pauseSubtitleRect.pivot = new Vector2(0.5f, 1f);
-        pauseSubtitleRect.anchoredPosition = new Vector2(0f, -135f);
+        pauseSubtitleRect.anchoredPosition = new Vector2(0f, -160f);
         pauseSubtitleRect.sizeDelta = new Vector2(600f, 50f);
 
-        // Pause buttons arranged side-by-side
-        CreateStyledButton("ResumeBtn", pausePopup.transform, new Vector2(-200f, 90f), new Vector2(180f, 70f), "RESUME",
-            new Color(0.10f, 0.35f, 0.10f, 1f), new Color(0.20f, 0.65f, 0.20f, 1f), new Color(0.40f, 0.90f, 0.40f, 1f), 4, TogglePause);
+        if (pausePopupBgSprite != null) {
+            pauseSubtitleGo.SetActive(false);
+        }
 
-        CreateStyledButton("RestartBtn", pausePopup.transform, new Vector2(0f, 90f), new Vector2(180f, 70f), "RESTART",
-            new Color(0.45f, 0.08f, 0.08f, 1f), new Color(0.75f, 0.15f, 0.15f, 1f), new Color(0.95f, 0.35f, 0.35f, 1f), 4, OnRestartButtonClicked);
+        // Pause buttons (Forest Green, Wood Brown, Moss/Olive, or custom sprites stacked vertically)
+        if (pausePopupBgSprite != null && pauseResumeBtnSprite != null && pauseRestartBtnSprite != null && pauseMainMenuBtnSprite != null) {
+            CreateStyledButton("ResumeBtn", pausePopup.transform, new Vector2(0f, 80f), new Vector2(360f, 85f), "RESUME",
+                Color.black, Color.black, Color.black, 0, TogglePause, Color.white, pauseResumeBtnSprite);
 
-        CreateStyledButton("MainMenuBtn", pausePopup.transform, new Vector2(200f, 90f), new Vector2(180f, 70f), "MAIN MENU",
-            new Color(0.12f, 0.15f, 0.20f, 1f), new Color(0.25f, 0.32f, 0.42f, 1f), new Color(0.60f, 0.70f, 0.85f, 1f), 4, OnMainMenuButtonClicked);
+            CreateStyledButton("RestartBtn", pausePopup.transform, new Vector2(0f, -30f), new Vector2(360f, 83f), "RESTART",
+                Color.black, Color.black, Color.black, 0, OnRestartButtonClicked, Color.white, pauseRestartBtnSprite);
+
+            CreateStyledButton("MainMenuBtn", pausePopup.transform, new Vector2(0f, -140f), new Vector2(315f, 71f), "MAIN MENU",
+                Color.black, Color.black, Color.black, 0, OnMainMenuButtonClicked, Color.white, pauseMainMenuBtnSprite);
+        } else {
+            CreateStyledButton("ResumeBtn", pausePopup.transform, new Vector2(-200f, 90f), new Vector2(180f, 70f), "RESUME",
+                new Color(0.12f, 0.38f, 0.16f, 1f), new Color(0.22f, 0.60f, 0.28f, 1f), new Color(0.90f, 0.75f, 0.25f, 1f), 4, TogglePause, new Color(0.95f, 0.92f, 0.85f, 1f));
+
+            CreateStyledButton("RestartBtn", pausePopup.transform, new Vector2(0f, 90f), new Vector2(180f, 70f), "RESTART",
+                new Color(0.35f, 0.18f, 0.05f, 1f), new Color(0.55f, 0.32f, 0.12f, 1f), new Color(0.90f, 0.75f, 0.25f, 1f), 4, OnRestartButtonClicked, new Color(0.95f, 0.92f, 0.85f, 1f));
+
+            CreateStyledButton("MainMenuBtn", pausePopup.transform, new Vector2(200f, 90f), new Vector2(180f, 70f), "MAIN MENU",
+                new Color(0.25f, 0.22f, 0.12f, 1f), new Color(0.42f, 0.38f, 0.22f, 1f), new Color(0.90f, 0.75f, 0.25f, 1f), 4, OnMainMenuButtonClicked, new Color(0.95f, 0.92f, 0.85f, 1f));
+        }
     }
 
-    private void CreateStyledButton(string name, Transform parent, Vector2 pos, Vector2 size, string text, Color bottom, Color top, Color border, int borderWidth, UnityEngine.Events.UnityAction action) {
+    private void CreateStyledButton(string name, Transform parent, Vector2 pos, Vector2 size, string text, Color bottom, Color top, Color border, int borderWidth, UnityEngine.Events.UnityAction action, Color? textColor = null, Sprite buttonSprite = null) {
         var btnGo = new GameObject(name);
         btnGo.AddComponent<RectTransform>();
         btnGo.transform.SetParent(parent, false);
         
         var img = btnGo.AddComponent<UnityEngine.UI.Image>();
-        img.sprite = CreateRoundedRectGradientSprite(Mathf.RoundToInt(size.x), Mathf.RoundToInt(size.y), 22, bottom, top, border, borderWidth);
+        if (buttonSprite != null) {
+            img.sprite = buttonSprite;
+            img.color = Color.white;
+        } else {
+            img.sprite = CreateRoundedRectGradientSprite(Mathf.RoundToInt(size.x), Mathf.RoundToInt(size.y), 22, bottom, top, border, borderWidth);
+        }
 
         var btnRect = btnGo.GetComponent<RectTransform>();
         btnRect.anchorMin = new Vector2(0.5f, 0f);
@@ -1789,13 +1828,17 @@ public class GameplayManager : MonoBehaviour {
         btnText.text = text;
         btnText.fontSize = 24;
         btnText.fontStyle = FontStyles.Bold;
-        btnText.color = Color.white;
+        btnText.color = textColor ?? Color.white;
         btnText.alignment = TextAlignmentOptions.Center;
 
         var btnTextRect = btnTextGo.GetComponent<RectTransform>();
         btnTextRect.anchorMin = Vector2.zero;
         btnTextRect.anchorMax = Vector2.one;
         btnTextRect.sizeDelta = Vector2.zero;
+
+        if (buttonSprite != null) {
+            btnTextGo.SetActive(false);
+        }
 
         var btnComp = btnGo.AddComponent<UnityEngine.UI.Button>();
         btnComp.onClick.AddListener(action);
