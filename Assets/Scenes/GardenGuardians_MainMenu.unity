@@ -528,7 +528,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coinIconSprite: {fileID: 21300000, guid: 53831ffd2c1064d07b3fcc10982b1e0d, type: 3}
-  alignment: 0
+  alignment: 1
 --- !u!1 &1060919022
 GameObject:
   m_ObjectHideFlags: 0
@@ -674,7 +674,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 5d787ef92576d86be9a5f553ea143391, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 4d6bc7ddb7cc4fd8389b40b0c566e35e, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
