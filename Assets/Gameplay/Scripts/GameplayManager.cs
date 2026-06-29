@@ -80,6 +80,11 @@ public class GameplayManager : MonoBehaviour {
     [SerializeField] private Sprite pauseRestartBtnSprite;
     [SerializeField] private Sprite pauseMainMenuBtnSprite;
 
+    [Header("Game Over Popup Custom Assets")]
+    [SerializeField] private Sprite gameOverPopupBgSprite;
+    [SerializeField] private Sprite statRowBgSprite;
+    [SerializeField] private Sprite statValPlaneSprite;
+
     private UnityEngine.UI.Button soundToggleButtonComp;
     private UnityEngine.UI.Image soundIconImgComp;
     private Sprite activeSoundOnSprite;
@@ -371,96 +376,164 @@ public class GameplayManager : MonoBehaviour {
         }
     }
 
-    private void UpdateGameOverStats(bool isVictory) {
-        // Find panel, title, stats, buttons and style them to be gorgeous fantasy themed elements
+    private void ApplyGameOverBottomButtonLayout(RectTransform buttonRect, Vector2 position, Vector2 size) {
+        if (buttonRect == null) return;
+        buttonRect.anchorMin = new Vector2(0.5f, 0f);
+        buttonRect.anchorMax = new Vector2(0.5f, 0f);
+        buttonRect.pivot = new Vector2(0.5f, 0f);
+        buttonRect.anchoredPosition = position;
+        buttonRect.sizeDelta = size;
+    }
+
+    private void ApplyGameOverPopupLayout(bool isVictory) {
+        if (gameOverPopup == null) return;
+
+        bool useCustomBg = gameOverPopupBgSprite != null;
+
         var panel = gameOverPopup.transform.Find("Background")?.GetComponent<RectTransform>();
         if (panel != null) {
             panel.anchorMin = new Vector2(0.5f, 0.5f);
             panel.anchorMax = new Vector2(0.5f, 0.5f);
             panel.pivot = new Vector2(0.5f, 0.5f);
             panel.anchoredPosition = Vector2.zero;
-            panel.sizeDelta = new Vector2(680f, 540f);
-            
+
             var bgImageComp = panel.GetComponent<UnityEngine.UI.Image>();
-            if (bgImageComp != null) {
-                Color gameOverBgBottom = new Color(0.08f, 0.16f, 0.10f, 0.98f); // Deep forest green
-                Color gameOverBgTop = new Color(0.15f, 0.30f, 0.18f, 0.98f);    // Bright forest green
-                Color gameOverBgBorder = isVictory ? new Color(0.95f, 0.82f, 0.18f, 1f) : new Color(0.85f, 0.75f, 0.25f, 1f); // Gold border
-                bgImageComp.sprite = CreateRoundedRectGradientSprite(680, 540, 36, gameOverBgBottom, gameOverBgTop, gameOverBgBorder, 6);
+            if (useCustomBg) {
+                panel.sizeDelta = new Vector2(887f, 760f);
+                if (bgImageComp != null) {
+                    bgImageComp.sprite = gameOverPopupBgSprite;
+                    bgImageComp.color = Color.white;
+                }
+            } else {
+                panel.sizeDelta = new Vector2(680f, 540f);
+                if (bgImageComp != null) {
+                    Color gameOverBgBottom = new Color(0.08f, 0.16f, 0.10f, 0.98f);
+                    Color gameOverBgTop = new Color(0.15f, 0.30f, 0.18f, 0.98f);
+                    Color gameOverBgBorder = isVictory ? new Color(0.95f, 0.82f, 0.18f, 1f) : new Color(0.85f, 0.75f, 0.25f, 1f);
+                    bgImageComp.sprite = CreateRoundedRectGradientSprite(680, 540, 36, gameOverBgBottom, gameOverBgTop, gameOverBgBorder, 6);
+                }
             }
         }
 
         var titleRect = gameOverPopup.transform.Find("Background/Title")?.GetComponent<RectTransform>();
         if (titleRect != null) {
-            titleRect.anchorMin = new Vector2(0.5f, 1f);
-            titleRect.anchorMax = new Vector2(0.5f, 1f);
-            titleRect.pivot = new Vector2(0.5f, 1f);
-            titleRect.anchoredPosition = new Vector2(0f, -40f);
-            titleRect.sizeDelta = new Vector2(500f, 80f);
-            
-            var titleTextComp = titleRect.GetComponent<TextMeshProUGUI>();
-            if (titleTextComp != null) {
-                titleTextComp.text = isVictory ? "VICTORY!" : "GAME OVER";
-                titleTextComp.color = isVictory ? new Color(0.95f, 0.82f, 0.18f, 1f) : new Color(0.95f, 0.25f, 0.25f, 1f); // Gold / red
-                titleTextComp.fontSize = 64;
-                titleTextComp.fontStyle = FontStyles.Bold;
-                titleTextComp.alignment = TextAlignmentOptions.Center;
-                ApplyFont(titleTextComp);
+            if (useCustomBg) {
+                titleRect.gameObject.SetActive(false);
+            } else {
+                titleRect.gameObject.SetActive(true);
+                titleRect.anchorMin = new Vector2(0.5f, 0.5f);
+                titleRect.anchorMax = new Vector2(0.5f, 0.5f);
+                titleRect.pivot = new Vector2(0.5f, 0.5f);
+                titleRect.anchoredPosition = new Vector2(0f, 220f);
+                titleRect.sizeDelta = new Vector2(600f, 80f);
+
+                var titleTextComp = titleRect.GetComponent<TextMeshProUGUI>();
+                if (titleTextComp != null) {
+                    titleTextComp.text = isVictory ? "VICTORY!" : "GAME OVER";
+                    titleTextComp.color = isVictory ? new Color(0.95f, 0.82f, 0.18f, 1f) : new Color(1.00f, 0.82f, 0.22f, 1f);
+                    titleTextComp.fontSize = 64;
+                    titleTextComp.fontStyle = FontStyles.Bold;
+                    titleTextComp.alignment = TextAlignmentOptions.Center;
+                    ApplyFont(titleTextComp);
+                }
             }
         }
 
-        // Style the buttons to look extremely polished and matching
         var restartBtnRect = gameOverPopup.transform.Find("Background/RestartBtn")?.GetComponent<RectTransform>();
         if (restartBtnRect != null) {
-            restartBtnRect.anchorMin = new Vector2(0.5f, 0f);
-            restartBtnRect.anchorMax = new Vector2(0.5f, 0f);
-            restartBtnRect.pivot = new Vector2(0.5f, 0f);
-            restartBtnRect.anchoredPosition = new Vector2(-140f, 55f);
-            restartBtnRect.sizeDelta = new Vector2(220f, 70f);
-
             var img = restartBtnRect.GetComponent<UnityEngine.UI.Image>();
-            if (img != null) {
-                img.sprite = CreateRoundedRectGradientSprite(220, 70, 22, 
-                    new Color(0.6f, 0.3f, 0.05f, 1f), 
-                    new Color(0.85f, 0.45f, 0.1f, 1f), 
-                    new Color(1f, 0.85f, 0.3f, 1f), 5);
-            }
             var text = restartBtnRect.Find("Text")?.GetComponent<TextMeshProUGUI>();
-            if (text != null) {
-                text.text = "PLAY AGAIN";
-                text.color = Color.white;
-                text.fontStyle = FontStyles.Bold;
-                text.fontSize = 24;
-                text.alignment = TextAlignmentOptions.Center;
-                ApplyFont(text);
+
+            if (useCustomBg && pauseRestartBtnSprite != null) {
+                restartBtnRect.anchorMin = new Vector2(0.5f, 0.5f);
+                restartBtnRect.anchorMax = new Vector2(0.5f, 0.5f);
+                restartBtnRect.pivot = new Vector2(0.5f, 0.5f);
+                restartBtnRect.anchoredPosition = new Vector2(-180f, -220f);
+                restartBtnRect.sizeDelta = new Vector2(342f, 79f);
+                if (img != null) {
+                    img.sprite = pauseRestartBtnSprite;
+                    img.color = Color.white;
+                }
+                if (text != null) {
+                    text.gameObject.SetActive(false);
+                }
+            } else {
+                ApplyGameOverBottomButtonLayout(restartBtnRect, new Vector2(-140f, 55f), new Vector2(220f, 70f));
+                if (img != null) {
+                    img.sprite = CreateRoundedRectGradientSprite(220, 70, 22,
+                        new Color(0.6f, 0.3f, 0.05f, 1f),
+                        new Color(0.85f, 0.45f, 0.1f, 1f),
+                        new Color(1f, 0.85f, 0.3f, 1f), 5);
+                    img.color = Color.white;
+                }
+                if (text != null) {
+                    text.gameObject.SetActive(true);
+                    text.text = "PLAY AGAIN";
+                    text.color = Color.white;
+                    text.fontStyle = FontStyles.Bold;
+                    text.fontSize = 24;
+                    text.alignment = TextAlignmentOptions.Center;
+                    ApplyFont(text);
+                }
             }
         }
 
         var mainMenuBtnRect = gameOverPopup.transform.Find("Background/MainMenuBtn")?.GetComponent<RectTransform>();
         if (mainMenuBtnRect != null) {
-            mainMenuBtnRect.anchorMin = new Vector2(0.5f, 0f);
-            mainMenuBtnRect.anchorMax = new Vector2(0.5f, 0f);
-            mainMenuBtnRect.pivot = new Vector2(0.5f, 0f);
-            mainMenuBtnRect.anchoredPosition = new Vector2(140f, 55f);
-            mainMenuBtnRect.sizeDelta = new Vector2(220f, 70f);
-
             var img = mainMenuBtnRect.GetComponent<UnityEngine.UI.Image>();
-            if (img != null) {
-                img.sprite = CreateRoundedRectGradientSprite(220, 70, 22, 
-                    new Color(0.18f, 0.4f, 0.12f, 1f), 
-                    new Color(0.35f, 0.65f, 0.25f, 1f), 
-                    new Color(0.85f, 0.75f, 0.25f, 1f), 5);
-            }
             var text = mainMenuBtnRect.Find("Text")?.GetComponent<TextMeshProUGUI>();
-            if (text != null) {
-                text.text = "MAIN MENU";
-                text.color = Color.white;
-                text.fontStyle = FontStyles.Bold;
-                text.fontSize = 24;
-                text.alignment = TextAlignmentOptions.Center;
-                ApplyFont(text);
+
+            if (useCustomBg && pauseMainMenuBtnSprite != null) {
+                mainMenuBtnRect.anchorMin = new Vector2(0.5f, 0.5f);
+                mainMenuBtnRect.anchorMax = new Vector2(0.5f, 0.5f);
+                mainMenuBtnRect.pivot = new Vector2(0.5f, 0.5f);
+                mainMenuBtnRect.anchoredPosition = new Vector2(180f, -220f);
+                mainMenuBtnRect.sizeDelta = new Vector2(300f, 68f);
+                if (img != null) {
+                    img.sprite = pauseMainMenuBtnSprite;
+                    img.color = Color.white;
+                }
+                if (text != null) {
+                    text.gameObject.SetActive(false);
+                }
+            } else {
+                ApplyGameOverBottomButtonLayout(mainMenuBtnRect, new Vector2(140f, 55f), new Vector2(220f, 70f));
+                if (img != null) {
+                    img.sprite = CreateRoundedRectGradientSprite(220, 70, 22,
+                        new Color(0.18f, 0.4f, 0.12f, 1f),
+                        new Color(0.35f, 0.65f, 0.25f, 1f),
+                        new Color(0.85f, 0.75f, 0.25f, 1f), 5);
+                    img.color = Color.white;
+                }
+                if (text != null) {
+                    text.gameObject.SetActive(true);
+                    text.text = "MAIN MENU";
+                    text.color = Color.white;
+                    text.fontStyle = FontStyles.Bold;
+                    text.fontSize = 24;
+                    text.alignment = TextAlignmentOptions.Center;
+                    ApplyFont(text);
+                }
             }
         }
+
+        var statsRect = gameOverPopup.transform.Find("Background/Stats")?.GetComponent<RectTransform>();
+        if (statsRect != null) {
+            statsRect.anchorMin = new Vector2(0.5f, 0.5f);
+            statsRect.anchorMax = new Vector2(0.5f, 0.5f);
+            statsRect.pivot = new Vector2(0.5f, 0.5f);
+            if (useCustomBg) {
+                statsRect.anchoredPosition = Vector2.zero;
+                statsRect.sizeDelta = new Vector2(560f, 210f);
+            } else {
+                statsRect.anchoredPosition = new Vector2(0f, 10f);
+                statsRect.sizeDelta = new Vector2(600f, 230f);
+            }
+        }
+    }
+
+    private void UpdateGameOverStats(bool isVictory) {
+        ApplyGameOverPopupLayout(isVictory);
 
         // Coins and Wallet handling (preserving logic exactly as original)
         matchCoinsDisplayed = 0;
@@ -471,12 +544,6 @@ public class GameplayManager : MonoBehaviour {
 
         var statsRect = gameOverPopup.transform.Find("Background/Stats")?.GetComponent<RectTransform>();
         if (statsRect != null) {
-            statsRect.anchorMin = new Vector2(0.5f, 0.5f);
-            statsRect.anchorMax = new Vector2(0.5f, 0.5f);
-            statsRect.pivot = new Vector2(0.5f, 0.5f);
-            statsRect.anchoredPosition = new Vector2(0f, 10f);
-            statsRect.sizeDelta = new Vector2(600f, 230f);
-
             var statsImg = statsRect.GetComponent<UnityEngine.UI.Image>();
             if (statsImg == null) {
                 statsImg = statsRect.gameObject.AddComponent<UnityEngine.UI.Image>();
@@ -484,19 +551,22 @@ public class GameplayManager : MonoBehaviour {
             Color innerBgBottom = new Color(0.04f, 0.08f, 0.05f, 0.95f); // Deep forest green inner panel
             Color innerBgTop = new Color(0.07f, 0.14f, 0.09f, 0.95f);
             Color innerBorder = new Color(0.55f, 0.48f, 0.15f, 0.8f);    // Gold frame
-            statsImg.sprite = CreateRoundedRectGradientSprite(600, 230, 24, innerBgBottom, innerBgTop, innerBorder, 3);
-
+            int statsW = gameOverPopupBgSprite != null ? 560 : 600;
+            int statsH = gameOverPopupBgSprite != null ? 210 : 230;
+            statsImg.sprite = CreateRoundedRectGradientSprite(statsW, statsH, 24, innerBgBottom, innerBgTop, innerBorder, 3);
+ 
             // Rebuild stats children inside statsRect
             for (int i = statsRect.childCount - 1; i >= 0; i--) {
                 Destroy(statsRect.GetChild(i).gameObject);
             }
-
+ 
             // Create Zombies Defeated card on the left with skull sprite
             Sprite skullSprite = CreateSkullSprite(64, 64);
-            CreateStatCard("StatCard_Zombies", statsRect, new Vector2(-135f, 0f), skullSprite, Color.white, "ZOMBIES KILLED", "0", new Color(0.95f, 0.35f, 0.35f, 1f));
-
+            float cardX = gameOverPopupBgSprite != null ? 125f : 135f;
+            CreateStatCard("StatCard_Zombies", statsRect, new Vector2(-cardX, 0f), skullSprite, Color.white, "ZOMBIES KILLED", "0", new Color(0.95f, 0.35f, 0.35f, 1f));
+ 
             // Create Coins Earned card on the right with coin sprite
-            CreateStatCard("StatCard_Coins", statsRect, new Vector2(135f, 0f), activeCoinSprite, Color.white, "COINS EARNED", "0", new Color(1f, 0.85f, 0.15f, 1f));
+            CreateStatCard("StatCard_Coins", statsRect, new Vector2(cardX, 0f), activeCoinSprite, Color.white, "COINS EARNED", "0", new Color(1f, 0.85f, 0.15f, 1f));
         }
     }
 
@@ -509,13 +579,21 @@ public class GameplayManager : MonoBehaviour {
         cardRect.anchorMax = new Vector2(0.5f, 0.5f);
         cardRect.pivot = new Vector2(0.5f, 0.5f);
         cardRect.anchoredPosition = pos;
-        cardRect.sizeDelta = new Vector2(245f, 180f);
+
+        float cardW = gameOverPopupBgSprite != null ? 220f : 245f;
+        float cardH = gameOverPopupBgSprite != null ? 150f : 180f;
+        cardRect.sizeDelta = new Vector2(cardW, cardH);
 
         var cardImg = cardGo.AddComponent<UnityEngine.UI.Image>();
-        Color cardBgBottom = new Color(0.02f, 0.05f, 0.03f, 0.95f); // Very dark forest green
-        Color cardBgTop = new Color(0.04f, 0.09f, 0.06f, 0.95f);
-        Color cardBorder = new Color(0.2f, 0.5f, 0.3f, 0.6f);
-        cardImg.sprite = CreateRoundedRectGradientSprite(245, 180, 18, cardBgBottom, cardBgTop, cardBorder, 2);
+        if (statValPlaneSprite != null) {
+            cardImg.sprite = statValPlaneSprite;
+            cardImg.color = Color.white;
+        } else {
+            Color cardBgBottom = new Color(0.02f, 0.05f, 0.03f, 0.95f); // Very dark forest green
+            Color cardBgTop = new Color(0.04f, 0.09f, 0.06f, 0.95f);
+            Color cardBorder = new Color(0.2f, 0.5f, 0.3f, 0.6f);
+            cardImg.sprite = CreateRoundedRectGradientSprite(Mathf.RoundToInt(cardW), Mathf.RoundToInt(cardH), 18, cardBgBottom, cardBgTop, cardBorder, 2);
+        }
 
         // Icon Image
         var iconGo = new GameObject("Icon");
@@ -529,7 +607,7 @@ public class GameplayManager : MonoBehaviour {
         iconRect.anchorMin = new Vector2(0.5f, 0.5f);
         iconRect.anchorMax = new Vector2(0.5f, 0.5f);
         iconRect.pivot = new Vector2(0.5f, 0.5f);
-        iconRect.anchoredPosition = new Vector2(0f, 45f);
+        iconRect.anchoredPosition = new Vector2(0f, gameOverPopupBgSprite != null ? 35f : 45f);
         iconRect.sizeDelta = new Vector2(48f, 48f);
 
         // Heading
@@ -538,7 +616,7 @@ public class GameplayManager : MonoBehaviour {
         headingGo.transform.SetParent(cardGo.transform, false);
         var headingTextComp = headingGo.AddComponent<TextMeshProUGUI>();
         headingTextComp.text = headerText;
-        headingTextComp.fontSize = 15;
+        headingTextComp.fontSize = gameOverPopupBgSprite != null ? 14 : 15;
         headingTextComp.fontStyle = FontStyles.Bold;
         headingTextComp.color = new Color(0.9f, 0.75f, 0.2f, 1f); // Gold heading
         headingTextComp.alignment = TextAlignmentOptions.Center;
@@ -546,14 +624,63 @@ public class GameplayManager : MonoBehaviour {
         headingRect.anchorMin = new Vector2(0.5f, 0.5f);
         headingRect.anchorMax = new Vector2(0.5f, 0.5f);
         headingRect.pivot = new Vector2(0.5f, 0.5f);
-        headingRect.anchoredPosition = new Vector2(0f, 5f);
-        headingRect.sizeDelta = new Vector2(230f, 30f);
+        headingRect.anchoredPosition = new Vector2(0f, gameOverPopupBgSprite != null ? -3f : 5f);
+        headingRect.sizeDelta = new Vector2(gameOverPopupBgSprite != null ? 210f : 230f, 30f);
         ApplyFont(headingTextComp);
 
         // Value
         var valGo = new GameObject("Value");
         var valRect = valGo.AddComponent<RectTransform>();
         valGo.transform.SetParent(cardGo.transform, false);
+        var valTextComp = valGo.AddComponent<TextMeshProUGUI>();
+        valTextComp.text = startVal;
+        valTextComp.fontSize = gameOverPopupBgSprite != null ? 38 : 42;
+        valTextComp.fontStyle = FontStyles.Bold;
+        valTextComp.color = valColor;
+        valTextComp.alignment = TextAlignmentOptions.Center;
+
+        valRect.anchorMin = new Vector2(0.5f, 0.5f);
+        valRect.anchorMax = new Vector2(0.5f, 0.5f);
+        valRect.pivot = new Vector2(0.5f, 0.5f);
+        valRect.anchoredPosition = new Vector2(0f, gameOverPopupBgSprite != null ? -42f : -38f);
+        valRect.sizeDelta = new Vector2(200f, 50f);
+        ApplyFont(valTextComp);
+    }
+
+    private void CreateStatRow(string name, Transform parent, Vector2 pos, Sprite iconSprite, Color iconColor, string startVal, Color valColor) {
+        var rowGo = new GameObject(name);
+        var rowRect = rowGo.AddComponent<RectTransform>();
+        rowGo.transform.SetParent(parent, false);
+
+        rowRect.anchorMin = new Vector2(0.5f, 0.5f);
+        rowRect.anchorMax = new Vector2(0.5f, 0.5f);
+        rowRect.pivot = new Vector2(0.5f, 0.5f);
+        rowRect.anchoredPosition = pos;
+        rowRect.sizeDelta = new Vector2(460f, 75f);
+
+        var rowImg = rowGo.AddComponent<UnityEngine.UI.Image>();
+        rowImg.sprite = statRowBgSprite;
+        rowImg.color = Color.white;
+
+        // Icon Image
+        var iconGo = new GameObject("Icon");
+        var iconRect = iconGo.AddComponent<RectTransform>();
+        iconGo.transform.SetParent(rowGo.transform, false);
+        var iconImgComp = iconGo.AddComponent<UnityEngine.UI.Image>();
+        iconImgComp.sprite = iconSprite;
+        iconImgComp.color = iconColor;
+        iconImgComp.preserveAspect = true;
+
+        iconRect.anchorMin = new Vector2(0f, 0.5f);
+        iconRect.anchorMax = new Vector2(0f, 0.5f);
+        iconRect.pivot = new Vector2(0f, 0.5f);
+        iconRect.anchoredPosition = new Vector2(45f, 0f);
+        iconRect.sizeDelta = new Vector2(48f, 48f);
+
+        // Value Text
+        var valGo = new GameObject("Value");
+        var valRect = valGo.AddComponent<RectTransform>();
+        valGo.transform.SetParent(rowGo.transform, false);
         var valTextComp = valGo.AddComponent<TextMeshProUGUI>();
         valTextComp.text = startVal;
         valTextComp.fontSize = 42;
@@ -564,8 +691,8 @@ public class GameplayManager : MonoBehaviour {
         valRect.anchorMin = new Vector2(0.5f, 0.5f);
         valRect.anchorMax = new Vector2(0.5f, 0.5f);
         valRect.pivot = new Vector2(0.5f, 0.5f);
-        valRect.anchoredPosition = new Vector2(0f, -38f);
-        valRect.sizeDelta = new Vector2(200f, 50f);
+        valRect.anchoredPosition = new Vector2(30f, 0f);
+        valRect.sizeDelta = new Vector2(250f, 50f);
         ApplyFont(valTextComp);
     }
 
@@ -921,6 +1048,10 @@ public class GameplayManager : MonoBehaviour {
         if (gameOverMainMenuButton != null) {
             gameOverMainMenuButton.onClick.RemoveAllListeners();
             gameOverMainMenuButton.onClick.AddListener(OnMainMenuButtonClicked);
+        }
+
+        if (gameOverPopup != null) {
+            ApplyGameOverPopupLayout(false);
         }
 
         var ppm = GetComponent<PlantPlacementManager>();
@@ -1645,20 +1776,28 @@ public class GameplayManager : MonoBehaviour {
 
         // Main Background Panel
         var popupBg = new GameObject("Background");
-        popupBg.AddComponent<RectTransform>();
         popupBg.transform.SetParent(gameOverPopup.transform, false);
         var bgImage = popupBg.AddComponent<UnityEngine.UI.Image>();
-        Color gameOverBgBottom = new Color(0.08f, 0.16f, 0.10f, 0.98f); // Deep forest green/swamp
-        Color gameOverBgTop = new Color(0.15f, 0.30f, 0.18f, 0.98f);    // Bright forest green
-        Color gameOverBgBorder = new Color(0.85f, 0.75f, 0.25f, 1f);   // Fantasy gold/leafy border
-        bgImage.sprite = CreateRoundedRectGradientSprite(680, 540, 36, gameOverBgBottom, gameOverBgTop, gameOverBgBorder, 6);
+        if (gameOverPopupBgSprite != null) {
+            bgImage.sprite = gameOverPopupBgSprite;
+            bgImage.color = Color.white;
+        } else {
+            Color gameOverBgBottom = new Color(0.08f, 0.16f, 0.10f, 0.98f); // Deep forest green/swamp
+            Color gameOverBgTop = new Color(0.15f, 0.30f, 0.18f, 0.98f);    // Bright forest green
+            Color gameOverBgBorder = new Color(0.85f, 0.75f, 0.25f, 1f);   // Fantasy gold/leafy border
+            bgImage.sprite = CreateRoundedRectGradientSprite(680, 540, 36, gameOverBgBottom, gameOverBgTop, gameOverBgBorder, 6);
+        }
         
         var bgRect = popupBg.GetComponent<RectTransform>();
         bgRect.anchorMin = new Vector2(0.5f, 0.5f);
         bgRect.anchorMax = new Vector2(0.5f, 0.5f);
         bgRect.pivot = new Vector2(0.5f, 0.5f);
         bgRect.anchoredPosition = Vector2.zero;
-        bgRect.sizeDelta = new Vector2(680f, 540f);
+        if (gameOverPopupBgSprite != null) {
+            bgRect.sizeDelta = new Vector2(887f, 760f);
+        } else {
+            bgRect.sizeDelta = new Vector2(680f, 540f);
+        }
 
         // Title
         var titleGo = new GameObject("Title");
@@ -1668,15 +1807,27 @@ public class GameplayManager : MonoBehaviour {
         titleText.text = "GAME OVER";
         titleText.fontSize = 64;
         titleText.fontStyle = FontStyles.Bold;
-        titleText.color = new Color(0.95f, 0.15f, 0.15f, 1f);
+        if (gameOverPopupBgSprite != null) {
+            titleText.color = new Color(1.00f, 0.82f, 0.22f, 1f); // Gold Accent
+        } else {
+            titleText.color = new Color(0.95f, 0.15f, 0.15f, 1f);
+        }
         titleText.alignment = TextAlignmentOptions.Center;
         
         var titleRect = titleGo.GetComponent<RectTransform>();
-        titleRect.anchorMin = new Vector2(0.5f, 1f);
-        titleRect.anchorMax = new Vector2(0.5f, 1f);
-        titleRect.pivot = new Vector2(0.5f, 1f);
-        titleRect.anchoredPosition = new Vector2(0f, -40f);
-        titleRect.sizeDelta = new Vector2(500f, 80f);
+        titleRect.anchorMin = new Vector2(0.5f, 0.5f);
+        titleRect.anchorMax = new Vector2(0.5f, 0.5f);
+        titleRect.pivot = new Vector2(0.5f, 0.5f);
+        if (gameOverPopupBgSprite != null) {
+            titleRect.anchoredPosition = new Vector2(0f, 240f);
+        } else {
+            titleRect.anchoredPosition = new Vector2(0f, 220f);
+        }
+        titleRect.sizeDelta = new Vector2(600f, 80f);
+
+        if (gameOverPopupBgSprite != null) {
+            titleGo.SetActive(false);
+        }
 
         // Stats Area
         var statsGo = new GameObject("Stats");
@@ -1686,21 +1837,36 @@ public class GameplayManager : MonoBehaviour {
         statsRect.anchorMin = new Vector2(0.5f, 0.5f);
         statsRect.anchorMax = new Vector2(0.5f, 0.5f);
         statsRect.pivot = new Vector2(0.5f, 0.5f);
-        statsRect.anchoredPosition = new Vector2(0f, 10f);
-        statsRect.sizeDelta = new Vector2(600f, 230f);
+        if (gameOverPopupBgSprite != null) {
+            statsRect.anchoredPosition = Vector2.zero;
+            statsRect.sizeDelta = new Vector2(560f, 210f);
+        } else {
+            statsRect.anchoredPosition = new Vector2(0f, 10f);
+            statsRect.sizeDelta = new Vector2(600f, 230f);
+        }
 
         var statsImg = statsGo.AddComponent<UnityEngine.UI.Image>();
         Color innerBgBottom = new Color(0.04f, 0.08f, 0.05f, 0.95f);
         Color innerBgTop = new Color(0.07f, 0.14f, 0.09f, 0.95f);
         Color innerBorder = new Color(0.55f, 0.48f, 0.15f, 0.8f);
-        statsImg.sprite = CreateRoundedRectGradientSprite(600, 230, 24, innerBgBottom, innerBgTop, innerBorder, 3);
+        int statsW = gameOverPopupBgSprite != null ? 560 : 600;
+        int statsH = gameOverPopupBgSprite != null ? 210 : 230;
+        statsImg.sprite = CreateRoundedRectGradientSprite(statsW, statsH, 24, innerBgBottom, innerBgTop, innerBorder, 3);
 
         // Restart and Main Menu Buttons (Children of popupBg now!)
-        CreateStyledButton("RestartBtn", popupBg.transform, new Vector2(-140f, 55f), new Vector2(220f, 70f), "PLAY AGAIN",
-            new Color(0.6f, 0.3f, 0.05f, 1f), new Color(0.85f, 0.45f, 0.1f, 1f), new Color(1f, 0.85f, 0.3f, 1f), 5, OnRestartButtonClicked);
+        if (gameOverPopupBgSprite != null && pauseRestartBtnSprite != null && pauseMainMenuBtnSprite != null) {
+            CreateStyledButton("RestartBtn", popupBg.transform, new Vector2(-178f, 48f), new Vector2(342f, 79f), "PLAY AGAIN",
+                Color.black, Color.black, Color.black, 0, OnRestartButtonClicked, Color.white, pauseRestartBtnSprite);
 
-        CreateStyledButton("MainMenuBtn", popupBg.transform, new Vector2(140f, 55f), new Vector2(220f, 70f), "MAIN MENU",
-            new Color(0.18f, 0.4f, 0.12f, 1f), new Color(0.35f, 0.65f, 0.25f, 1f), new Color(0.85f, 0.75f, 0.25f, 1f), 5, OnMainMenuButtonClicked);
+            CreateStyledButton("MainMenuBtn", popupBg.transform, new Vector2(178f, 48f), new Vector2(300f, 68f), "MAIN MENU",
+                Color.black, Color.black, Color.black, 0, OnMainMenuButtonClicked, Color.white, pauseMainMenuBtnSprite);
+        } else {
+            CreateStyledButton("RestartBtn", popupBg.transform, new Vector2(-140f, 55f), new Vector2(220f, 70f), "PLAY AGAIN",
+                new Color(0.6f, 0.3f, 0.05f, 1f), new Color(0.85f, 0.45f, 0.1f, 1f), new Color(1f, 0.85f, 0.3f, 1f), 5, OnRestartButtonClicked);
+
+            CreateStyledButton("MainMenuBtn", popupBg.transform, new Vector2(140f, 55f), new Vector2(220f, 70f), "MAIN MENU",
+                new Color(0.18f, 0.4f, 0.12f, 1f), new Color(0.35f, 0.65f, 0.25f, 1f), new Color(0.85f, 0.75f, 0.25f, 1f), 5, OnMainMenuButtonClicked);
+        }
 
         // 8. Create Pause Popup (Initially Inactive)
         pausePopup = new GameObject("PausePopup");
