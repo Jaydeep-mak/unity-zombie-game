@@ -100,7 +100,10 @@ public class SettingView : View
         {
             MenuView.GetInstance().Show();
         }
-        //AdMobManager.GetInstance().ShowInterstitial();
+        if (AdMobManager.GetInstance() != null && AdMobManager.GetInstance().IsInterstitialAdLoaded())
+        {
+            AdMobManager.GetInstance().ShowInterstitial();
+        }
     }
 
     public void OnPrivacyPolicyButtonClick()

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -30,7 +30,12 @@ public class SplashManager : MonoBehaviour
     {
         GameLaunchFirebaseEvent();
         yield return new WaitForSeconds(delay);
-        // AdMobManager.GetInstance().SetAdmobAdsID();
+        if (AdMobManager.GetInstance() != null) {
+            AdMobManager.GetInstance().SetAdmobAdsID();
+            if (!AdMobManager.GetInstance().IsInterstitialAdLoaded()) {
+                AdMobManager.GetInstance().RequestInterstitial();
+            }
+        }
         SceneManager.LoadScene(Constants.SCENE_MENU);
     }
 
