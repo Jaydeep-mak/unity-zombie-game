@@ -65,7 +65,34 @@ public class MainMenuProgressionCoinsDisplay : MonoBehaviour {
     }
 
     private void CreateDisplay() {
-        var canvas = FindFirstObjectByType<Canvas>();
+        Canvas canvas = null;
+        var canvases = GameObject.FindObjectsOfType<Canvas>(true);
+        foreach (var c in canvases) {
+            if (c.name == "Canvas" && c.transform.parent == null) {
+                canvas = c;
+                break;
+            }
+        }
+        if (canvas == null) {
+            foreach (var c in canvases) {
+                if (c.name == "Canvas") {
+                    canvas = c;
+                    break;
+                }
+            }
+        }
+        if (canvas == null) {
+            foreach (var c in canvases) {
+                if (c.transform.parent == null) {
+                    canvas = c;
+                    break;
+                }
+            }
+        }
+        if (canvas == null && canvases.Length > 0) {
+            canvas = canvases[0];
+        }
+
         if (canvas == null) return;
 
         // Pill Container

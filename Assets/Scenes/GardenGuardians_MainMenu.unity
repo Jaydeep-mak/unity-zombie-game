@@ -190,7 +190,7 @@ PrefabInstance:
     - target: {fileID: 3816486412799946954, guid: bc630a99a3a6e4997a469aa4644aa3ef,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -589,7 +589,7 @@ PrefabInstance:
     - target: {fileID: 2621091222943955935, guid: a4c6692b2f7a047ab8b2c79ef3e953fc,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2621091224577459766, guid: a4c6692b2f7a047ab8b2c79ef3e953fc,
         type: 3}
@@ -702,7 +702,7 @@ PrefabInstance:
     - target: {fileID: 5680571458180001378, guid: cf132549dee6f42aa9eceedbf6bb22c4,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5680571458180001383, guid: cf132549dee6f42aa9eceedbf6bb22c4,
         type: 3}
@@ -805,7 +805,7 @@ PrefabInstance:
     - target: {fileID: 7179907734347617952, guid: 86af056446283477b8fe1a3de0911d67,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7179907734347617967, guid: 86af056446283477b8fe1a3de0911d67,
         type: 3}
@@ -1046,7 +1046,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 32, y: -8}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &670304891
@@ -1593,7 +1593,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1924902497
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2392,7 +2392,7 @@ PrefabInstance:
     - target: {fileID: 4037987943621127695, guid: 09d0cd6df599b444c9e6743e3421aeff,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2530,7 +2530,7 @@ PrefabInstance:
     - target: {fileID: 491503812966762617, guid: fe835ee249343405c824dd7c06c99162,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 491503813272453457, guid: fe835ee249343405c824dd7c06c99162,
         type: 3}

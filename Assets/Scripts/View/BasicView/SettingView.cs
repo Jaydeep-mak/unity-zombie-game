@@ -96,6 +96,10 @@ public class SettingView : View
     public void OnCloseButtonClick()
     {
         Hide();
+        if (MenuView.GetInstance() != null)
+        {
+            MenuView.GetInstance().Show();
+        }
         //AdMobManager.GetInstance().ShowInterstitial();
     }
 
