@@ -105,7 +105,7 @@ public class MainMenuProgressionCoinsDisplay : MonoBehaviour {
         Color coinsBottom = new Color(0.15f, 0.12f, 0.05f, 0.85f);
         Color coinsTop = new Color(0.30f, 0.24f, 0.08f, 0.85f);
         Color coinsBorder = new Color(1.00f, 0.80f, 0.20f, 1f);
-        img.sprite = CreateRoundedRectGradientSprite(180, 60, 30, coinsBottom, coinsTop, coinsBorder, 3);
+        img.sprite = CreateRoundedRectGradientSprite(240, 60, 30, coinsBottom, coinsTop, coinsBorder, 3);
 
         var rect = displayPill.GetComponent<RectTransform>();
         if (alignment == ScreenAlignment.TopRight) {
@@ -119,7 +119,7 @@ public class MainMenuProgressionCoinsDisplay : MonoBehaviour {
             rect.pivot = new Vector2(0f, 1f);
             rect.anchoredPosition = new Vector2(40f, -40f);
         }
-        rect.sizeDelta = new Vector2(180f, 60f);
+        rect.sizeDelta = new Vector2(240f, 60f);
 
         // Icon (if sprite is assigned)
         if (coinIconSprite != null) {
@@ -146,6 +146,7 @@ public class MainMenuProgressionCoinsDisplay : MonoBehaviour {
             coinsText.fontStyle = FontStyles.Bold;
             coinsText.color = Color.white;
             coinsText.alignment = TextAlignmentOptions.MidlineLeft;
+            coinsText.enableWordWrapping = false;
 
             textRect.anchorMin = new Vector2(0f, 0.5f);
             textRect.anchorMax = new Vector2(1f, 0.5f);
@@ -162,6 +163,7 @@ public class MainMenuProgressionCoinsDisplay : MonoBehaviour {
             coinsText.fontStyle = FontStyles.Bold;
             coinsText.color = Color.white;
             coinsText.alignment = TextAlignmentOptions.Center;
+            coinsText.enableWordWrapping = false;
 
             textRect.anchorMin = Vector2.zero;
             textRect.anchorMax = Vector2.one;

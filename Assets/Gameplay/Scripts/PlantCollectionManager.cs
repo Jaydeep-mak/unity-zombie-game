@@ -547,6 +547,12 @@ public class PlantCollectionManager : MonoBehaviour {
                 popupUnlockButton.onClick.RemoveAllListeners();
                 popupUnlockButton.onClick.AddListener(() => OnClickUnlock(config));
                 popupUnlockButtonGo.GetComponent<RectTransform>().anchoredPosition = new Vector2(-120f, -305f);
+
+                bool canUnlock = GlobalProgressionManager.Instance != null && GlobalProgressionManager.Instance.GetCoins() >= config.unlockCost;
+                popupUnlockButton.interactable = canUnlock;
+                if (popupUnlockText != null) {
+                    popupUnlockText.color = canUnlock ? Color.white : new Color(1f, 1f, 1f, 0.5f);
+                }
             }
             if (popupCloseButtonRect != null) {
                 popupCloseButtonRect.anchoredPosition = new Vector2(120f, -305f);
@@ -667,22 +673,6 @@ public class PlantCollectionManager : MonoBehaviour {
                 // Play purchase failed sound
                 AudioManager.Instance.Play(SFXType.UIPurchaseFailed);
             }
-            StartCoroutine(ShowFeedbackRoutine("NOT ENOUGH COINS"));
-        }
-    }
-
-    private IEnumerator ShowFeedbackRoutine(string message) {
-        if (popupUnlockText != null && popupUnlockButton != null) {
-            string originalText = popupUnlockText.text;
-            popupUnlockText.text = message;
-            popupUnlockText.color = new Color(1.0f, 0.3f, 0.3f, 1f);
-            popupUnlockButton.interactable = false;
-
-            yield return new WaitForSeconds(1.5f);
-
-            popupUnlockText.text = originalText;
-            popupUnlockText.color = Color.white;
-            popupUnlockButton.interactable = true;
         }
     }
 
