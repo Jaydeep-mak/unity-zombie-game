@@ -5,6 +5,10 @@ using UnityEngine.UI;
 using TMPro;
 
 public class MainMenuManager : MonoBehaviour {
+    [Header("Settings UI")]
+    [SerializeField] private GameObject settingsPrefab;
+    [SerializeField] private UnityEngine.UI.Image mainMenuBackground;
+
     [Header("UI References")]
     [SerializeField] private CanvasGroup fadeOverlay;
     [SerializeField] private float fadeDuration = 0.8f;
@@ -44,6 +48,8 @@ public class MainMenuManager : MonoBehaviour {
             fadeOverlay.alpha = 1f;
             StartCoroutine(FadeRoutine(1f, 0f));
         }
+
+        ApplySettingsBackground();
     }
 
     public void StartGame() {
@@ -56,7 +62,32 @@ public class MainMenuManager : MonoBehaviour {
     }
 
     private void OpenSettings() {
-        Debug.Log("Settings button clicked! Opening settings is not implemented yet.");
+        if (SettingView.GetInstance() == null && settingsPrefab != null) {
+            Instantiate(settingsPrefab);
+        }
+
+        ApplySettingsBackground();
+
+        if (MenuView.GetInstance() != null) {
+            MenuView.GetInstance().Hide();
+        }
+        if (SettingView.GetInstance() != null) {
+            SettingView.GetInstance().Show();
+        }
+    }
+
+    private void ApplySettingsBackground() {
+        SettingView existing = SettingView.GetInstance();
+        if (existing != null && mainMenuBackground != null) {
+            Transform bgTransform = existing.transform.Find("Canvas/ViewContent/BG");
+            if (bgTransform != null) {
+                UnityEngine.UI.Image bgImage = bgTransform.GetComponent<UnityEngine.UI.Image>();
+                if (bgImage != null) {
+                    bgImage.sprite = mainMenuBackground.sprite;
+                    bgImage.color = mainMenuBackground.color;
+                }
+            }
+        }
     }
 
 
