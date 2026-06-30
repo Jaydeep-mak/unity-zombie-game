@@ -212,7 +212,7 @@ MonoBehaviour:
     description: "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>\u2022
       Very fast attack speed.\n\n\u2022 Continuously damages zombies.\n\n\u2022 Effective
       against weaker enemies.</indent></align>"
-    unlockCost: 1000
+    unlockCost: 0
   - name: Bomb Cactus
     cost: 150
     category: Trap
@@ -220,7 +220,7 @@ MonoBehaviour:
     description: "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>\u2022
       Explodes when zombies enter its tile.\n\n\u2022 Deals area damage.\n\n\u2022
       Removed after detonation.</indent></align>"
-    unlockCost: 2000
+    unlockCost: 0
   - name: Magic Blossom
     cost: 400
     category: Attack
@@ -228,7 +228,7 @@ MonoBehaviour:
     description: "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>\u2022
       Attacks zombies anywhere on the battlefield.\n\n\u2022 Uses rapid magical attacks.\n\n\u2022
       High damage over time.</indent></align>"
-    unlockCost: 7500
+    unlockCost: 10000
   - name: Gun Guardian
     cost: 125
     category: Attack
@@ -236,7 +236,7 @@ MonoBehaviour:
     description: "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>\u2022
       Shoots rapid physical projectiles at zombies.\n\n\u2022 High rate of fire.\n\n\u2022
       Excellent for sustaining damage lanes.</indent></align>"
-    unlockCost: 3000
+    unlockCost: 8000
   - name: Sunflower Tree
     cost: 250
     category: Economy
@@ -244,7 +244,7 @@ MonoBehaviour:
     description: "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>\u2022
       Generates coins over time.\n\n\u2022 Supports long-term economy growth.\n\n\u2022
       Helps build stronger defenses.</indent></align>"
-    unlockCost: 3500
+    unlockCost: 5000
   - name: Guardian Oak
     cost: 200
     category: Tank
@@ -252,7 +252,7 @@ MonoBehaviour:
     description: "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>\u2022
       Extremely high health.\n\n\u2022 Blocks zombies from advancing.\n\n\u2022 Protects
       nearby attack plants.</indent></align>"
-    unlockCost: 5000
+    unlockCost: 2000
   - name: Lightning Lotus
     cost: 350
     category: Attack
@@ -262,7 +262,7 @@ MonoBehaviour:
       <b>Effect:</b> Damages multiple zombies with a single attack.\n\n\u2022 <b>Damage:</b>
       Highest on first target, reduced on chained targets.\n\n\u2022 <b>Purpose:</b>
       Strong against groups of zombies.</indent></align>"
-    unlockCost: 6000
+    unlockCost: 4000
 --- !u!4 &222917619
 Transform:
   m_ObjectHideFlags: 0

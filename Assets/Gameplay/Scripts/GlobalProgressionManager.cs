@@ -35,7 +35,7 @@ public class GlobalProgressionManager : MonoBehaviour {
 
     public bool IsPlantLocked(string plantName) {
         if (string.IsNullOrEmpty(plantName)) return false;
-        if (plantName == "Fire Bloom" || plantName == "Frost Flower") {
+        if (plantName == "Fire Bloom" || plantName == "Frost Flower" || plantName == "Thorn Vine" || plantName == "Bomb Cactus") {
             return false;
         }
         return PlayerPrefs.GetInt("PlantUnlocked_" + plantName, 0) == 0;

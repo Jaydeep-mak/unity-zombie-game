@@ -39,13 +39,13 @@ public class PlantCollectionManager : MonoBehaviour {
     private PlantCollectionItem[] plantItems = new PlantCollectionItem[] {
         new PlantCollectionItem { name = "Fire Bloom", displayName = "Fire Bloom", isLocked = false },
         new PlantCollectionItem { name = "Frost Flower", displayName = "Frost Flower", isLocked = false },
-        new PlantCollectionItem { name = "Thorn Vine", displayName = "Thorn Vine", isLocked = true },
-        new PlantCollectionItem { name = "Bomb Cactus", displayName = "Bomb Cactus", isLocked = true },
-        new PlantCollectionItem { name = "Magic Blossom", displayName = "Magic Blossom", isLocked = true },
-        new PlantCollectionItem { name = "Gun Guardian", displayName = "Gun Guardian", isLocked = true },
+        new PlantCollectionItem { name = "Thorn Vine", displayName = "Thorn Vine", isLocked = false },
+        new PlantCollectionItem { name = "Bomb Cactus", displayName = "Bomb Cactus", isLocked = false },
         new PlantCollectionItem { name = "Guardian Oak", displayName = "Guardian Oak", isLocked = true },
+        new PlantCollectionItem { name = "Lightning Lotus", displayName = "Lightning Lotus", isLocked = true },
         new PlantCollectionItem { name = "Sunflower Tree", displayName = "Sunflower Tree", isLocked = true },
-        new PlantCollectionItem { name = "Lightning Lotus", displayName = "Lightning Lotus", isLocked = true }
+        new PlantCollectionItem { name = "Gun Guardian", displayName = "Gun Guardian", isLocked = true },
+        new PlantCollectionItem { name = "Magic Blossom", displayName = "Magic Blossom", isLocked = true }
     };
 
     // Popup UI references
@@ -636,7 +636,7 @@ public class PlantCollectionManager : MonoBehaviour {
         if (GlobalProgressionManager.Instance != null) {
             return GlobalProgressionManager.Instance.IsPlantLocked(plantName);
         }
-        if (plantName == "Fire Bloom" || plantName == "Frost Flower") {
+        if (plantName == "Fire Bloom" || plantName == "Frost Flower" || plantName == "Thorn Vine" || plantName == "Bomb Cactus") {
             return false;
         }
         return PlayerPrefs.GetInt("PlantUnlocked_" + plantName, 0) == 0;
@@ -827,13 +827,13 @@ public class PlantCollectionManager : MonoBehaviour {
         var unlockCostMap = new System.Collections.Generic.Dictionary<string, int> {
             { "Fire Bloom", 0 },
             { "Frost Flower", 0 },
-            { "Thorn Vine", 1000 },
-            { "Bomb Cactus", 2000 },
-            { "Gun Guardian", 3000 },
-            { "Sunflower Tree", 3500 },
-            { "Guardian Oak", 5000 },
-            { "Lightning Lotus", 6000 },
-            { "Magic Blossom", 7500 }
+            { "Thorn Vine", 0 },
+            { "Bomb Cactus", 0 },
+            { "Guardian Oak", 2000 },
+            { "Lightning Lotus", 4000 },
+            { "Sunflower Tree", 5000 },
+            { "Gun Guardian", 8000 },
+            { "Magic Blossom", 10000 }
         };
 
         foreach (var slot in slotsList) {
