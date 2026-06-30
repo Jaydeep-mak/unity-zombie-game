@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using System.Collections;
 using System.Collections.Generic;
+using AdsManager;
 
 public class GameplayManager : MonoBehaviour {
     public static GameplayManager Instance { get; private set; }
@@ -128,6 +129,29 @@ public class GameplayManager : MonoBehaviour {
             Instance = this;
         } else {
             Destroy(gameObject);
+            return;
+        }
+
+        AdMobManager.OnInitializeComplete += HandleAdMobInitializeComplete;
+        if (AdMobManager.GetInstance() != null && AdMobManager.GetInstance().IsSdkInitialized) {
+            HandleAdMobInitializeComplete();
+        }
+    }
+
+    private void OnDestroy() {
+        AdMobManager.OnInitializeComplete -= HandleAdMobInitializeComplete;
+    }
+
+    private void HandleAdMobInitializeComplete() {
+        if (AdMobManager.GetInstance() != null) {
+            var idField = typeof(AdMobManager).GetField("_adIDInterstitial", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            string adId = idField?.GetValue(AdMobManager.GetInstance()) as string;
+            if (string.IsNullOrEmpty(adId)) {
+                AdMobManager.GetInstance().SetAdmobAdsID();
+            }
+            if (!AdMobManager.GetInstance().IsInterstitialAdLoaded()) {
+                AdMobManager.GetInstance().RequestInterstitial();
+            }
         }
     }
 
@@ -801,12 +825,68 @@ public class GameplayManager : MonoBehaviour {
 
     public void OnRestartButtonClicked() {
         Time.timeScale = 1f;
-        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+        
+        // Show Interstitial if Game Over is showing
+        if (gameOverPopup != null && gameOverPopup.activeSelf) {
+            ShowInterstitialAndContinue(() => {
+                UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+            });
+        } else {
+            UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+        }
     }
 
     public void OnMainMenuButtonClicked() {
         Time.timeScale = 1f;
-        UnityEngine.SceneManagement.SceneManager.LoadScene("GardenGuardians_MainMenu");
+        
+        // Show Interstitial if Game Over is showing
+        if (gameOverPopup != null && gameOverPopup.activeSelf) {
+            ShowInterstitialAndContinue(() => {
+                UnityEngine.SceneManagement.SceneManager.LoadScene("GardenGuardians_MainMenu");
+            });
+        } else {
+            UnityEngine.SceneManagement.SceneManager.LoadScene("GardenGuardians_MainMenu");
+        }
+    }
+
+    private void ShowInterstitialAndContinue(System.Action onCompleted) {
+        if (AdMobManager.GetInstance() != null && AdMobManager.GetInstance().IsInterstitialAdLoaded()) {
+            var field = typeof(AdMobManager).GetField("_interstitial", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var interstitial = field?.GetValue(AdMobManager.GetInstance()) as GoogleMobileAds.Api.InterstitialAd;
+            
+            if (interstitial != null) {
+                System.Action handleClosed = null;
+                System.Action<GoogleMobileAds.Api.AdError> handleFailed = null;
+                bool hasContinued = false;
+                
+                handleClosed = () => {
+                    interstitial.OnAdFullScreenContentClosed -= handleClosed;
+                    interstitial.OnAdFullScreenContentFailed -= handleFailed;
+                    if (!hasContinued) {
+                        hasContinued = true;
+                        onCompleted();
+                    }
+                };
+                
+                handleFailed = (err) => {
+                    interstitial.OnAdFullScreenContentClosed -= handleClosed;
+                    interstitial.OnAdFullScreenContentFailed -= handleFailed;
+                    if (!hasContinued) {
+                        hasContinued = true;
+                        onCompleted();
+                    }
+                };
+                
+                interstitial.OnAdFullScreenContentClosed += handleClosed;
+                interstitial.OnAdFullScreenContentFailed += handleFailed;
+                
+                AdMobManager.GetInstance().ShowInterstitial();
+            } else {
+                onCompleted();
+            }
+        } else {
+            onCompleted();
+        }
     }
 
     public bool IsSlotOnCooldown(int index) {
