@@ -232,7 +232,7 @@ MonoBehaviour:
   - name: Gun Guardian
     cost: 125
     category: Attack
-    lifetime: -1
+    lifetime: 30
     description: "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>\u2022
       Shoots rapid physical projectiles at zombies.\n\n\u2022 High rate of fire.\n\n\u2022
       Excellent for sustaining damage lanes.</indent></align>"

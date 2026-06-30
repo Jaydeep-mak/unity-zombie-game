@@ -18,6 +18,11 @@ public abstract class PlantBase : MonoBehaviour {
     protected SpriteRenderer spriteRenderer;
     private float blinkTimer = 0f;
 
+    [Header("Lifetime Bar")]
+    private GameObject lifetimeBarGroup;
+    private GameObject lifetimeBarFill;
+    private float maxLifetimeFillScaleX = 0.8f;
+
     [Header("Health System")]
     [SerializeField] protected int maxHealth = 10;
     protected int currentHealth;
@@ -30,6 +35,7 @@ public abstract class PlantBase : MonoBehaviour {
         // Offset starting timer randomly slightly so plants don't fire exactly in sync if placed at same time
         attackTimer = Random.Range(0f, 0.5f);
         StartCoroutine(PlacementAnimationRoutine());
+        SetupLifetimeBarIfNeeded();
     }
 
     protected virtual System.Collections.IEnumerator PlacementAnimationRoutine() {
@@ -85,6 +91,9 @@ public abstract class PlantBase : MonoBehaviour {
     }
 
     protected virtual System.Collections.IEnumerator DeathAnimationRoutine() {
+        if (lifetimeBarGroup != null) {
+            Destroy(lifetimeBarGroup);
+        }
         if (spriteRenderer != null) spriteRenderer.enabled = true;
         float elapsed = 0f;
         float duration = 0.3f;
@@ -150,12 +159,14 @@ public abstract class PlantBase : MonoBehaviour {
                 spriteRenderer.color = color;
             }
         }
+        SetupLifetimeBarIfNeeded();
     }
 
     protected void UpdateLifetime() {
         if (lifetime <= 0f || isExpiring) return;
 
         remainingLifetime -= Time.deltaTime;
+        UpdateLifetimeBar();
 
         if (remainingLifetime <= 5f) {
             float blinkInterval = 0.5f; // Slow blink (5 to 2 seconds)
@@ -189,6 +200,58 @@ public abstract class PlantBase : MonoBehaviour {
                 AudioManager.Instance.Play(SFXType.PlantFade);
             }
             PlayDeathAnimation();
+        }
+    }
+
+    private Sprite CreateFlatSprite() {
+        Texture2D texture = new Texture2D(1, 1);
+        texture.SetPixel(0, 0, Color.white);
+        texture.Apply();
+        return Sprite.Create(texture, new Rect(0, 0, 1, 1), new Vector2(0.5f, 0.5f), 1f);
+    }
+
+    private void CreateLifetimeBar() {
+        if (lifetimeBarGroup != null) return;
+
+        lifetimeBarGroup = new GameObject("LifetimeBar");
+        lifetimeBarGroup.transform.SetParent(transform);
+        lifetimeBarGroup.transform.localPosition = new Vector3(0f, -0.6f, -0.1f); // Below plant
+        lifetimeBarGroup.transform.localScale = Vector3.one;
+
+        Sprite flatSprite = CreateFlatSprite();
+
+        // Background
+        var bg = new GameObject("BG");
+        bg.transform.SetParent(lifetimeBarGroup.transform);
+        bg.transform.localPosition = Vector3.zero;
+        bg.transform.localScale = new Vector3(0.9f, 0.15f, 1f);
+        var bgSr = bg.AddComponent<SpriteRenderer>();
+        bgSr.sprite = flatSprite;
+        bgSr.color = Color.black;
+        bgSr.sortingOrder = 8;
+
+        // Fill
+        lifetimeBarFill = new GameObject("Fill");
+        lifetimeBarFill.transform.SetParent(lifetimeBarGroup.transform);
+        lifetimeBarFill.transform.localPosition = Vector3.zero;
+        lifetimeBarFill.transform.localScale = new Vector3(maxLifetimeFillScaleX, 0.09f, 1f);
+        var fillSr = lifetimeBarFill.AddComponent<SpriteRenderer>();
+        fillSr.sprite = flatSprite;
+        fillSr.color = new Color(0.25f, 0.85f, 0.35f, 1f); // Green friendly lifetime bar
+        fillSr.sortingOrder = 9;
+    }
+
+    private void UpdateLifetimeBar() {
+        if (lifetimeBarFill != null && lifetime > 0f) {
+            float ratio = Mathf.Clamp01(remainingLifetime / lifetime);
+            lifetimeBarFill.transform.localScale = new Vector3(ratio * maxLifetimeFillScaleX, 0.09f, 1f);
+            lifetimeBarFill.transform.localPosition = new Vector3(- (1f - ratio) * maxLifetimeFillScaleX * 0.5f, 0f, 0f);
+        }
+    }
+
+    private void SetupLifetimeBarIfNeeded() {
+        if (lifetime > 0f && lifetimeBarGroup == null) {
+            CreateLifetimeBar();
         }
     }
 
