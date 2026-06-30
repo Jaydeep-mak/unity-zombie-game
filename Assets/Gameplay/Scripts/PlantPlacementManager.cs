@@ -203,6 +203,9 @@ public class PlantPlacementManager : MonoBehaviour {
             }
 
             if (previewGo != null) {
+                if (!previewGo.activeSelf) {
+                    previewGo.SetActive(true);
+                }
                 previewGo.transform.position = cell.transform.position;
             }
 
@@ -240,9 +243,8 @@ public class PlantPlacementManager : MonoBehaviour {
             }
 
             if (previewGo != null) {
-                previewGo.transform.position = mouseWorldPos;
-                if (previewRenderer != null) {
-                    previewRenderer.color = invalidPreviewColor;
+                if (previewGo.activeSelf) {
+                    previewGo.SetActive(false);
                 }
             }
         }
