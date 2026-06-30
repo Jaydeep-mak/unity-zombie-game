@@ -96,8 +96,7 @@ public class SettingView : View
     public void OnCloseButtonClick()
     {
         Hide();
-        MenuView.GetInstance().Show();
-        AdMobManager.GetInstance().ShowInterstitial();
+        //AdMobManager.GetInstance().ShowInterstitial();
     }
 
     public void OnPrivacyPolicyButtonClick()

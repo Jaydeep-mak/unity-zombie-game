@@ -11,7 +11,7 @@ public class MainMenuManager : MonoBehaviour {
     [SerializeField] private Button startButton;
     [SerializeField] private Button settingsButton;
     [SerializeField] private Button plantsButton;
-
+    private bool _isIAPOpen = false;
     private bool isStarting = false;
 
     private void Start() {
@@ -112,5 +112,28 @@ public class MainMenuManager : MonoBehaviour {
                 fadeOverlay.gameObject.SetActive(false);
             }
         }
+    }
+    public void OnSettingButtonClick()
+    {
+        SettingView.GetInstance().Show();
+    }
+
+    public void OnRemoveAdsButton()
+    {
+        if (Application.internetReachability == NetworkReachability.NotReachable)
+        {
+            MessageView.GetInstance().ShowMessageView(Constants.WARN_NO_INTERNET, "Ok");
+        }
+        else
+        {
+            _isIAPOpen = true;
+
+            AdFreeView.GetInstance().ShowAdFreeView(OnIAPViewHide);
+        }
+    }
+
+    public void OnIAPViewHide()
+    {
+        _isIAPOpen = false;
     }
 }
