@@ -825,28 +825,16 @@ public class GameplayManager : MonoBehaviour {
 
     public void OnRestartButtonClicked() {
         Time.timeScale = 1f;
-        
-        // Show Interstitial if Game Over is showing
-        if (gameOverPopup != null && gameOverPopup.activeSelf) {
-            ShowInterstitialAndContinue(() => {
-                UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
-            });
-        } else {
+        ShowInterstitialAndContinue(() => {
             UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
-        }
+        });
     }
 
     public void OnMainMenuButtonClicked() {
         Time.timeScale = 1f;
-        
-        // Show Interstitial if Game Over is showing
-        if (gameOverPopup != null && gameOverPopup.activeSelf) {
-            ShowInterstitialAndContinue(() => {
-                UnityEngine.SceneManagement.SceneManager.LoadScene("GardenGuardians_MainMenu");
-            });
-        } else {
+        ShowInterstitialAndContinue(() => {
             UnityEngine.SceneManagement.SceneManager.LoadScene("GardenGuardians_MainMenu");
-        }
+        });
     }
 
     private void ShowInterstitialAndContinue(System.Action onCompleted) {
