@@ -132,6 +132,7 @@ public class AudioManager : MonoBehaviour {
     private const float THROTTLE_INTERVAL = 0.08f; // 80ms throttle to prevent overlapping sounds clipping
 
     private Dictionary<SFXType, AudioClip> placeholderClips = new Dictionary<SFXType, AudioClip>();
+    private AudioClip uiClickSoundClip;
 
     private void Awake() {
         if (instance == null) {
@@ -141,6 +142,9 @@ public class AudioManager : MonoBehaviour {
             }
             isMuted = PlayerPrefs.GetInt("SFX_Muted", 0) == 1;
             AudioListener.volume = isMuted ? 0f : 1f; // Initialize AudioListener volume
+
+            // Load common UI click sound from Resources
+            uiClickSoundClip = Resources.Load<AudioClip>("ui_click_sound");
         } else if (instance != this) {
             Destroy(gameObject);
         }
@@ -190,14 +194,14 @@ public class AudioManager : MonoBehaviour {
             case SFXType.CoinEarned: return coinEarned;
             case SFXType.CoinCollected: return coinCollected;
             case SFXType.GameOver: return gameOver;
-            case SFXType.UIClickStart: return uiClickStart;
-            case SFXType.UIClickPlants: return uiClickPlants;
-            case SFXType.UIClickBack: return uiClickBack;
-            case SFXType.UIPopupOpen: return uiPopupOpen;
-            case SFXType.UIPopupClose: return uiPopupClose;
-            case SFXType.UIPlantUnlock: return uiPlantUnlock;
-            case SFXType.UIPurchaseSuccess: return uiPurchaseSuccess;
-            case SFXType.UIPurchaseFailed: return uiPurchaseFailed;
+            case SFXType.UIClickStart: return uiClickSoundClip != null ? uiClickSoundClip : uiClickStart;
+            case SFXType.UIClickPlants: return uiClickSoundClip != null ? uiClickSoundClip : uiClickPlants;
+            case SFXType.UIClickBack: return uiClickSoundClip != null ? uiClickSoundClip : uiClickBack;
+            case SFXType.UIPopupOpen: return uiClickSoundClip != null ? uiClickSoundClip : uiPopupOpen;
+            case SFXType.UIPopupClose: return uiClickSoundClip != null ? uiClickSoundClip : uiPopupClose;
+            case SFXType.UIPlantUnlock: return uiClickSoundClip != null ? uiClickSoundClip : uiPlantUnlock;
+            case SFXType.UIPurchaseSuccess: return uiClickSoundClip != null ? uiClickSoundClip : uiPurchaseSuccess;
+            case SFXType.UIPurchaseFailed: return uiClickSoundClip != null ? uiClickSoundClip : uiPurchaseFailed;
             default: return null;
         }
     }

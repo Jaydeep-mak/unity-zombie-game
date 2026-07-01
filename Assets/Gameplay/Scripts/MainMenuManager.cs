@@ -66,6 +66,9 @@ public class MainMenuManager : MonoBehaviour {
     }
 
     private void OpenSettings() {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.UIPopupOpen);
+        }
         if (SettingView.GetInstance() == null && settingsPrefab != null) {
             Instantiate(settingsPrefab);
         }
@@ -150,6 +153,9 @@ public class MainMenuManager : MonoBehaviour {
     }
     public void OnSettingButtonClick()
     {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.UIPopupOpen);
+        }
         SettingView.GetInstance().Show();
     }
 

@@ -820,6 +820,10 @@ public class GameplayManager : MonoBehaviour {
         if (currentBaseHealth <= 0) return;
         isPaused = !isPaused;
 
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.UIClickStart);
+        }
+
         // Log pause/resume event to Firebase
         if (isPaused) {
             FirebaseManager.LogEvent(Constants.EVENT_PAUSE_CLICKED);
@@ -858,6 +862,9 @@ public class GameplayManager : MonoBehaviour {
     }
 
     public void OnRestartButtonClicked() {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.UIClickStart);
+        }
         Time.timeScale = 1f;
 
         // Log restart event to Firebase
@@ -869,6 +876,9 @@ public class GameplayManager : MonoBehaviour {
     }
 
     public void OnMainMenuButtonClicked() {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.UIClickStart);
+        }
         Time.timeScale = 1f;
         ShowInterstitialAndContinue(() => {
             UnityEngine.SceneManagement.SceneManager.LoadScene("GardenGuardians_MainMenu");

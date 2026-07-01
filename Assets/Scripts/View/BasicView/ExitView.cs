@@ -1,4 +1,4 @@
-﻿using AdsManager;
+using AdsManager;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -46,11 +46,17 @@ public class ExitView : View
 
     public void OnYesButtonClick()
     {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.UIClickStart);
+        }
         Application.Quit();
     }
 
     public void OnNoButtonClick()
     {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.UIClickBack);
+        }
         AdMobManager.GetInstance().ShowBanner();
         Hide();
     }

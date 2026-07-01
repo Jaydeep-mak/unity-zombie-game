@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -87,6 +87,9 @@ public class MenuView : View
 
     public void OnSettingButtonClick()
     {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.UIPopupOpen);
+        }
         Hide();
         AdMobManager.GetInstance().HideBanner();
         SettingView.GetInstance().Show();

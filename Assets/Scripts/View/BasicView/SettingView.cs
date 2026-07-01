@@ -96,6 +96,9 @@ public class SettingView : View
 
     public void OnCloseButtonClick()
     {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.UIClickBack);
+        }
         Hide();
         ShowInterstitialAndContinue(() => {
             if (MenuView.GetInstance() != null)
@@ -150,6 +153,9 @@ public class SettingView : View
 
     public void OnPrivacyPolicyButtonClick()
     {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.UIClickStart);
+        }
         FirebaseManager.LogEvent(Constants.EVENT_PRIVACY_POLICY_CLICKED);
         if (Application.internetReachability == NetworkReachability.NotReachable)
         {
@@ -164,12 +170,18 @@ public class SettingView : View
 
     public void OnLicenceButtonClick()
     {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.UIClickStart);
+        }
         PreferenceHelper.SetWebViewTittle(Constants.LICENCE_TITTLE);
         SceneManager.LoadScene(Constants.SCENE_WEB);
     }
 
     public void OnBuyAdFreeButtonClick()
     {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.UIClickStart);
+        }
         if (Application.internetReachability == NetworkReachability.NotReachable)
         {
             MessageView.GetInstance().ShowMessageView(Constants.WARN_NO_INTERNET, "Ok");
@@ -182,12 +194,18 @@ public class SettingView : View
 
     public void OnRateThisAppButtonClick()
     {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.UIClickStart);
+        }
         FirebaseManager.LogEvent(Constants.EVENT_RATE_APP_CLICKED);
         RateAppPopUpView.GetInstance().Show();
     }
 
     public void OnShareAppButtonClick()
     {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.UIClickStart);
+        }
         FirebaseManager.LogEvent(Constants.EVENT_SHARE_CLICKED);
         AppSharing.GetInstance().ShareApp(_shareMessage);
     }
@@ -202,11 +220,17 @@ public class SettingView : View
 
     public void OnConsentButtonClick()
     {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.UIClickStart);
+        }
         AdMobManager.GetInstance().LoadAndShowConsentForm();
     }
 
     public void OnRestorePurchaseButtonClick()
     {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.Play(SFXType.UIClickStart);
+        }
         if (Application.internetReachability == NetworkReachability.NotReachable)
         {
             MessageView.GetInstance().ShowMessageView(Constants.WARN_NO_INTERNET, "Ok");
