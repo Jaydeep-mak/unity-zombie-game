@@ -92,6 +92,14 @@ public class WaveManager : MonoBehaviour {
     private GameObject waveCompletePanel;
     private TextMeshProUGUI waveCompleteText;
 
+    public bool IsWaveCompletePanelActive => waveCompletePanel != null && waveCompletePanel.activeInHierarchy;
+
+    public void SetWaveCompletePanelVisible(bool visible) {
+        if (waveCompletePanel != null) {
+            waveCompletePanel.SetActive(visible);
+        }
+    }
+
     private Coroutine announcementCoroutine;
     private GameObject waveAnnouncementPanel;
     private Coroutine flashCoroutine;

@@ -814,20 +814,37 @@ public class GameplayManager : MonoBehaviour {
         }
     }
 
+    private bool waveCompleteWasActive = false;
+
     public void TogglePause() {
-        if (currentBaseHealth <= 0) return; // Can't pause if dead
+        if (currentBaseHealth <= 0) return;
         isPaused = !isPaused;
         Time.timeScale = isPaused ? 0f : 1f;
         if (pausePopup != null) {
             if (isPaused) {
                 if (WaveManager.Instance != null) {
                     WaveManager.Instance.CancelWaveAnnouncement();
+                    waveCompleteWasActive = WaveManager.Instance.IsWaveCompletePanelActive;
+                    WaveManager.Instance.SetWaveCompletePanelVisible(false);
                 }
                 pausePopup.SetActive(true);
                 StopAllCoroutines();
+                CleanupOrphanedCoinAnimations();
                 StartCoroutine(PopupScaleIn(pausePopup.transform));
             } else {
                 pausePopup.SetActive(false);
+                if (WaveManager.Instance != null && waveCompleteWasActive) {
+                    WaveManager.Instance.SetWaveCompletePanelVisible(true);
+                }
+            }
+        }
+    }
+
+    private void CleanupOrphanedCoinAnimations() {
+        if (hudCanvas == null) return;
+        foreach (Transform child in hudCanvas.transform) {
+            if (child.name == "CoinGainText" || child.name == "FlyingCoin") {
+                Destroy(child.gameObject);
             }
         }
     }
