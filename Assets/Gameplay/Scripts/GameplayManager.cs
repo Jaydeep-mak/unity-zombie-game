@@ -819,6 +819,14 @@ public class GameplayManager : MonoBehaviour {
     public void TogglePause() {
         if (currentBaseHealth <= 0) return;
         isPaused = !isPaused;
+
+        // Log pause/resume event to Firebase
+        if (isPaused) {
+            FirebaseManager.LogEvent(Constants.EVENT_PAUSE_CLICKED);
+        } else {
+            FirebaseManager.LogEvent(Constants.EVENT_RESUME_CLICKED);
+        }
+
         Time.timeScale = isPaused ? 0f : 1f;
         if (pausePopup != null) {
             if (isPaused) {
@@ -851,6 +859,10 @@ public class GameplayManager : MonoBehaviour {
 
     public void OnRestartButtonClicked() {
         Time.timeScale = 1f;
+
+        // Log restart event to Firebase
+        FirebaseManager.LogEvent(Constants.EVENT_RESTART_CLICKED);
+
         ShowInterstitialAndContinue(() => {
             UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
         });

@@ -61,6 +61,7 @@ public class SettingView : View
     protected override void OnViewShow()
     {
         PreferenceHelper.SetIsWebViewOpen(false);
+        FirebaseManager.LogEvent(Constants.EVENT_SETTINGS_OPENED);
     }
 
     private void ActiveRestoreButton()
@@ -149,6 +150,7 @@ public class SettingView : View
 
     public void OnPrivacyPolicyButtonClick()
     {
+        FirebaseManager.LogEvent(Constants.EVENT_PRIVACY_POLICY_CLICKED);
         if (Application.internetReachability == NetworkReachability.NotReachable)
         {
             MessageView.GetInstance().ShowMessageView(Constants.WARN_NO_INTERNET, "Ok");
@@ -180,11 +182,13 @@ public class SettingView : View
 
     public void OnRateThisAppButtonClick()
     {
+        FirebaseManager.LogEvent(Constants.EVENT_RATE_APP_CLICKED);
         RateAppPopUpView.GetInstance().Show();
     }
 
     public void OnShareAppButtonClick()
     {
+        FirebaseManager.LogEvent(Constants.EVENT_SHARE_CLICKED);
         AppSharing.GetInstance().ShareApp(_shareMessage);
     }
 

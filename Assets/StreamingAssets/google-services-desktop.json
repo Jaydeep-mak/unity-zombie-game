@@ -1,43 +1,26 @@
 {
   "project_info": {
-    "project_number": "34405118725",
-    "project_id": "baseproject-unity",
-    "storage_bucket": "baseproject-unity.appspot.com"
+    "project_number": "258719683464",
+    "project_id": "garden-guardians-f32d1",
+    "storage_bucket": "garden-guardians-f32d1.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:34405118725:android:0a26c6f5c31ed61bffbd6c",
+        "mobilesdk_app_id": "1:258719683464:android:38589a89dac7e783ea203d",
         "android_client_info": {
-          "package_name": "com.unity.baseproject"
+          "package_name": "com.cittagames.gardenguardians"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "34405118725-4ubr4lfe0jppberm647ic6lpauv0192q.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCUzhVWBPpNilgKW505KDKQZ4SoXWE3Jq4"
+          "current_key": "AIzaSyCKnLB5pXM5eYzj0wAYL49Fr0LXSeVjXLg"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "34405118725-4ubr4lfe0jppberm647ic6lpauv0192q.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "34405118725-d44q1mffs97fbeab1qmdskvudvtor9is.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.unity.baseproject"
-              }
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

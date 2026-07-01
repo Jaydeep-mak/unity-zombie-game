@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -29,6 +29,14 @@ public static class Constants
     #region ANALYTICS
 
     public const string EVENT_GAME_LAUNCH ="game_launch";
+    public const string EVENT_START_GAME = "start_game";
+    public const string EVENT_PAUSE_CLICKED = "pause_clicked";
+    public const string EVENT_RESUME_CLICKED = "resume_clicked";
+    public const string EVENT_RESTART_CLICKED = "restart_clicked";
+    public const string EVENT_SETTINGS_OPENED = "settings_opened";
+    public const string EVENT_RATE_APP_CLICKED = "rate_app_clicked";
+    public const string EVENT_SHARE_CLICKED = "share_clicked";
+    public const string EVENT_PRIVACY_POLICY_CLICKED = "privacy_policy_clicked";
 
     #endregion
 

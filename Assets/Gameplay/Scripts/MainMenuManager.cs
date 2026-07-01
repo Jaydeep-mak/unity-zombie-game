@@ -55,6 +55,10 @@ public class MainMenuManager : MonoBehaviour {
     public void StartGame() {
         if (isStarting) return;
         isStarting = true;
+        
+        // Log game start event to Firebase Analytics
+        FirebaseManager.LogEvent(Constants.EVENT_START_GAME);
+
         if (AudioManager.Instance != null) {
             AudioManager.Instance.Play(SFXType.UIClickStart);
         }
