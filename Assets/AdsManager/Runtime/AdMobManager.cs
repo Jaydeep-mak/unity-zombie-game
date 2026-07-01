@@ -329,6 +329,8 @@ namespace AdsManager
 
         public void SetAdmobAdsID()
         {
+            AppOpenAdAutoLoad = true;
+
             _adIdBanner = adData.GetBannerAdID();
 
             _adIDInterstitial = adData.GetInterstitialAdID();
@@ -342,6 +344,8 @@ namespace AdsManager
             _adIdRewardVideo = adData.GetRewardAdID();
 
             _adIdRewardedInterstitial = adData.GetRewardedInterstitialAdID();
+
+            LoadAppOpenAd();
         }
 
         public void SetAdmobAdsID(string bannerAdId, string interstitialAdId, string rewardAdId, string appOpenId, string rectBannerAdId, string rewardInterstitialAdId)
@@ -357,6 +361,9 @@ namespace AdsManager
             _adIDRectBanner = rectBannerAdId;
 
             _adIdRewardedInterstitial = rewardInterstitialAdId;
+
+            AppOpenAdAutoLoad = true;
+            LoadAppOpenAd();
         }
 
         private void HandleInitCompleteAction(InitializationStatus initstatus)
@@ -374,6 +381,8 @@ namespace AdsManager
                     OnInitializeComplete?.Invoke();
                     if (RequestInterstitialOnInitialize)
                         RequestInterstitial();
+
+                    LoadAppOpenAd();
                 });
 
                 AppStateEventNotifier.AppStateChanged += OnAppStateChanged;
@@ -538,23 +547,41 @@ namespace AdsManager
                 return;
             }
 
-            if (_isBannerOpened)
-            {
-                _isBannerOpened = false;
-                _canShowOpenAd = true;
-                return;
-            }
-
             if (_forceDontShowOpenAd)
             {
                 AdsDebug.Log("App open ad showing is forced to be disabled.");
                 return;
             }
 
+            // Don't show app open ad during gameplay
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "demo")
+            {
+                AdsDebug.Log("App open ad showing is disabled in gameplay scene.");
+                return;
+            }
+
             if (_canShowOpenAd)
             {
+                ShowAppOpenAd();
                 OnAppStateChange?.Invoke(state);
             }
+        }
+
+        private void OnApplicationFocus(bool hasFocus)
+        {
+#if UNITY_EDITOR
+            if (!UnityEngine.Application.isPlaying) return;
+            if (!IsSdkInitialized) return;
+
+            if (hasFocus)
+            {
+                OnAppStateChanged(AppState.Foreground);
+            }
+            else
+            {
+                OnAppStateChanged(AppState.Background);
+            }
+#endif
         }
 
         /// <summary>
@@ -566,6 +593,38 @@ namespace AdsManager
             {
                 AdsDebug.Log("Showing app open ad.");
                 _appOpenAd.Show();
+
+#if UNITY_EDITOR
+                // Scale down the simulated ad to fit the editor's screen height so the Close button is visible
+                MobileAdsEventExecutor.ExecuteInUpdate(() =>
+                {
+                    GameObject adGo = GameObject.Find("768x1024(Clone)");
+                    if (adGo == null)
+                    {
+                        foreach (var root in UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects())
+                        {
+                            if (root.name.Contains("(Clone)") && root.transform.Find("Ad") != null)
+                            {
+                                adGo = root;
+                                break;
+                            }
+                        }
+                    }
+                    if (adGo != null)
+                    {
+                        var adRect = adGo.transform.Find("Ad")?.GetComponent<RectTransform>();
+                        var rootRect = adGo.GetComponent<RectTransform>();
+                        if (adRect != null && rootRect != null)
+                        {
+                            if (adRect.rect.height > rootRect.rect.height)
+                            {
+                                float scale = (rootRect.rect.height - 20f) / adRect.rect.height;
+                                adRect.localScale = new Vector3(scale, scale, 1f);
+                            }
+                        }
+                    }
+                });
+#endif
             }
             else
             {

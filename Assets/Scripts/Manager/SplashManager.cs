@@ -28,7 +28,6 @@ public class SplashManager : MonoBehaviour
 
     public IEnumerator LoadScene()
     {
-        GameLaunchFirebaseEvent();
         yield return new WaitForSeconds(delay);
         if (AdMobManager.GetInstance() != null) {
             AdMobManager.GetInstance().SetAdmobAdsID();
@@ -37,6 +36,7 @@ public class SplashManager : MonoBehaviour
             }
         }
         SceneManager.LoadScene(Constants.SCENE_MENU);
+        GameLaunchFirebaseEvent();
     }
 
     public void FadeEffect()
