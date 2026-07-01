@@ -2366,6 +2366,12 @@ public class GameplayManager : MonoBehaviour {
         }
 
         soundToggleButtonComp = buttonGo.GetComponent<UnityEngine.UI.Button>();
+
+        // Set sibling index to draw behind modal popups, exactly like the PauseButton
+        Transform pauseBtnTrans = hudCanvas.transform.Find("PauseButton");
+        if (pauseBtnTrans != null) {
+            buttonGo.transform.SetSiblingIndex(pauseBtnTrans.GetSiblingIndex() + 1);
+        }
         
         var iconTrans = buttonGo.transform.Find("SoundIcon");
         if (iconTrans != null) {
