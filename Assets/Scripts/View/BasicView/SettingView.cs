@@ -8,6 +8,7 @@ using Utils;
 using System;
 using AdsManager;
 using IAPPurchasing;
+using TMPro;
 
 public class SettingView : View
 {
@@ -17,6 +18,12 @@ public class SettingView : View
     public GameObject restoreButton;
     private string _shareMessage;
     public GameSettings gameSettings;
+
+    [Header("Sound Toggle UI")]
+    public TMP_Text soundButtonText;
+    public Image soundButtonIcon;
+    public Sprite soundOnSprite;
+    public Sprite soundOffSprite;
 
     public override void Awake()
     {
@@ -38,6 +45,8 @@ public class SettingView : View
 
         if (PreferenceHelper.IsAdRemoved())
             HideConsentAndBuyAdsButtons();
+
+        UpdateSoundButtonVisuals();
     }
 
     private void OnEnable()
@@ -62,6 +71,7 @@ public class SettingView : View
     {
         PreferenceHelper.SetIsWebViewOpen(false);
         FirebaseManager.LogEvent(Constants.EVENT_SETTINGS_OPENED);
+        UpdateSoundButtonVisuals();
     }
 
     private void ActiveRestoreButton()
@@ -265,5 +275,32 @@ public class SettingView : View
     public void ResetConcent()
     {
         AdMobManager.GetInstance().ResetConsent();
+    }
+
+    public void OnSoundButtonClick()
+    {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.IsMuted = !AudioManager.Instance.IsMuted;
+            if (!AudioManager.Instance.IsMuted) {
+                AudioManager.Instance.Play(SFXType.UIClickStart);
+            }
+        }
+        UpdateSoundButtonVisuals();
+    }
+
+    public void UpdateSoundButtonVisuals()
+    {
+        bool muted = false;
+        if (AudioManager.Instance != null) {
+            muted = AudioManager.Instance.IsMuted;
+        }
+
+        if (soundButtonText != null) {
+            soundButtonText.text = muted ? "SOUND: OFF" : "SOUND: ON";
+        }
+
+        if (soundButtonIcon != null) {
+            soundButtonIcon.sprite = muted ? soundOffSprite : soundOnSprite;
+        }
     }
 }
