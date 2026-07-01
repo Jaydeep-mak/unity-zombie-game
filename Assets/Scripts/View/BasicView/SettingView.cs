@@ -96,13 +96,54 @@ public class SettingView : View
     public void OnCloseButtonClick()
     {
         Hide();
-        if (MenuView.GetInstance() != null)
-        {
-            MenuView.GetInstance().Show();
-        }
-        if (AdMobManager.GetInstance() != null && AdMobManager.GetInstance().IsInterstitialAdLoaded())
-        {
-            AdMobManager.GetInstance().ShowInterstitial();
+        ShowInterstitialAndContinue(() => {
+            if (MenuView.GetInstance() != null)
+            {
+                MenuView.GetInstance().Show();
+                if (AdMobManager.GetInstance() != null) {
+                    AdMobManager.GetInstance().ShowBanner();
+                }
+            }
+        });
+    }
+
+    private void ShowInterstitialAndContinue(System.Action onCompleted) {
+        if (AdMobManager.GetInstance() != null && AdMobManager.GetInstance().IsInterstitialAdLoaded()) {
+            var field = typeof(AdMobManager).GetField("_interstitial", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var interstitial = field?.GetValue(AdMobManager.GetInstance()) as GoogleMobileAds.Api.InterstitialAd;
+            
+            if (interstitial != null) {
+                System.Action handleClosed = null;
+                System.Action<GoogleMobileAds.Api.AdError> handleFailed = null;
+                bool hasContinued = false;
+                
+                handleClosed = () => {
+                    interstitial.OnAdFullScreenContentClosed -= handleClosed;
+                    interstitial.OnAdFullScreenContentFailed -= handleFailed;
+                    if (!hasContinued) {
+                        hasContinued = true;
+                        onCompleted();
+                    }
+                };
+                
+                handleFailed = (err) => {
+                    interstitial.OnAdFullScreenContentClosed -= handleClosed;
+                    interstitial.OnAdFullScreenContentFailed -= handleFailed;
+                    if (!hasContinued) {
+                        hasContinued = true;
+                        onCompleted();
+                    }
+                };
+                
+                interstitial.OnAdFullScreenContentClosed += handleClosed;
+                interstitial.OnAdFullScreenContentFailed += handleFailed;
+                
+                AdMobManager.GetInstance().ShowInterstitial();
+            } else {
+                onCompleted();
+            }
+        } else {
+            onCompleted();
         }
     }
 

@@ -132,6 +132,15 @@ public class GameplayManager : MonoBehaviour {
             return;
         }
 
+        // Hide banner and clear callback delegate so delayed ad responses don't show the banner in gameplay
+        if (AdMobManager.GetInstance() != null) {
+            AdMobManager.GetInstance().HideBanner();
+            var field = typeof(AdMobManager).GetField("BannerAdStatus", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (field != null) {
+                field.SetValue(AdMobManager.GetInstance(), null);
+            }
+        }
+
         AdMobManager.OnInitializeComplete += HandleAdMobInitializeComplete;
         if (AdMobManager.GetInstance() != null && AdMobManager.GetInstance().IsSdkInitialized) {
             HandleAdMobInitializeComplete();
