@@ -194,74 +194,74 @@ MonoBehaviour:
     category: Attack
     lifetime: 40
     description: "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>\u2022
-      Launches fire projectiles at zombies in its lane.\n\n\u2022 Reliable damage
-      dealer.\n\n\u2022 Good starter attack plant.</indent></align>"
+      Ability: Fires flaming projectiles at zombies in its lane.\n\n\u2022 Placement:
+      Best placed behind defensive plants.\n\n\u2022 Lifetime: Disappears after a
+      short duration.</indent></align>"
     unlockCost: 0
   - name: Frost Flower
     cost: 75
     category: Trap
     lifetime: -1
     description: "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>\u2022
-      Freezes zombies that enter its tile.\n\n\u2022 Stops enemy movement temporarily.\n\n\u2022
-      Consumed after activation.</indent></align>"
+      Ability: Freezes zombies entering its tile.\n\n\u2022 Placement: Place where
+      zombies frequently pass.\n\n\u2022 Lifetime: Disappears after freezing a zombie.</indent></align>"
     unlockCost: 0
   - name: Thorn Vine
     cost: 100
     category: Attack
     lifetime: 30
     description: "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>\u2022
-      Very fast attack speed.\n\n\u2022 Continuously damages zombies.\n\n\u2022 Effective
-      against weaker enemies.</indent></align>"
+      Ability: Continuously damages zombies walking over it.\n\n\u2022 Placement:
+      Place directly in zombie paths.\n\n\u2022 Lifetime: Disappears after a short
+      duration.</indent></align>"
     unlockCost: 0
   - name: Bomb Cactus
     cost: 150
     category: Trap
     lifetime: -1
     description: "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>\u2022
-      Explodes when zombies enter its tile.\n\n\u2022 Deals area damage.\n\n\u2022
-      Removed after detonation.</indent></align>"
+      Ability: Explodes and damages nearby zombies.\n\n\u2022 Placement: Best used
+      against grouped zombies.\n\n\u2022 Lifetime: Disappears after exploding.</indent></align>"
     unlockCost: 0
   - name: Magic Blossom
     cost: 400
     category: Attack
     lifetime: 25
     description: "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>\u2022
-      Attacks zombies anywhere on the battlefield.\n\n\u2022 Uses rapid magical attacks.\n\n\u2022
-      High damage over time.</indent></align>"
+      Ability: Launches powerful magical attacks.\n\n\u2022 Placement: Place safely
+      behind other plants.\n\n\u2022 Lifetime: Permanent until destroyed.</indent></align>"
     unlockCost: 10000
   - name: Gun Guardian
     cost: 125
     category: Attack
     lifetime: 30
     description: "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>\u2022
-      Shoots rapid physical projectiles at zombies.\n\n\u2022 High rate of fire.\n\n\u2022
-      Excellent for sustaining damage lanes.</indent></align>"
+      Ability: Fires rapid bullets at zombies.\n\n\u2022 Placement: Best placed in
+      attack lanes.\n\n\u2022 Lifetime: Disappears after a short duration.</indent></align>"
     unlockCost: 8000
   - name: Sunflower Tree
     cost: 250
     category: Economy
     lifetime: 45
     description: "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>\u2022
-      Generates coins over time.\n\n\u2022 Supports long-term economy growth.\n\n\u2022
-      Helps build stronger defenses.</indent></align>"
+      Ability: Generates coins over time.\n\n\u2022 Placement: Place safely in the
+      back rows.\n\n\u2022 Lifetime: Permanent until destroyed.</indent></align>"
     unlockCost: 5000
   - name: Guardian Oak
     cost: 200
     category: Tank
     lifetime: 10
     description: "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>\u2022
-      Extremely high health.\n\n\u2022 Blocks zombies from advancing.\n\n\u2022 Protects
-      nearby attack plants.</indent></align>"
+      Ability: Blocks zombies with very high health.\n\n\u2022 Placement: Place in
+      front to protect other plants.\n\n\u2022 Lifetime: Permanent until destroyed.</indent></align>"
     unlockCost: 2000
   - name: Lightning Lotus
     cost: 350
     category: Attack
     lifetime: 15
     description: "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>\u2022
-      <b>Ability:</b> Fires lightning that jumps between nearby zombies.\n\n\u2022
-      <b>Effect:</b> Damages multiple zombies with a single attack.\n\n\u2022 <b>Damage:</b>
-      Highest on first target, reduced on chained targets.\n\n\u2022 <b>Purpose:</b>
-      Strong against groups of zombies.</indent></align>"
+      Ability: Fires chain lightning at multiple zombies.\n\n\u2022 Placement: Best
+      against crowded lanes.\n\n\u2022 Lifetime: Permanent until destroyed.</indent></align>"
     unlockCost: 4000
 --- !u!4 &222917619
 Transform:

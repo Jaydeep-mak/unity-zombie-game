@@ -815,17 +815,25 @@ public class PlantCollectionManager : MonoBehaviour {
 
         var list = new System.Collections.Generic.List<PlantConfig>();
         
-        var descMap = new System.Collections.Generic.Dictionary<string, string> {
-            { "Fire Bloom", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Launches fire projectiles at zombies in its lane.\n\n• Reliable damage dealer.\n\n• Good starter attack plant.</indent></align>" },
-            { "Frost Flower", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Freezes zombies that enter its tile.\n\n• Stops enemy movement temporarily.\n\n• Consumed after activation.</indent></align>" },
-            { "Thorn Vine", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Very fast attack speed.\n\n• Continuously damages zombies.\n\n• Effective against weaker enemies.</indent></align>" },
-            { "Bomb Cactus", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Explodes when zombies enter its tile.\n\n• Deals area damage.\n\n• Removed after detonation.</indent></align>" },
-            { "Magic Blossom", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Attacks zombies anywhere on the battlefield.\n\n• Uses rapid magical attacks.\n\n• High damage over time.</indent></align>" },
-            { "Gun Guardian", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Shoots rapid physical projectiles at zombies.\n\n• High rate of fire.\n\n• Excellent for sustaining damage lanes.</indent></align>" },
-            { "Guardian Oak", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Extremely high health.\n\n• Blocks zombies from advancing.\n\n• Protects nearby attack plants.</indent></align>" },
-            { "Sunflower Tree", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Generates coins over time.\n\n• Supports long-term economy growth.\n\n• Helps build stronger defenses.</indent></align>" },
-            { "Lightning Lotus", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• <b>Ability:</b> Fires lightning that jumps between nearby zombies.\n\n• <b>Effect:</b> Damages multiple zombies with a single attack.\n\n• <b>Damage:</b> Highest on first target, reduced on chained targets.\n\n• <b>Purpose:</b> Strong against groups of zombies.</indent></align>" }
-        };
+var descMap = new System.Collections.Generic.Dictionary<string, string> {
+    { "Fire Bloom", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Ability: Fires flaming projectiles at zombies in its lane.\n\n• Placement: Best placed behind defensive plants.\n\n• Lifetime: Disappears after a short duration.</indent></align>" },
+
+    { "Frost Flower", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Ability: Freezes zombies entering its tile.\n\n• Placement: Place where zombies frequently pass.\n\n• Lifetime: Disappears after freezing a zombie.</indent></align>" },
+
+    { "Thorn Vine", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Ability: Continuously damages zombies walking over it.\n\n• Placement: Place directly in zombie paths.\n\n• Lifetime: Disappears after a short duration.</indent></align>" },
+
+    { "Bomb Cactus", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Ability: Explodes and damages nearby zombies.\n\n• Placement: Best used against grouped zombies.\n\n• Lifetime: Disappears after exploding.</indent></align>" },
+
+    { "Magic Blossom", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Ability: Launches powerful magical attacks.\n\n• Placement: Place safely behind other plants.\n\n• Lifetime: Permanent until destroyed.</indent></align>" },
+
+    { "Gun Guardian", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Ability: Fires rapid bullets at zombies.\n\n• Placement: Best placed in attack lanes.\n\n• Lifetime: Disappears after a short duration.</indent></align>" },
+
+    { "Guardian Oak", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Ability: Blocks zombies with very high health.\n\n• Placement: Place in front to protect other plants.\n\n• Lifetime: Permanent until destroyed.</indent></align>" },
+
+    { "Sunflower Tree", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Ability: Generates coins over time.\n\n• Placement: Place safely in the back rows.\n\n• Lifetime: Permanent until destroyed.</indent></align>" },
+
+    { "Lightning Lotus", "<align=center><b>Abilities:</b></align>\n\n<align=left><indent=60px>• Ability: Fires chain lightning at multiple zombies.\n\n• Placement: Best against crowded lanes.\n\n• Lifetime: Permanent until destroyed.</indent></align>" }
+};
 
         var unlockCostMap = new System.Collections.Generic.Dictionary<string, int> {
             { "Fire Bloom", 0 },
