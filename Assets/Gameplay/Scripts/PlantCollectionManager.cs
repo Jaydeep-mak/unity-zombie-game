@@ -67,28 +67,7 @@ public class PlantCollectionManager : MonoBehaviour {
     private TextMeshProUGUI popupUnlockText;
     private RectTransform popupCloseButtonRect;
 
-    private void Awake() {
-        if (AdMobManager.GetInstance() != null && !Utils.PreferenceHelper.IsAdRemoved()) {
-#if UNITY_EDITOR
-            BannerAdSize size = BannerAdSize.Banner;
-#else
-            BannerAdSize size = BannerAdSize.FullWidth;
-#endif
-            AdMobManager.GetInstance().RequestBanner(BannerAdPosition.Bottom, size, LocalAdStatusDelegate);
-        }
-    }
 
-    private void LocalAdStatusDelegate(AdStatusCode adStatusCode) {
-        if (adStatusCode == AdStatusCode.ADLoadSuccess && AdMobManager.GetInstance() != null && !Utils.PreferenceHelper.IsAdRemoved()) {
-            AdMobManager.GetInstance().ShowBanner();
-        }
-    }
-
-    private void OnDisable() {
-        if (AdMobManager.GetInstance() != null) {
-            AdMobManager.GetInstance().HideBanner();
-        }
-    }
 
     private void Start() {
         // Initialize lock states from progression

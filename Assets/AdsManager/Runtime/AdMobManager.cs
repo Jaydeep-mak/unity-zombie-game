@@ -6,6 +6,7 @@ using GoogleMobileAds.Common;
 using GoogleMobileAds.Ump.Api;
 using AdsManager.ScriptableObjects;
 using AdsManager.Utils;
+using UnityEngine.SceneManagement;
 
 namespace AdsManager
 {
@@ -144,6 +145,7 @@ namespace AdsManager
             {
                 _instance = this;
                 DontDestroyOnLoad(gameObject);
+                SceneManager.sceneLoaded += OnSceneLoaded;
             }
             else
             {
@@ -154,6 +156,48 @@ namespace AdsManager
         private void OnDestroy()
         {
             AppStateEventNotifier.AppStateChanged -= OnAppStateChanged;
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            if (scene.name != "GardenGuardians_MainMenu")
+            {
+                DestroyBanner();
+            }
+        }
+
+        private bool CanShowBannerInCurrentScene()
+        {
+            if (SceneManager.GetActiveScene().name != "GardenGuardians_MainMenu")
+            {
+                return false;
+            }
+
+            // Check if settings popup is open via reflection to avoid compile dependency on Assembly-CSharp
+            System.Type settingViewType = System.Type.GetType("SettingView, Assembly-CSharp");
+            if (settingViewType != null)
+            {
+                var getInstanceMethod = settingViewType.GetMethod("GetInstance", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+                if (getInstanceMethod != null)
+                {
+                    var instance = getInstanceMethod.Invoke(null, null);
+                    if (instance != null)
+                    {
+                        var canvasField = settingViewType.GetField("canvasGameObject", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                        if (canvasField != null)
+                        {
+                            var canvasGo = canvasField.GetValue(instance) as GameObject;
+                            if (canvasGo != null && canvasGo.activeSelf)
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return true;
         }
 
         public void Start()
@@ -743,6 +787,12 @@ namespace AdsManager
         /// </summary>
         public void ShowBanner()
         {
+            if (!CanShowBannerInCurrentScene())
+            {
+                AdsDebug.Log(TAG, "ShowBanner blocked: invalid scene or settings popup is active");
+                return;
+            }
+
             if (!IsAdRemoved())
             {
                 if (_bannerView != null)

@@ -78,6 +78,9 @@ public class MainMenuManager : MonoBehaviour {
         if (MenuView.GetInstance() != null) {
             MenuView.GetInstance().Hide();
         }
+        if (AdsManager.AdMobManager.GetInstance() != null) {
+            AdsManager.AdMobManager.GetInstance().HideBanner();
+        }
         if (SettingView.GetInstance() != null) {
             SettingView.GetInstance().Show();
         }
