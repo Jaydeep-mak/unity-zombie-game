@@ -42,7 +42,7 @@ public class PlantCollectionManager : MonoBehaviour {
         new PlantCollectionItem { name = "Frost Flower", displayName = "Frost Flower", isLocked = false },
         new PlantCollectionItem { name = "Thorn Vine", displayName = "Thorn Vine", isLocked = false },
         new PlantCollectionItem { name = "Bomb Cactus", displayName = "Bomb Cactus", isLocked = false },
-        new PlantCollectionItem { name = "Guardian Oak", displayName = "Guardian Oak", isLocked = true },
+        new PlantCollectionItem { name = "Guardian Oak", displayName = "Guardian Oak", isLocked = false },
         new PlantCollectionItem { name = "Lightning Lotus", displayName = "Lightning Lotus", isLocked = true },
         new PlantCollectionItem { name = "Sunflower Tree", displayName = "Sunflower Tree", isLocked = true },
         new PlantCollectionItem { name = "Gun Guardian", displayName = "Gun Guardian", isLocked = true },
@@ -639,7 +639,7 @@ public class PlantCollectionManager : MonoBehaviour {
         if (GlobalProgressionManager.Instance != null) {
             return GlobalProgressionManager.Instance.IsPlantLocked(plantName);
         }
-        if (plantName == "Fire Bloom" || plantName == "Frost Flower" || plantName == "Thorn Vine" || plantName == "Bomb Cactus") {
+        if (plantName == "Fire Bloom" || plantName == "Frost Flower" || plantName == "Thorn Vine" || plantName == "Bomb Cactus" || plantName == "Guardian Oak") {
             return false;
         }
         return PlayerPrefs.GetInt("PlantUnlocked_" + plantName, 0) == 0;

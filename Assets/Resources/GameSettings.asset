@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GameSettings
   m_EditorClassIdentifier: 
   projectEnvironment: 0
-  debugGameName: Garden Guardians Dev
+  debugGameName: Garden Guardians
   releaseGameName: Garden Guardians
   popupTitle: 
   adData: {fileID: 11400000, guid: f1b705db686faf943b6b6feaf62bc155, type: 2}

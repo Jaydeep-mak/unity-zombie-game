@@ -59,7 +59,7 @@ public class PlantPlacementManager : MonoBehaviour {
             if (GlobalProgressionManager.Instance != null) {
                 return GlobalProgressionManager.Instance.IsPlantLocked(cleanName);
             }
-            return cleanName != "Fire Bloom" && cleanName != "Frost Flower" && cleanName != "Thorn Vine" && cleanName != "Bomb Cactus" && PlayerPrefs.GetInt("PlantUnlocked_" + cleanName, 0) == 0;
+            return cleanName != "Fire Bloom" && cleanName != "Frost Flower" && cleanName != "Thorn Vine" && cleanName != "Bomb Cactus" && cleanName != "Guardian Oak" && PlayerPrefs.GetInt("PlantUnlocked_" + cleanName, 0) == 0;
         }
         return true;
     }

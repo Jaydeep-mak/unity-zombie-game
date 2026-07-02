@@ -35,7 +35,7 @@ public class GlobalProgressionManager : MonoBehaviour {
 
     public bool IsPlantLocked(string plantName) {
         if (string.IsNullOrEmpty(plantName)) return false;
-        if (plantName == "Fire Bloom" || plantName == "Frost Flower" || plantName == "Thorn Vine" || plantName == "Bomb Cactus") {
+        if (plantName == "Fire Bloom" || plantName == "Frost Flower" || plantName == "Thorn Vine" || plantName == "Bomb Cactus" || plantName == "Guardian Oak") {
             return false;
         }
         return PlayerPrefs.GetInt("PlantUnlocked_" + plantName, 0) == 0;
@@ -52,7 +52,7 @@ public class GlobalProgressionManager : MonoBehaviour {
     }
 
     public int GetCoins() {
-        return PlayerPrefs.GetInt(saveKey, 0);
+        return PlayerPrefs.GetInt(saveKey, 50000);
     }
 
     public void AddCoins(int amount) {
@@ -98,4 +98,14 @@ public class GlobalProgressionManager : MonoBehaviour {
             OnCoinsChanged.Invoke(GetCoins());
         }
     }
+
+#if UNITY_EDITOR
+    [ContextMenu("Reset Progression (Clear PlayerPrefs)")]
+    public void ResetProgression() {
+        PlayerPrefs.DeleteAll();
+        PlayerPrefs.Save();
+        Debug.Log("PlayerPrefs cleared! All progression has been reset.");
+        TriggerCoinsChanged();
+    }
+#endif
 }
