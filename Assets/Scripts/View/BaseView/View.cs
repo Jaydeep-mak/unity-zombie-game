@@ -45,7 +45,11 @@ public class View : MonoBehaviour
 
         OnViewShow();
 
-        BackKeyHandler.GetInstance().PushView(this);
+        var backKeyHandler = BackKeyHandler.GetInstance();
+        if (backKeyHandler != null)
+        {
+            backKeyHandler.PushView(this);
+        }
 
     }
 
@@ -57,7 +61,11 @@ public class View : MonoBehaviour
     {
         if (isViewVisible)
         {
-            BackKeyHandler.GetInstance().PopView();
+            var backKeyHandler = BackKeyHandler.GetInstance();
+            if (backKeyHandler != null)
+            {
+                backKeyHandler.PopView();
+            }
         }
     }
 

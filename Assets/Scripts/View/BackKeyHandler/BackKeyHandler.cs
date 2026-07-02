@@ -5,16 +5,19 @@ using UnityEngine;
 public class BackKeyHandler : MonoBehaviour
 {
     private static BackKeyHandler _instance;
-    private Stack<View> _viewStack;
+    private Stack<View> _viewStack = new Stack<View>();
 
     private void Awake()
     {
         _instance = this;
-        _viewStack = new Stack<View>();
     }
 
     public static BackKeyHandler GetInstance()
     {
+        if (_instance == null)
+        {
+            _instance = FindFirstObjectByType<BackKeyHandler>(FindObjectsInactive.Include);
+        }
         return _instance;
     }
 
