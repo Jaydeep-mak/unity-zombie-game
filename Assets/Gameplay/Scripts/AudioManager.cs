@@ -66,6 +66,17 @@ public class AudioManager : MonoBehaviour {
         set => masterSFXVolume = Mathf.Clamp01(value);
     }
 
+    [Range(0f, 1f)] [SerializeField] private float musicVolume = 0.5f;
+    public float MusicVolume {
+        get => musicVolume;
+        set {
+            musicVolume = Mathf.Clamp01(value);
+            if (musicAudioSource != null) {
+                musicAudioSource.volume = musicVolume;
+            }
+        }
+    }
+
     private bool isMuted = false;
     public bool IsMuted {
         get => isMuted;
@@ -125,6 +136,11 @@ public class AudioManager : MonoBehaviour {
     [SerializeField] private AudioClip uiPurchaseSuccess;
     [SerializeField] private AudioClip uiPurchaseFailed;
 
+    [Header("Background Music")]
+    [SerializeField] private AudioSource musicAudioSource;
+    [SerializeField] private AudioClip mainMenuMusic;
+    [SerializeField] private AudioClip gameplayMusic;
+
     private List<AudioSource> audioSourcePool = new List<AudioSource>();
     private const int MAX_SOURCES = 16;
 
@@ -143,6 +159,12 @@ public class AudioManager : MonoBehaviour {
             isMuted = PlayerPrefs.GetInt("SFX_Muted", 0) == 1;
             AudioListener.volume = isMuted ? 0f : 1f; // Initialize AudioListener volume
 
+            if (musicAudioSource == null) {
+                musicAudioSource = gameObject.AddComponent<AudioSource>();
+                musicAudioSource.loop = true;
+                musicAudioSource.playOnAwake = false;
+            }
+
             // Load common UI click sound from Resources
             uiClickSoundClip = Resources.Load<AudioClip>("ui_click_sound");
         } else if (instance != this) {
@@ -154,6 +176,9 @@ public class AudioManager : MonoBehaviour {
         AudioClip clip = GetAudioClip(type);
         if (clip == null) {
             clip = GetPlaceholderClip(type);
+        }
+        if (type == SFXType.GameOver) {
+            StopMusic();
         }
         if (clip != null) {
             PlaySFXInternal(clip, volumeScale, type);
@@ -592,5 +617,147 @@ public class AudioManager : MonoBehaviour {
         AudioClip clip = AudioClip.Create("Procedural_" + type.ToString(), samples.Length, 1, sampleRate, false);
         clip.SetData(samples, 0);
         return clip;
+    }
+
+    private void OnEnable() {
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable() {
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void Start() {
+        HandleSceneMusic(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+    }
+
+    private void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode) {
+        HandleSceneMusic(scene.name);
+    }
+
+    private void HandleSceneMusic(string sceneName) {
+        if (sceneName == "GardenGuardians_MainMenu" || sceneName == "PlantCollectionScene") {
+            AudioClip clip = mainMenuMusic != null ? mainMenuMusic : GetPlaceholderMusic("menu");
+            PlayMusic(clip);
+        } else if (sceneName == "demo") {
+            AudioClip clip = gameplayMusic != null ? gameplayMusic : GetPlaceholderMusic("battle");
+            PlayMusic(clip);
+        } else {
+            StopMusic();
+        }
+    }
+
+    private AudioClip GetPlaceholderMusic(string type) {
+        if (type == "menu" && proceduralMenuMusic != null) return proceduralMenuMusic;
+        if (type == "battle" && proceduralBattleMusic != null) return proceduralBattleMusic;
+
+        AudioClip clip = GenerateProceduralMusic(type);
+        if (type == "menu") proceduralMenuMusic = clip;
+        else proceduralBattleMusic = clip;
+
+        return clip;
+    }
+
+    private AudioClip proceduralMenuMusic;
+    private AudioClip proceduralBattleMusic;
+
+    private AudioClip GenerateProceduralMusic(string type) {
+        int sampleRate = 22050;
+        float noteDuration = 0.25f;
+        int numNotes = 32;
+        float duration = noteDuration * numNotes;
+        float[] samples = new float[Mathf.RoundToInt(sampleRate * duration)];
+
+        float[] menuScale = { 220.00f, 246.94f, 261.63f, 293.66f, 329.63f, 392.00f, 440.00f };
+        float[] battleScale = { 110.00f, 130.81f, 146.83f, 164.81f, 196.00f, 220.00f };
+
+        int[] menuSequence = { 0, 2, 4, 3, 2, 4, 6, 5, 4, 2, 0, 1, 2, 3, 2, 0 };
+        int[] battleSequence = { 0, 0, 3, 0, 5, 0, 4, 3, 0, 0, 3, 0, 5, 0, 4, 5 };
+
+        float[] scale = type == "menu" ? menuScale : battleScale;
+        int[] sequence = type == "menu" ? menuSequence : battleSequence;
+
+        for (int i = 0; i < samples.Length; i++) {
+            float t = (float)i / sampleRate;
+            int noteIndex = Mathf.FloorToInt(t / noteDuration) % sequence.Length;
+            float freq = scale[sequence[noteIndex] % scale.Length];
+            
+            float noteTime = t % noteDuration;
+            float envelope = Mathf.Exp(-4f * (noteTime / noteDuration));
+
+            float wave = 0f;
+            if (type == "menu") {
+                wave = Mathf.Sin(2f * Mathf.PI * freq * t) * 0.7f + Mathf.Sin(2f * Mathf.PI * freq * 2f * t) * 0.3f;
+            } else {
+                float phase = (t * freq) % 1f;
+                wave = 2f * phase - 1f;
+                wave = wave * 0.6f + Mathf.Sin(2f * Mathf.PI * (freq * 0.5f) * t) * 0.4f;
+            }
+
+            samples[i] = wave * envelope * 0.15f;
+        }
+
+        AudioClip clip = AudioClip.Create("ProceduralBGM_" + type, samples.Length, 1, sampleRate, false);
+        clip.SetData(samples, 0);
+        return clip;
+    }
+
+    private bool isMusicPausedInternal = false;
+
+    public void PauseMusic() {
+        if (musicAudioSource != null && musicAudioSource.isPlaying) {
+            musicAudioSource.Pause();
+            isMusicPausedInternal = true;
+        }
+    }
+
+    public void ResumeMusic() {
+        if (musicAudioSource != null && !musicAudioSource.isPlaying && isMusicPausedInternal) {
+            if (!isMuted) {
+                musicAudioSource.UnPause();
+            }
+            isMusicPausedInternal = false;
+        }
+    }
+
+    private void OnApplicationFocus(bool hasFocus) {
+        if (!hasFocus) {
+            PauseMusic();
+        } else {
+            ResumeMusic();
+        }
+    }
+
+    private void OnApplicationPause(bool isPaused) {
+        if (isPaused) {
+            PauseMusic();
+        } else {
+            ResumeMusic();
+        }
+    }
+
+    public void PlayMusic(AudioClip clip) {
+        if (clip == null) return;
+        if (musicAudioSource == null) {
+            musicAudioSource = gameObject.AddComponent<AudioSource>();
+            musicAudioSource.loop = true;
+            musicAudioSource.playOnAwake = false;
+        }
+
+        if (musicAudioSource.clip == clip && musicAudioSource.isPlaying) {
+            return;
+        }
+
+        musicAudioSource.clip = clip;
+        musicAudioSource.volume = musicVolume;
+        musicAudioSource.Play();
+        isMusicPausedInternal = false;
+    }
+
+    public void StopMusic() {
+        if (musicAudioSource != null) {
+            musicAudioSource.Stop();
+        }
+        isMusicPausedInternal = false;
     }
 }

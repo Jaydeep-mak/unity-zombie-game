@@ -569,6 +569,7 @@ namespace AdsManager
             {
                 AdsDebug.Log("HandleAppOpenAdCallback called.");
                 // Raised when an ad opened full screen content.
+                ad.OnAdFullScreenContentOpened += OnAppOpenAdOpened;
 
                 // Raised when the ad closed full screen content.
                 ad.OnAdFullScreenContentClosed += OnAppOpenAdClosed;
@@ -681,9 +682,18 @@ namespace AdsManager
             _forceDontShowOpenAd = !show;
         }
 
+        private void OnAppOpenAdOpened()
+        {
+            MobileAdsEventExecutor.ExecuteInUpdate(() =>
+            {
+                InvokeAudioAction("PauseMusic");
+            });
+        }
+
         private void OnAppOpenAdClosed()
         {
             AdsDebug.Log("App open ad full screen content closed.");
+            InvokeAudioAction("ResumeMusic");
 
             // Reload the ad so that we can show another as soon as possible.
             MobileAdsEventExecutor.ExecuteInUpdate(() =>
@@ -706,6 +716,7 @@ namespace AdsManager
         private void OnAppOpenAddFailed(AdError error)
         {
             // Reload the ad so that we can show another as soon as possible.
+            InvokeAudioAction("ResumeMusic");
 
             MobileAdsEventExecutor.ExecuteInUpdate(() =>
             {
@@ -729,6 +740,7 @@ namespace AdsManager
         {
             if (_appOpenAd != null)
             {
+                _appOpenAd.OnAdFullScreenContentOpened -= OnAppOpenAdOpened;
                 _appOpenAd.OnAdFullScreenContentClosed -= OnAppOpenAdClosed;
                 _appOpenAd.OnAdFullScreenContentFailed -= OnAppOpenAddFailed;
                 _appOpenAd.Destroy();
@@ -1169,6 +1181,7 @@ namespace AdsManager
             {
                 AdsDebug.Log(TAG, "Interstitial OnAdOpened");
                 _canShowOpenAd = false;
+                InvokeAudioAction("PauseMusic");
             });
         }
 
@@ -1179,6 +1192,7 @@ namespace AdsManager
                 try
                 {
                     AdsDebug.Log(TAG, "Interstitial AdClosed");
+                    InvokeAudioAction("ResumeMusic");
                     RequestInterstitial();
                     _canShowOpenAd = true;
                 }
@@ -1195,6 +1209,7 @@ namespace AdsManager
             MobileAdsEventExecutor.ExecuteInUpdate(() =>
             {
                 _canShowOpenAd = true;
+                InvokeAudioAction("ResumeMusic");
                 AdsDebug.Error("HandleOnAdFullScreenContentFailed", error.GetMessage());
             });
         }
@@ -1592,5 +1607,33 @@ namespace AdsManager
         }
 
         #endregion
+
+        private void InvokeAudioAction(string action)
+        {
+            try
+            {
+                System.Type audioManagerType = System.Type.GetType("AudioManager, Assembly-CSharp");
+                if (audioManagerType != null)
+                {
+                    var instanceProp = audioManagerType.GetProperty("Instance", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+                    if (instanceProp != null)
+                    {
+                        var instance = instanceProp.GetValue(null);
+                        if (instance != null)
+                        {
+                            var method = audioManagerType.GetMethod(action, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                            if (method != null)
+                            {
+                                method.Invoke(instance, null);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                AdsDebug.LogError("InvokeAudioAction failed: " + e.Message);
+            }
+        }
     }
 }
