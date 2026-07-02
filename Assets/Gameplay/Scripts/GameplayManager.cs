@@ -12,7 +12,7 @@ public class GameplayManager : MonoBehaviour {
     private int currentBaseHealth;
 
     [Header("HUD Settings")]
-    [SerializeField] private int coins = 1000;
+    [SerializeField] private int coins = 2000;
     public int Coins => coins;
 
     public bool UseCoins(int amount) {

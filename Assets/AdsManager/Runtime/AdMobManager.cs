@@ -1060,7 +1060,12 @@ namespace AdsManager
                 case BannerAdSize.Leaderboard:
                     return AdSize.Leaderboard;
                 case BannerAdSize.FullWidth:
-                    return AdSize.GetCurrentOrientationAnchoredAdaptiveBannerAdSizeWithWidth(AdSize.FullWidth);
+                    {
+                        float dpi = Screen.dpi;
+                        if (dpi <= 0) dpi = 160f;
+                        int widthInDp = Mathf.RoundToInt(Screen.width / dpi * 160f);
+                        return AdSize.GetCurrentOrientationAnchoredAdaptiveBannerAdSizeWithWidth(widthInDp);
+                    }
                 case BannerAdSize.Custom:
                     return new AdSize(customWidth, customHeight);
                 default:
