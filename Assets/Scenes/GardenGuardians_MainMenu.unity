@@ -545,7 +545,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_RaycastPadding: {x: 70, y: 50, z: 70, w: 50}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -1845,7 +1845,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 10, y: -252}
+  m_AnchoredPosition: {x: 4.2131, y: -212.9}
   m_SizeDelta: {x: 632.3558, y: 295.7888}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1198275210
@@ -1907,7 +1907,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_RaycastPadding: {x: 70, y: 50, z: 70, w: 50}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -3014,8 +3014,8 @@ RectTransform:
   m_Children:
   - {fileID: 670304890}
   - {fileID: 1060919026}
-  - {fileID: 115672313}
   - {fileID: 1119409743}
+  - {fileID: 115672313}
   - {fileID: 1198275209}
   - {fileID: 78032421}
   - {fileID: 1924902497}
